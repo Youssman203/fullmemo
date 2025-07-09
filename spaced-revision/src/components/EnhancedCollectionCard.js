@@ -1,10 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Dropdown, Badge, ProgressBar } from 'react-bootstrap';
-import { FiLayers, FiClock, FiMoreVertical, FiEdit2, FiTrash2, FiPlay } from 'react-icons/fi';
+import { Dropdown, Badge, ProgressBar, Card } from 'react-bootstrap';
+import { FiLayers, FiClock, FiMoreVertical, FiEdit2, FiTrash2, FiPlay, FiBook, FiPackage } from 'react-icons/fi';
 
 const EnhancedCollectionCard = ({ collection, onRename, onDelete, viewMode = 'grid' }) => {
-  // Calculate a random progress for demo purposes
+  // Get or generate card count
+  const cardCount = collection.cardCount || 0;
+  
+  // Calculate progress for the collection
   const progress = collection.progress || Math.floor(Math.random() * 100);
   
   // Générer une date d'étude aléatoire si non fournie, ou convertir la date existante en objet Date
@@ -25,6 +28,36 @@ const EnhancedCollectionCard = ({ collection, onRename, onDelete, viewMode = 'gr
     console.warn('Date invalide dans la collection, utilisation d\'une date par défaut', error);
     lastStudied = new Date(Date.now() - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000));
   }
+  
+  // Générer une couleur de fond cohérente basée sur le nom de la collection
+  const getCollectionColor = (collectionName) => {
+    // Liste de couleurs inspirées de YouTube
+    const colors = [
+      '#FF0000', // Rouge YouTube
+      '#065FD4', // Bleu YouTube
+      '#FF6C00', // Orange YouTube
+      '#1ED760', // Vert (Spotify)
+      '#8F00FF', // Violet
+      '#00A4EF', // Bleu ciel
+      '#FF8D85', // Rose corail
+      '#FF4500', // Orange-rouge (Reddit)
+      '#0099E5', // Bleu cyan
+      '#6441A4'  // Violet (Twitch)
+    ];
+    
+    // Générer un index basé sur le nom de la collection pour avoir une couleur cohérente
+    let hash = 0;
+    for (let i = 0; i < collectionName.length; i++) {
+      hash = collectionName.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    // Convertir en index dans le tableau de couleurs
+    const index = Math.abs(hash) % colors.length;
+    return colors[index];
+  };
+  
+  // Obtenir une couleur pour cette collection
+  const collectionColor = collection.color || getCollectionColor(collection.name);
   
   // Format the date
   const formatDate = (date) => {
@@ -61,30 +94,40 @@ const EnhancedCollectionCard = ({ collection, onRename, onDelete, viewMode = 'gr
     }
   };
   
-  // Default image if none provided
-  const imageUrl = collection.imageUrl || 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1373&q=80';
-  
   return (
-    <div className={`collection-card ${viewMode === 'list' ? 'list-mode' : ''}`}>
+    <Card className={`modern-collection-card ${viewMode === 'list' ? 'list-mode' : ''}`}>
+      {/* En-tête colorée inspirée de YouTube */}
       <div 
-        className="collection-card-image"
-        style={{ backgroundImage: `url(${imageUrl})` }}
+        className="modern-collection-header"
+        style={{ 
+          backgroundColor: collectionColor,
+          color: '#ffffff'
+        }}
       >
-        <div className="collection-card-overlay">
-          <h5 className="collection-card-overlay-title">{collection.name}</h5>
+        {/* Icône de la collection */}
+        <div className="collection-icon">
+          <FiBook size={viewMode === 'list' ? 24 : 36} />
         </div>
         
-        {collection.cardCount > 0 && (
-          <Badge className="collection-card-badge">
-            {collection.cardCount} {collection.cardCount === 1 ? 'carte' : 'cartes'}
-          </Badge>
-        )}
+        {/* Titre de la collection */}
+        <h5 className="collection-title">{collection.name}</h5>
         
-        <Dropdown className="collection-card-actions">
-          <Dropdown.Toggle variant="light" size="sm" className="rounded-circle p-1" id={`dropdown-${collection.id}`}>
+        {/* Badge du nombre de cartes */}
+        <Badge 
+          bg="light" 
+          text="dark" 
+          className="collection-card-count"
+          pill
+        >
+          {cardCount} {cardCount === 1 ? 'carte' : 'cartes'}
+        </Badge>
+        
+        {/* Menu d'actions */}
+        <Dropdown className="collection-actions">
+          <Dropdown.Toggle variant="light" size="sm" className="rounded-circle shadow-sm" id={`dropdown-${collection.id}`}>
             <FiMoreVertical />
           </Dropdown.Toggle>
-          <Dropdown.Menu>
+          <Dropdown.Menu align="end">
             <Dropdown.Item as={Link} to={`/collections/${collection.id}`}>
               <FiPlay className="me-2" /> Étudier
             </Dropdown.Item>
@@ -99,41 +142,43 @@ const EnhancedCollectionCard = ({ collection, onRename, onDelete, viewMode = 'gr
         </Dropdown>
       </div>
       
-      <div className="collection-card-body">
-        <h5 className="collection-card-title">{collection.name}</h5>
-        <p className="collection-card-description">
+      {/* Corps de la carte */}
+      <Card.Body className="modern-collection-body">
+        {/* Description */}
+        <p className="collection-description">
           {collection.description || 'Aucune description disponible.'}
         </p>
         
+        {/* Barre de progression */}
         {progress > 0 && (
-          <>
+          <div className="progress-section">
             <div className="d-flex justify-content-between align-items-center mb-1">
               <small>Progression</small>
-              <small>{progress}%</small>
+              <small><strong>{progress}%</strong></small>
             </div>
-            <div className="collection-card-progress">
-              <div 
-                className="collection-card-progress-bar" 
-                style={{ width: `${progress}%` }}
-              ></div>
-            </div>
-          </>
+            <ProgressBar 
+              now={progress} 
+              variant="success" 
+              className="collection-progress" 
+              style={{ height: '6px' }}
+            />
+          </div>
         )}
         
-        <div className="collection-card-meta">
-          <div className="collection-card-stats">
-            <div className="collection-card-stat">
-              <FiLayers className="collection-card-stat-icon" />
-              <span>{collection.cardCount || 0}</span>
-            </div>
-            <div className="collection-card-stat">
-              <FiClock className="collection-card-stat-icon" />
-              <span>{formatDate(lastStudied)}</span>
-            </div>
+        {/* Statistiques */}
+        <div className="collection-stats">
+          <div className="stat-item">
+            <FiLayers className="stat-icon" style={{ color: collectionColor }} />
+            <span className="stat-value">{cardCount}</span>
+            <span className="stat-label">cartes</span>
+          </div>
+          <div className="stat-item">
+            <FiClock className="stat-icon" style={{ color: collectionColor }} />
+            <span className="stat-value">{formatDate(lastStudied)}</span>
           </div>
         </div>
-      </div>
-    </div>
+      </Card.Body>
+    </Card>
   );
 };
 

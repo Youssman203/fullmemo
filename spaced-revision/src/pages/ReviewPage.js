@@ -202,7 +202,16 @@ const ReviewPage = () => {
     updateStats(isCorrect);
     
     // Update spaced repetition algorithm
-    updateCardReview(currentCard.id, isCorrect ? 1 : 0);
+    const reviewData = {
+      performance: convertPerformanceValue(isCorrect ? 2 : 0), // Bonne réponse = good (2), mauvaise = again (0)
+      timeSpent: 0
+    };
+    
+    try {
+      updateCardReview(currentCard.id || currentCard._id, reviewData);
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de la révision (mode quiz):', error);
+    }
   };
 
   // Check test answer
@@ -217,7 +226,16 @@ const ReviewPage = () => {
     updateStats(isCorrect);
     
     // Update spaced repetition algorithm
-    updateCardReview(currentCard.id, isCorrect ? 1 : 0);
+    const reviewData = {
+      performance: convertPerformanceValue(isCorrect ? 2 : 0), // Bonne réponse = good (2), mauvaise = again (0)
+      timeSpent: 0
+    };
+    
+    try {
+      updateCardReview(currentCard.id || currentCard._id, reviewData);
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de la révision (mode test):', error);
+    }
   };
 
   // Update stats based on answer correctness

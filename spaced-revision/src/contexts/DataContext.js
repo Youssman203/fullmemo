@@ -51,6 +51,31 @@ export const DataProvider = ({ children }) => {
         
         console.log("Toutes les cartes récupérées:", userCards);
         
+        // Calculer le nombre de cartes par collection
+        const collectionsWithCardCount = userCollections.map(collection => {
+          const collectionId = collection._id || collection.id;
+          // Compter le nombre de cartes pour cette collection
+          const count = userCards.filter(card => {
+            // Vérifier tous les formats possibles de référence à la collection
+            const cardCollectionId = 
+              (card.collectionId ? card.collectionId : 
+               (card.collection ? 
+                 (typeof card.collection === 'string' ? card.collection : 
+                  (card.collection._id || card.collection.id)) 
+               : null));
+            
+            // Comparer les IDs après conversion en chaîne
+            return cardCollectionId && String(cardCollectionId) === String(collectionId);
+          }).length;
+          
+          console.log(`Collection ${collection.name} (ID: ${collectionId}) a ${count} cartes`);
+          
+          // Mettre à jour la propriété cardCount
+          return { ...collection, cardCount: count };
+        });
+        
+        console.log("Collections avec comptage de cartes:", collectionsWithCardCount);
+        setCollections(collectionsWithCardCount);
         setCards(userCards);
         
       } catch (error) {

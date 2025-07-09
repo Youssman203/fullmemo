@@ -7,6 +7,7 @@ import AddCollectionCard from '../components/AddCollectionCard';
 import EmptyCollectionsState from '../components/EmptyCollectionsState';
 import '../assets/collections.css';
 import '../assets/collections-fix.css'; // Correctifs pour l'affichage des grilles
+import '../assets/modern-collections.css'; // Nouveau style inspiré de YouTube
 
 const Collections = () => {
   const { collections, createCollection, updateCollection, deleteCollection } = useData();
@@ -17,7 +18,7 @@ const Collections = () => {
   const [newCollectionDescription, setNewCollectionDescription] = useState('');
   const [selectedCollection, setSelectedCollection] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+  const [viewMode, setViewMode] = useState('list'); // Toujours en mode liste
   const [sortBy, setSortBy] = useState('recent'); // 'recent', 'name', 'cards'
   const [filteredCollections, setFilteredCollections] = useState([]);
   const [darkMode, setDarkMode] = useState(false);
@@ -152,53 +153,10 @@ const Collections = () => {
               </Dropdown.Menu>
             </Dropdown>
             
-            <div className="collections-view-toggle">
-              <Button 
-                variant="light"
-                className={`collections-view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
-                onClick={() => setViewMode('grid')}
-              >
-                <FiGrid />
-              </Button>
-              <Button 
-                variant="light"
-                className={`collections-view-toggle-btn ${viewMode === 'list' ? 'active' : ''}`}
-                onClick={() => setViewMode('list')}
-              >
-                <FiList />
-              </Button>
-            </div>
+            {/* Mode liste uniquement - boutons de changement de vue retirés */}
           </div>
 
-          {viewMode === 'grid' ? (
-            <div className="collections-grid">
-              <Row>
-                <Col xs={12} sm={6} md={4} xl={3} className="mb-4 collection-card-container">
-                  <AddCollectionCard onClick={() => setShowAddModal(true)} />
-                </Col>
-                
-                {filteredCollections.length > 0 ? (
-                  filteredCollections.map(collection => (
-                    <Col key={collection.id || collection._id} xs={12} sm={6} md={4} xl={3} className="mb-4 collection-card-container">
-                      <EnhancedCollectionCard 
-                        collection={collection} 
-                        onRename={() => openRenameModal(collection)}
-                        onDelete={() => openDeleteModal(collection)}
-                        viewMode={viewMode}
-                      />
-                    </Col>
-                  ))
-                ) : (
-                  <Col xs={12} className="text-center py-5">
-                    <h3>Aucune collection trouvée</h3>
-                    <p className="text-muted">
-                      Essayez de modifier vos critères de recherche.
-                    </p>
-                  </Col>
-                )}
-              </Row>
-            </div>
-          ) : (
+          {/* Affichage uniquement en mode liste */}
             <div className="collections-list-view">
               <div className="add-collection-list-item" onClick={() => setShowAddModal(true)}>
                 <div className="add-collection-list-icon">
@@ -230,7 +188,6 @@ const Collections = () => {
                 </div>
               )}
             </div>
-          )}
         </>
       ) : (
         <EmptyCollectionsState onAddCollection={() => setShowAddModal(true)} />
