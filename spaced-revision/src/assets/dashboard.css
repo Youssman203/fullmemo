@@ -1,0 +1,130 @@
+/* src/assets/dashboard.css */
+
+.dashboard-container {
+  padding: 1.5rem;
+}
+
+.dashboard-header {
+  margin-bottom: 2rem;
+}
+
+.dashboard-title {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.dashboard-subtitle {
+  color: var(--text-light);
+}
+
+.stats-card {
+  height: 100%;
+  transition: transform 0.2s;
+}
+
+.stats-card:hover {
+  transform: translateY(-5px);
+}
+
+.progress-sm {
+  height: 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.progress-bar-vertical {
+  width: 30px;
+  min-height: 100px;
+  display: flex;
+  align-items: flex-end;
+  margin-right: 0.25rem;
+  margin-left: 0.25rem;
+  border-radius: 4px;
+}
+
+.progress-bar-vertical .progress-bar {
+  width: 100%;
+  height: 0;
+  transition: height 0.6s ease;
+  border-radius: 0 0 4px 4px;
+}
+
+.weekly-progress {
+  height: 150px;
+  align-items: flex-end;
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+  .weekly-progress {
+    height: 120px;
+  }
+  
+  .progress-bar-vertical {
+    width: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 1rem;
+  }
+  
+  .dashboard-title {
+    font-size: 1.8rem;
+  }
+  
+  .stats-overview .row {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+  }
+  
+  .stats-overview .col, 
+  .stats-overview [class*="col-"] {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .weekly-progress {
+    height: 100px;
+  }
+  
+  .progress-bar-vertical {
+    width: 20px;
+  }
+}
+
+@media (max-width: 576px) {
+  .dashboard-title {
+    font-size: 1.6rem;
+  }
+  
+  .dashboard-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .weekly-progress {
+    height: 80px;
+  }
+  
+  .progress-bar-vertical {
+    width: 16px;
+    min-height: 80px;
+  }
+}
+
+/* Pour les écrans très petits */
+@media (max-width: 400px) {
+  .stats-card .card-body {
+    padding: 0.75rem;
+  }
+  
+  .weekly-progress {
+    height: 60px;
+  }
+  
+  .progress-bar-vertical {
+    width: 12px;
+    min-height: 60px;
+  }
+}

@@ -1,0 +1,169 @@
+/* Plan Page Styles */
+.plan-container {
+  padding: 2rem;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.plan-header {
+  margin-bottom: 2rem;
+}
+
+.plan-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.plan-subtitle {
+  font-size: 1.2rem;
+  color: var(--text-light);
+  margin-bottom: 1.5rem;
+}
+
+.plan-card {
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  background-color: var(--background-card);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.plan-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+.plan-card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text-main);
+}
+
+.plan-card-content {
+  color: var(--text-main);
+}
+
+.plan-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.plan-empty-icon {
+  font-size: 3rem;
+  color: var(--text-light);
+  margin-bottom: 1rem;
+}
+
+.plan-empty-text {
+  font-size: 1.2rem;
+  color: var(--text-light);
+  margin-bottom: 1.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .plan-container {
+    padding: 1.75rem;
+  }
+  
+  .plan-title {
+    font-size: 2.25rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .plan-container {
+    padding: 1.5rem;
+  }
+  
+  .plan-title {
+    font-size: 2rem;
+  }
+  
+  .plan-subtitle {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .plan-container {
+    padding: 1.25rem;
+  }
+  
+  .plan-header {
+    margin-bottom: 1.5rem;
+  }
+  
+  .plan-title {
+    font-size: 1.8rem;
+  }
+  
+  .plan-subtitle {
+    font-size: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  .plan-card {
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  .plan-card-title {
+    font-size: 1.15rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .plan-empty-icon {
+    font-size: 2.5rem;
+  }
+  
+  .plan-empty-text {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .plan-container {
+    padding: 1rem;
+  }
+  
+  .plan-header {
+    margin-bottom: 1.25rem;
+  }
+  
+  .plan-title {
+    font-size: 1.6rem;
+  }
+  
+  .plan-subtitle {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+  
+  .plan-card {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+  }
+  
+  .plan-card-title {
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .plan-empty-icon {
+    font-size: 2rem;
+  }
+  
+  .plan-empty-text {
+    font-size: 1rem;
+  }
+}

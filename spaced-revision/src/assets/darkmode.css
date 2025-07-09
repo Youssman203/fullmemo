@@ -1,0 +1,202 @@
+/* Dark Mode Styles */
+:root {
+  /* Light Mode Variables (default) */
+  --bg-main: #F7F7F7;
+  --bg-card: #FFFFFF;
+  --text-main: #4A4A4A;
+  --text-light: #888888;
+  --border-color: #EAEAEA;
+  --shadow-color: rgba(0, 0, 0, 0.05);
+  --hover-bg: #f8f9fa;
+}
+
+/* Dark Mode Variables */
+body.dark-mode {
+  --bg-main: #1E1E2E;
+  --bg-card: #2A2A3A;
+  --text-main: #E4E4E7;
+  --text-light: #A1A1AA;
+  --border-color: #3F3F51;
+  --shadow-color: rgba(0, 0, 0, 0.2);
+  --hover-bg: #32323E;
+  
+  /* Override Bootstrap variables */
+  --bs-body-bg: var(--bg-main);
+  --bs-body-color: var(--text-main);
+  --bs-border-color: var(--border-color);
+}
+
+/* Apply dark mode styles */
+body.dark-mode {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+}
+
+/* Card styles in dark mode */
+body.dark-mode .card {
+  background-color: var(--bg-card);
+  border-color: var(--border-color);
+}
+
+/* Text colors in dark mode */
+body.dark-mode .text-muted {
+  color: var(--text-light) !important;
+}
+
+/* Form controls in dark mode */
+body.dark-mode .form-control {
+  background-color: #32323E;
+  border-color: var(--border-color);
+  color: var(--text-main);
+}
+
+body.dark-mode .form-control:focus {
+  background-color: #3A3A48;
+  border-color: var(--primary-blue);
+}
+
+/* List group items in dark mode */
+body.dark-mode .list-group-item {
+  background-color: var(--bg-card);
+  border-color: var(--border-color);
+  color: var(--text-main);
+}
+
+body.dark-mode .list-group-item.action:hover {
+  background-color: var(--hover-bg);
+}
+
+/* Modals in dark mode */
+body.dark-mode .modal-content {
+  background-color: var(--bg-card);
+  border-color: var(--border-color);
+}
+
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer {
+  border-color: var(--border-color);
+}
+
+/* Buttons in dark mode */
+body.dark-mode .btn-outline-secondary {
+  color: var(--text-light);
+  border-color: var(--border-color);
+}
+
+body.dark-mode .btn-outline-secondary:hover {
+  background-color: var(--hover-bg);
+  color: var(--text-main);
+}
+
+body.dark-mode .btn-light {
+  background-color: #32323E;
+  border-color: #3F3F51;
+  color: var(--text-main);
+}
+
+/* Navbar and sidebar in dark mode */
+body.dark-mode .sidebar {
+  background-color: var(--bg-card);
+  border-color: var(--border-color);
+}
+
+body.dark-mode .sidebar-link {
+  color: var(--text-light);
+}
+
+body.dark-mode .sidebar-link:hover {
+  background-color: var(--hover-bg);
+}
+
+body.dark-mode .sidebar-link.active {
+  background-color: rgba(74, 144, 226, 0.15);
+}
+
+/* Progress bars in dark mode */
+body.dark-mode .progress {
+  background-color: #32323E;
+}
+
+/* Tables in dark mode */
+body.dark-mode .table {
+  color: var(--text-main);
+  border-color: var(--border-color);
+}
+
+body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) > * {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
+}
+
+/* Dropdown menus in dark mode */
+body.dark-mode .dropdown-menu {
+  background-color: var(--bg-card);
+  border-color: var(--border-color);
+}
+
+body.dark-mode .dropdown-item {
+  color: var(--text-main);
+}
+
+body.dark-mode .dropdown-item:hover {
+  background-color: var(--hover-bg);
+  color: var(--text-main);
+}
+
+/* Badges in dark mode */
+body.dark-mode .badge.bg-light {
+  background-color: #32323E !important;
+  color: var(--text-light) !important;
+}
+
+/* Transitions for smooth mode switching */
+body, 
+.card, 
+.list-group-item, 
+.form-control, 
+.btn, 
+.modal-content,
+.sidebar,
+.table,
+.dropdown-menu {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Profile page specific dark mode styles */
+body.dark-mode .profile-card {
+  background-color: var(--bg-card);
+  border-color: var(--border-color);
+}
+
+body.dark-mode .progress-circle {
+  background: linear-gradient(135deg, #2A2A3A, #32323E);
+  border-color: #32323E;
+}
+
+body.dark-mode .streak-circle {
+  background: linear-gradient(135deg, #32323E, #3A3A48);
+  border-color: #3A3A48;
+}
+
+/* Collections page specific dark mode styles */
+body.dark-mode .collection-card {
+  background-color: var(--bg-card);
+}
+
+body.dark-mode .collection-card:hover {
+  box-shadow: 0 5px 15px var(--shadow-color);
+}
+
+/* Auth pages specific dark mode styles */
+body.dark-mode .auth-form {
+  background-color: var(--bg-card);
+}
+
+/* Dashboard specific dark mode styles */
+body.dark-mode .dashboard-container {
+  background-color: var(--bg-main);
+}
+
+body.dark-mode .progress-bar-vertical {
+  background-color: #32323E;
+}

@@ -1,0 +1,400 @@
+/* Profile Page Styles */
+.profile-container {
+  padding: 2rem 0;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Card Styles */
+.profile-card {
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+  background-color: var(--background-card);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.profile-card:hover {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+/* User Info Section */
+.user-info-card {
+  position: relative;
+}
+
+.profile-image-container {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
+}
+
+.profile-image {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid white;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.change-photo-btn {
+  position: absolute;
+  bottom: 0;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--primary-blue);
+  color: white;
+  border: 2px solid white;
+  padding: 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+}
+
+.change-photo-btn:hover {
+  transform: scale(1.1);
+  background-color: var(--primary-blue);
+  color: white;
+}
+
+.profile-name {
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  color: var(--text-main);
+}
+
+.profile-email {
+  color: var(--text-light);
+  margin-bottom: 1rem;
+}
+
+.profile-join-date {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-profile-btn {
+  border-color: var(--primary-blue);
+  color: var(--primary-blue);
+  transition: all 0.2s;
+}
+
+.edit-profile-btn:hover {
+  background-color: var(--primary-blue);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Stats Card */
+.stats-card {
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  box-shadow: none;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+  color: var(--text-main);
+}
+
+.subsection-title {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-main);
+}
+
+.stats-row {
+  text-align: center;
+}
+
+.stat-item {
+  padding: 0.5rem;
+}
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--primary-blue);
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--text-light);
+}
+
+/* Settings Section */
+.quick-settings .list-group-item {
+  border-left: 0;
+  border-right: 0;
+  padding: 0.75rem 0;
+  transition: background-color 0.2s;
+}
+
+.quick-settings .list-group-item:first-child {
+  border-top: 0;
+}
+
+.quick-settings .list-group-item:last-child {
+  border-bottom: 0;
+}
+
+.quick-settings .list-group-item.action:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Recent Activities */
+.recent-collections .list-group-item,
+.recent-results .list-group-item {
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.recent-collections .list-group-item:hover {
+  transform: translateY(-2px);
+  background-color: #f8f9fa;
+}
+
+/* Progress Section */
+.progress-card {
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  transition: transform 0.2s;
+}
+
+.progress-card:hover {
+  transform: translateY(-3px);
+}
+
+.progress-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text-light);
+}
+
+.progress-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f0f7ff, #e6f2ff);
+  border: 4px solid #e6f2ff;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.streak-circle {
+  background: linear-gradient(135deg, #fff4e6, #ffebcc);
+  border-color: #ffebcc;
+}
+
+.progress-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-blue);
+}
+
+.progress-label {
+  font-size: 0.85rem;
+  color: var(--text-light);
+}
+
+/* Modal Styles */
+.modal-content {
+  border-radius: 0.75rem;
+  border: none;
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-footer {
+  border-top: 1px solid var(--border-color);
+}
+
+.current-photo {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--border-color);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1200px) {
+  .profile-container {
+    padding: 1.75rem 0;
+  }
+  
+  .profile-image-container,
+  .profile-image {
+    width: 140px;
+    height: 140px;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .profile-container {
+    padding: 1.5rem 0;
+  }
+  
+  .profile-card {
+    margin-bottom: 1.5rem;
+  }
+  
+  .profile-image-container,
+  .profile-image {
+    width: 130px;
+    height: 130px;
+  }
+  
+  .progress-circle {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .progress-value {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 1.25rem 0;
+  }
+  
+  .profile-image-container,
+  .profile-image {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .change-photo-btn {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .profile-name {
+    font-size: 1.5rem;
+  }
+  
+  .profile-email {
+    font-size: 0.9rem;
+  }
+  
+  .section-title {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  
+  .stat-value {
+    font-size: 1.5rem;
+  }
+  
+  .stat-label {
+    font-size: 0.8rem;
+  }
+  
+  .progress-circle {
+    width: 90px;
+    height: 90px;
+  }
+  
+  .progress-value {
+    font-size: 1.5rem;
+  }
+  
+  .progress-label {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .profile-container {
+    padding: 1rem 0;
+  }
+  
+  .profile-image-container,
+  .profile-image {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .change-photo-btn {
+    width: 30px;
+    height: 30px;
+    right: 5px;
+  }
+  
+  .profile-name {
+    font-size: 1.35rem;
+    margin-top: 0.75rem;
+  }
+  
+  .profile-email {
+    font-size: 0.85rem;
+  }
+  
+  .profile-join-date {
+    font-size: 0.8rem;
+  }
+  
+  .section-title {
+    font-size: 1.15rem;
+  }
+  
+  .subsection-title {
+    font-size: 0.9rem;
+  }
+  
+  .stat-value {
+    font-size: 1.35rem;
+  }
+  
+  .stat-label {
+    font-size: 0.75rem;
+  }
+  
+  .progress-circle {
+    width: 80px;
+    height: 80px;
+    border-width: 3px;
+  }
+  
+  .progress-value {
+    font-size: 1.35rem;
+  }
+  
+  .progress-label {
+    font-size: 0.75rem;
+  }
+  
+  .current-photo {
+    width: 80px;
+    height: 80px;
+  }
+}

@@ -1,0 +1,249 @@
+/* src/assets/responsive.css */
+/* Fichier de styles responsifs globaux pour l'application */
+
+/* Variables pour les points de rupture (breakpoints) */
+:root {
+  --breakpoint-xs: 0;
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
+}
+
+/* Styles responsifs globaux */
+@media (max-width: 1200px) {
+  .main-content {
+    padding: 2rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .main-content {
+    padding: 1.5rem;
+  }
+  
+  .content-card {
+    padding: 1.25rem;
+  }
+}
+
+/* Tablettes */
+@media (max-width: 768px) {
+  .app-layout {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .sidebar-brand {
+    margin-bottom: 0;
+    font-size: 1.5rem;
+  }
+  
+  .sidebar-nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: var(--background-card);
+    z-index: 1000;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .sidebar-nav.mobile-visible {
+    display: flex;
+  }
+  
+  .main-content {
+    margin-left: 0;
+    padding: 1.25rem;
+  }
+  
+  .mobile-menu-toggle {
+    display: block;
+  }
+  
+  /* Ajustements pour les cartes et grilles */
+  .dashboard-container .row {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+  }
+  
+  .dashboard-container .col, 
+  .dashboard-container [class*="col-"] {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  
+  /* Ajustements pour les graphiques */
+  .chart-container {
+    height: auto !important;
+    min-height: 250px;
+  }
+}
+
+/* Mobiles */
+@media (max-width: 576px) {
+  .collections-title,
+  .library-title,
+  .stats-title,
+  .flashcards-title,
+  .review-title {
+    font-size: 1.8rem;
+  }
+  
+  .collections-subtitle,
+  .library-subtitle,
+  .stats-subtitle,
+  .flashcards-subtitle,
+  .review-subtitle {
+    font-size: 1rem;
+  }
+  
+  .main-content {
+    padding: 1rem;
+  }
+  
+  .content-card {
+    padding: 1rem;
+  }
+  
+  /* Ajustements pour les boutons */
+  .btn {
+    padding: 0.5rem 1rem;
+  }
+  
+  /* Ajustements pour les formulaires */
+  .form-control {
+    padding: 0.6rem 0.8rem;
+    font-size: 1rem;
+  }
+  
+  /* Ajustements pour les cartes */
+  .flashcard {
+    height: 200px;
+  }
+  
+  /* Ajustements pour les modales */
+  .modal-body {
+    padding: 1rem;
+  }
+  
+  .modal-footer {
+    padding: 0.75rem 1rem;
+  }
+  
+  /* Ajustements pour les graphiques */
+  .chart-container {
+    min-height: 200px;
+  }
+}
+
+/* Styles pour le menu mobile */
+.mobile-menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-main);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* Classe utilitaire pour les éléments flexibles responsifs */
+.flex-responsive {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .flex-responsive {
+    flex-direction: column;
+  }
+}
+
+/* Classe utilitaire pour les marges responsives */
+.responsive-mt {
+  margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+  .responsive-mt {
+    margin-top: 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .responsive-mt {
+    margin-top: 1rem;
+  }
+}
+
+/* Classe utilitaire pour les paddings responsifs */
+.responsive-p {
+  padding: 2rem;
+}
+
+@media (max-width: 768px) {
+  .responsive-p {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .responsive-p {
+    padding: 1rem;
+  }
+}
+
+/* Tailles de police responsives */
+.responsive-text-lg {
+  font-size: 1.5rem;
+}
+
+.responsive-text-md {
+  font-size: 1.25rem;
+}
+
+.responsive-text-sm {
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .responsive-text-lg {
+    font-size: 1.35rem;
+  }
+  
+  .responsive-text-md {
+    font-size: 1.15rem;
+  }
+  
+  .responsive-text-sm {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .responsive-text-lg {
+    font-size: 1.25rem;
+  }
+  
+  .responsive-text-md {
+    font-size: 1.1rem;
+  }
+  
+  .responsive-text-sm {
+    font-size: 0.9rem;
+  }
+}
