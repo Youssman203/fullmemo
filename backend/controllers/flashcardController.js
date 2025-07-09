@@ -253,6 +253,8 @@ const updateFlashcardReview = asyncHandler(async (req, res) => {
   res.json(updatedFlashcard);
 });
 
+// Définition supprimée - Fonction deleteFlashcard déjà définie aux lignes 164-187
+
 /**
  * @desc    Obtenir les statistiques des flashcards de l'utilisateur
  * @route   GET /api/flashcards/stats

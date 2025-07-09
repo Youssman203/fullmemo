@@ -1,4 +1,5 @@
 import React from 'react';
+import { getCollectionColor } from '../../utils/colorUtils';
 import { Card, Badge, Button } from 'react-bootstrap';
 import { FiUser, FiLayers, FiEye } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
@@ -11,17 +12,35 @@ const CollectionCard = ({ collection }) => {
 
   return (
     <Card className="collection-card h-100">
-      {collection.imageUrl && (
-        <div 
-          className="collection-card-image"
-          style={{ 
-            height: '140px',
-            backgroundImage: `url(${collection.imageUrl})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
+      <div 
+        className="modern-collection-header"
+        style={{ 
+          height: '140px',
+          backgroundColor: collection.color || getCollectionColor(collection.title || collection.name),
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative'
+        }}
+      >
+        <div className="collection-icon" style={{ fontSize: '2.5rem', color: 'rgba(255, 255, 255, 0.7)' }}>
+          <FiLayers />
+        </div>
+        <Badge 
+          className="collection-card-count-badge" 
+          bg="light" 
+          text="dark"
+          style={{
+            position: 'absolute',
+            top: '10px',
+            right: '10px',
+            fontSize: '0.8rem',
+            padding: '0.35em 0.65em'
           }}
-        />
-      )}
+        >
+          {collection.cardCount || 0} cartes
+        </Badge>
+      </div>
       <Card.Body className="collection-card-body">
         <Badge className={getCategoryClass(collection.category)}>
           {collection.categoryLabel}

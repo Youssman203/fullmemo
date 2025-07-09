@@ -1,5 +1,6 @@
 // src/pages/ReviewPage.js
 import React, { useState, useEffect } from 'react';
+import { getCollectionColor } from '../utils/colorUtils';
 import { useData } from '../contexts/DataContext';
 import { useAuth } from '../contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
@@ -103,21 +104,35 @@ const ReviewPage = () => {
     }
   }, [selectedCollection, getCardsByCollection]);
 
-  // Generate quiz options when in quiz mode and card changes
+  // Reset states when moving to a new card - TOUJOURS EXÉCUTÉ EN PREMIER
   useEffect(() => {
+    // Ce code doit être exécuté en premier lors du changement de carte
+    if (cardsToReview.length > 0) {
+      console.log('Réinitialisation des états pour une nouvelle carte');
+      
+      // Réinitialiser complètement tous les états du quiz
+      setIsFlipped(false);
+      setSelectedOption(null);
+      setShowQuizResult(false);
+      setTestAnswer('');
+      setTestResult({ show: false, correct: false });
+    }
+  }, [currentCardIndex, cardsToReview.length]);
+
+  // Generate quiz options when in quiz mode and card changes - EXÉCUTÉ APRÈS la réinitialisation
+  useEffect(() => {
+    // S'assurer que cette effet est exécuté APRÈS la réinitialisation des états
     if (currentMode === MODES.QUIZ_MODE && cardsToReview.length > 0) {
-      generateQuizOptions();
+      // Petit délai pour s'assurer que les états sont bien réinitialisés
+      const timer = setTimeout(() => {
+        console.log('Génération des options du quiz pour la nouvelle carte');
+        generateQuizOptions();
+      }, 50);
+      
+      // Nettoyage du timer si le composant est démonté
+      return () => clearTimeout(timer);
     }
   }, [currentCardIndex, currentMode, cardsToReview]);
-
-  // Reset states when moving to a new card
-  useEffect(() => {
-    setIsFlipped(false);
-    setSelectedOption(null);
-    setShowQuizResult(false);
-    setTestAnswer('');
-    setTestResult({ show: false, correct: false });
-  }, [currentCardIndex]);
 
   // Generate multiple choice options for quiz mode
   const generateQuizOptions = () => {
@@ -126,16 +141,84 @@ const ReviewPage = () => {
     const currentCard = cardsToReview[currentCardIndex];
     const correctAnswer = currentCard.answer;
     
-    // Get 3 random wrong answers from other cards
-    const otherCards = cards.filter(c => c.id !== currentCard.id);
-    const wrongAnswers = otherCards
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 3)
-      .map(c => c.answer);
+    // Créer une liste de toutes les cartes sauf la carte actuelle
+    const otherCards = cards.filter(c => {
+      // Exclure la carte actuelle par ID
+      if (c.id && currentCard.id) {
+        return c.id !== currentCard.id;
+      }
+      if (c._id && currentCard._id) {
+        return c._id !== currentCard._id;
+      }
+      // Exclure les cartes qui ont la même réponse que la carte actuelle
+      if (c.answer === correctAnswer) {
+        return false;
+      }
+      return true; // Si pas d'ID à comparer mais réponse différente, inclure la carte
+    });
     
-    // Combine correct and wrong answers, then shuffle
-    const options = [correctAnswer, ...wrongAnswers].sort(() => Math.random() - 0.5);
+    // Vérification stricte des doublons: créer un ensemble de réponses uniques
+    const uniqueAnswersSet = new Set();
+    const uniqueAnswers = [];
+    
+    // Traitement des réponses pour éliminer les doublons
+    otherCards.forEach(card => {
+      if (card.answer && card.answer.trim() !== '') {
+        // Normaliser la réponse (enlever les espaces superflus, mettre en minuscules)
+        const normalizedAnswer = card.answer.trim();
+        
+        // Vérifier si cette réponse (ou une version très similaire) existe déjà
+        if (!uniqueAnswersSet.has(normalizedAnswer.toLowerCase())) {
+          uniqueAnswersSet.add(normalizedAnswer.toLowerCase());
+          uniqueAnswers.push(card.answer); // Garder la version originale pour l'affichage
+        }
+      }
+    });
+    
+    // Si nous n'avons pas assez de réponses disponibles (moins de 3)
+    if (uniqueAnswers.length < 3) {
+      console.warn('Pas assez de réponses uniques disponibles dans les cartes existantes');
+      
+      // Compléter avec des données de démonstration si nécessaire
+      const demoAnswers = [
+        'Paris', 'Londres', 'Berlin', 'Madrid', 'Rome', 'Lisbonne', 'Bruxelles', 'Amsterdam',
+        'Chat', 'Chien', 'Poisson', 'Oiseau', 'Serpent', 'Tortue', 'Hamster',
+        'JavaScript', 'Python', 'Java', 'C++', 'Ruby', 'PHP', 'Swift',
+        '1492', '1789', '1945', '1969', '2000', '2020'
+      ];
+      
+      // Ajouter des réponses de démo qui ne sont pas égales à la bonne réponse
+      for (const demoAnswer of demoAnswers) {
+        const normalizedDemo = demoAnswer.trim().toLowerCase();
+        const normalizedCorrect = correctAnswer.trim().toLowerCase();
+        
+        if (normalizedDemo !== normalizedCorrect && !uniqueAnswersSet.has(normalizedDemo)) {
+          uniqueAnswersSet.add(normalizedDemo);
+          uniqueAnswers.push(demoAnswer);
+          
+          // S'arrêter quand nous avons au moins 3 réponses alternatives
+          if (uniqueAnswers.length >= 3) break;
+        }
+      }
+    }
+    
+    // Mélanger les réponses possibles
+    const shuffledAnswers = uniqueAnswers.sort(() => Math.random() - 0.5);
+    
+    // Prendre un minimum de 3 réponses et un maximum de 5 réponses
+    const selectedWrongAnswers = shuffledAnswers.slice(0, Math.min(5, shuffledAnswers.length));
+    
+    // Vérification finale: s'assurer qu'il n'y a pas de doublons avec la réponse correcte
+    const finalWrongAnswers = selectedWrongAnswers.filter(answer => {
+      return answer.trim().toLowerCase() !== correctAnswer.trim().toLowerCase();
+    });
+    
+    // Combiner et mélanger les options avec la bonne réponse
+    const options = [correctAnswer, ...finalWrongAnswers].sort(() => Math.random() - 0.5);
+    
+    // Définir les options du quiz
     setQuizOptions(options);
+    console.log(`Quiz options générées: ${options.length} options au total (${finalWrongAnswers.length} distracteurs uniques)`);
   };
 
   // Handle mode selection
@@ -266,12 +349,25 @@ const ReviewPage = () => {
       }
     }
     
-    if (currentCardIndex < cardsToReview.length - 1) {
-      setCurrentCardIndex(currentCardIndex + 1);
-    } else {
-      // Session finished
-      setCurrentMode(MODES.COMPLETED);
-    }
+    // IMPORTANT: ORDRE SPÉCIFIQUE POUR ÉVITER LES PROBLÈMES DE SYNCHRONISATION
+    // 1. D'abord, réinitialiser complètement TOUS les états liés aux quiz et tests
+    setSelectedOption(null);
+    setShowQuizResult(false);
+    setTestAnswer('');
+    setTestResult({ show: false, correct: false });
+    
+    // 2. Attendre un moment pour assurer que les états sont réinitialisés
+    setTimeout(() => {
+      // 3. ENSUITE seulement, passer à la carte suivante ou terminer la session
+      if (currentCardIndex < cardsToReview.length - 1) {
+        console.log('Passage à la carte suivante, index:', currentCardIndex + 1);
+        setCurrentCardIndex(currentCardIndex + 1);
+      } else {
+        // Session finished
+        console.log('Session terminée, passage à l\'écran de complétion');
+        setCurrentMode(MODES.COMPLETED);
+      }
+    }, 50); // Un court délai pour garantir la séquence correcte
   };
 
   // Handle skipping a card
@@ -380,18 +476,41 @@ const ReviewPage = () => {
                 className={`collection-card ${selectedCollection?.id === collection.id ? 'selected' : ''}`}
                 onClick={() => handleSelectCollection(collection)}
               >
-                {collection.imageUrl && (
-                  <Card.Img 
-                    variant="top" 
-                    src={collection.imageUrl} 
-                    alt={collection.name}
-                    className="collection-card-img"
-                  />
-                )}
+                <div 
+                  className="modern-collection-header"
+                  style={{
+                    backgroundColor: collection.color || getCollectionColor(collection.name),
+                    height: '100px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    position: 'relative',
+                    borderTopLeftRadius: '0.375rem',
+                    borderTopRightRadius: '0.375rem'
+                  }}
+                >
+                  <div className="collection-icon" style={{ fontSize: '2rem', color: 'rgba(255, 255, 255, 0.7)' }}>
+                    <i className="fas fa-layer-group"></i>
+                  </div>
+                  <Badge 
+                    className="collection-card-count" 
+                    bg="light" 
+                    text="dark"
+                    style={{
+                      position: 'absolute',
+                      top: '10px',
+                      right: '10px',
+                      fontSize: '0.8rem',
+                      padding: '0.35em 0.65em'
+                    }}
+                  >
+                    {collection.cardCount || 0} cartes
+                  </Badge>
+                </div>
                 <Card.Body>
                   <Card.Title>{collection.name}</Card.Title>
                   <Card.Text className="text-muted">
-                    {collection.cards?.length || 0} cartes
+                    {collection.cardCount || 0} cartes
                   </Card.Text>
                 </Card.Body>
               </Card>
