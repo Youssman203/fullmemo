@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useData } from '../contexts/DataContext';
-import { useAuth } from '../contexts/AuthContext';
 import { Container, Row, Col, Card, Button, Form, Modal, Tab, Tabs, Badge, Alert } from 'react-bootstrap';
 import { FiPlus, FiEdit, FiTrash2, FiEye, FiX, FiCheck, FiFilter, FiSearch } from 'react-icons/fi';
 import { getCollectionName } from '../components/CardCollectionDisplay';
 import '../assets/flashcards.css';
 
 const Flashcards = () => {
-  const { user } = useAuth();
+  // Récupération des données depuis le contexte
   const { cards, collections, createFlashcard, updateFlashcard, deleteFlashcard, getFlashcardsByCollection } = useData();
   
   // State for card management
@@ -344,15 +343,15 @@ const Flashcards = () => {
       {/* Header with search and filter */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h1 className="mb-0">My Flashcards</h1>
-          <p className="text-muted">Manage and review all your flashcards</p>
+          <h1 className="mb-0">Mes Cartes</h1>
+          <p className="text-muted">Gérer et réviser toutes vos cartes</p>
         </div>
         <Button 
           variant="primary" 
           className="d-flex align-items-center" 
           onClick={handleAddCard}
         >
-          <FiPlus className="me-2" /> Create Card
+          <FiPlus className="me-2" /> Créer une carte
         </Button>
       </div>
 
@@ -374,7 +373,7 @@ const Flashcards = () => {
                 </span>
                 <Form.Control
                   type="text"
-                  placeholder="Search cards..."
+                  placeholder="Rechercher des cartes..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="border-start-0"
@@ -392,7 +391,7 @@ const Flashcards = () => {
                   className="border-start-0"
                   data-testid="collection-filter"
                 >
-                  <option value="all">All Collections</option>
+                  <option value="all">Toutes les collections</option>
                   {collections.map(collection => {
                     // Utiliser l'ID dans le format approprié (_id ou id)
                     const collectionId = collection._id || collection.id;
@@ -417,7 +416,7 @@ const Flashcards = () => {
         <div className="mb-4">
           <Card className="shadow border-primary">
             <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
-              <h5 className="mb-0">Card Preview</h5>
+              <h5 className="mb-0">Aperçu de la carte</h5>
               <Button 
                 variant="link" 
                 className="text-white p-0" 
@@ -434,7 +433,7 @@ const Flashcards = () => {
                   className="p-0 text-primary" 
                   onClick={() => setFlipped(!flipped)}
                 >
-                  {flipped ? 'Show Question' : 'Show Answer'}
+                  {flipped ? 'Voir la question' : 'Voir la réponse'}
                 </Button>
               </div>
               <div className="card-preview p-4 bg-light rounded">
@@ -445,7 +444,7 @@ const Flashcards = () => {
                   </div>
                 ) : (
                   <div className="answer">
-                    <h5 className="mb-0">Answer:</h5>
+                    <h5 className="mb-0">Réponse:</h5>
                     <p className="mb-0 mt-2">{previewCard.answer}</p>
                   </div>
                 )}
@@ -567,7 +566,7 @@ const Flashcards = () => {
         ) : (
           <Col xs={12}>
             <div className="text-center py-5">
-              <p className="mb-0">No flashcards found. Create your first card!</p>
+              <p className="mb-0">Aucune carte trouvée. Créez votre première carte !</p>
             </div>
           </Col>
         )}
@@ -576,12 +575,12 @@ const Flashcards = () => {
       {/* Card Form Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>{editingCardId ? 'Edit Card' : 'Create New Card'}</Modal.Title>
+          <Modal.Title>{editingCardId ? 'Modifier la carte' : 'Créer une nouvelle carte'}</Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleSubmit}>
           <Modal.Body>
             <Tabs defaultActiveKey="content" className="mb-3">
-              <Tab eventKey="content" title="Card Content">
+              <Tab eventKey="content" title="Contenu de la carte">
                 <Form.Group className="mb-3">
                   <Form.Label>Question</Form.Label>
                   <Form.Control 
@@ -589,18 +588,18 @@ const Flashcards = () => {
                     rows={3} 
                     value={question}
                     onChange={(e) => setQuestion(e.target.value)}
-                    placeholder="Enter your question here"
+                    placeholder="Saisissez votre question ici"
                     required
                   />
                 </Form.Group>
                 <Form.Group className="mb-3">
-                  <Form.Label>Answer</Form.Label>
+                  <Form.Label>Réponse</Form.Label>
                   <Form.Control 
                     as="textarea" 
                     rows={3} 
                     value={answer}
                     onChange={(e) => setAnswer(e.target.value)}
-                    placeholder="Enter your answer here"
+                    placeholder="Saisissez votre réponse ici"
                     required
                   />
                 </Form.Group>
@@ -611,7 +610,7 @@ const Flashcards = () => {
                     onChange={(e) => setCollectionId(e.target.value)}
                     required
                   >
-                    <option value="">Select a collection</option>
+                    <option value="">Sélectionner une collection</option>
                     {collections.map(collection => (
                       <option key={collection.id || collection._id} value={collection.id || collection._id}>
                         {collection.name}
@@ -620,18 +619,18 @@ const Flashcards = () => {
                   </Form.Select>
                 </Form.Group>
               </Tab>
-              <Tab eventKey="preview" title="Live Preview">
+              <Tab eventKey="preview" title="Aperçu en direct">
                 <div className="card-preview p-4 bg-light rounded mb-3">
                   <h5>Question:</h5>
-                  <p className="mb-4">{question || 'Your question will appear here'}</p>
+                  <p className="mb-4">{question || 'Votre question apparaîtra ici'}</p>
                   <hr />
-                  <h5>Answer:</h5>
-                  <p className="mb-0">{answer || 'Your answer will appear here'}</p>
+                  <h5>Réponse:</h5>
+                  <p className="mb-0">{answer || 'Votre réponse apparaîtra ici'}</p>
                 </div>
                 {collectionId && (
                   <div className="mt-3">
                     <small className="text-muted">
-                      This card will be added to the collection: <strong>{getCollectionNameLocal(collectionId)}</strong>
+                      Cette carte sera ajoutée à la collection : <strong>{getCollectionNameLocal(collectionId)}</strong>
                     </small>
                   </div>
                 )}
@@ -640,10 +639,10 @@ const Flashcards = () => {
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={() => setShowModal(false)}>
-              Cancel
+              Annuler
             </Button>
             <Button type="submit" variant="primary" className="d-flex align-items-center">
-              <FiCheck className="me-2" /> {editingCardId ? 'Save Changes' : 'Create Card'}
+              <FiCheck className="me-2" /> {editingCardId ? 'Enregistrer les modifications' : 'Créer la carte'}
             </Button>
           </Modal.Footer>
         </Form>
