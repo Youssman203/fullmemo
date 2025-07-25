@@ -9,7 +9,8 @@ const {
   getFlashcardsToReviewToday,
   updateFlashcardReview,
   getFlashcardStats,
-  getAllUserFlashcards
+  getAllUserFlashcards,
+  getFlashcardsDueNow
 } = require('../controllers/flashcardController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -26,6 +27,9 @@ router.route('/collection/:collectionId')
 
 router.route('/review/today')
   .get(getFlashcardsToReviewToday);
+
+router.route('/due-now')
+  .get(getFlashcardsDueNow);
 
 router.route('/stats')
   .get(getFlashcardStats);

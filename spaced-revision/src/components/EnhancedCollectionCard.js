@@ -149,21 +149,7 @@ const EnhancedCollectionCard = ({ collection, onRename, onDelete, viewMode = 'gr
           {collection.description || 'Aucune description disponible.'}
         </p>
         
-        {/* Barre de progression */}
-        {progress > 0 && (
-          <div className="progress-section">
-            <div className="d-flex justify-content-between align-items-center mb-1">
-              <small>Progression</small>
-              <small><strong>{progress}%</strong></small>
-            </div>
-            <ProgressBar 
-              now={progress} 
-              variant="success" 
-              className="collection-progress" 
-              style={{ height: '6px' }}
-            />
-          </div>
-        )}
+        {/* La barre de progression a été retirée pour réduire la taille des boîtes */}
         
         {/* Statistiques */}
         <div className="collection-stats">

@@ -329,6 +329,44 @@ const getAllUserFlashcards = asyncHandler(async (req, res) => {
   res.json(flashcards);
 });
 
+/**
+ * @desc    Récupérer les flashcards à revoir maintenant
+ * @route   GET /api/flashcards/due-now
+ * @access  Private
+ */
+const getFlashcardsDueNow = asyncHandler(async (req, res) => {
+  const now = new Date();
+
+  const flashcards = await Flashcard.find({
+    user: req.user._id,
+    nextReviewDate: { $lte: now }
+  })
+  .populate('collection', 'name imageUrl')
+  .sort({ nextReviewDate: 1 });
+
+  // Séparer les cartes par type de révision
+  const difficultCards = flashcards.filter(card => {
+    const timeDiff = now - new Date(card.nextReviewDate);
+    const minutesDiff = timeDiff / (1000 * 60);
+    // Cartes marquées comme difficiles (à revoir dans 5 minutes)
+    return card.interval <= 0.01 && minutesDiff >= 0;
+  });
+
+  const easyCards = flashcards.filter(card => {
+    const timeDiff = now - new Date(card.nextReviewDate);
+    const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
+    // Cartes marquées comme faciles (à revoir dans 1 jour)
+    return card.interval >= 1 && daysDiff >= 0;
+  });
+
+  res.json({
+    total: flashcards.length,
+    difficultCards: difficultCards.length,
+    easyCards: easyCards.length,
+    cards: flashcards
+  });
+});
+
 module.exports = {
   createFlashcard,
   getFlashcardsByCollection,
@@ -338,5 +376,6 @@ module.exports = {
   getFlashcardsToReviewToday,
   updateFlashcardReview,
   getFlashcardStats,
-  getAllUserFlashcards
+  getAllUserFlashcards,
+  getFlashcardsDueNow
 };

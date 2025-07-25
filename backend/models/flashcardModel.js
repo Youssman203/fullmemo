@@ -102,53 +102,41 @@ flashcardSchema.pre('deleteOne', { document: true, query: false }, async functio
   }
 });
 
-// Méthode pour calculer le prochain intervalle de révision selon l'algorithme SM-2
+// Méthode pour calculer le prochain intervalle de révision selon le système simplifié
 flashcardSchema.methods.calculateNextReview = function(performance) {
-  let { interval, easeFactor } = this;
+  const nextReviewDate = new Date();
   
   switch (performance) {
     case 'again':
-      interval = 0.1; // Revoir dans ~2-3 heures
-      easeFactor = Math.max(1.3, easeFactor - 0.2);
+      // À revoir immédiatement (dans 1 minute)
+      nextReviewDate.setMinutes(nextReviewDate.getMinutes() + 1);
+      this.interval = 0.001; // ~1 minute en jours
+      this.status = 'learning';
       break;
     case 'hard':
-      interval = interval * 1.2;
-      easeFactor = Math.max(1.3, easeFactor - 0.15);
+      // Difficile : à revoir dans 5 minutes
+      nextReviewDate.setMinutes(nextReviewDate.getMinutes() + 5);
+      this.interval = 0.003; // ~5 minutes en jours
+      this.status = 'learning';
       break;
     case 'good':
-      if (interval === 0) {
-        interval = 1; // Premier intervalle de 1 jour
-      } else {
-        interval = interval * easeFactor;
-      }
+      // Correct : à revoir dans 1 jour (mode quiz/test)
+      nextReviewDate.setDate(nextReviewDate.getDate() + 1);
+      this.interval = 1;
+      this.status = 'review';
       break;
     case 'easy':
-      if (interval === 0) {
-        interval = 2; // Premier intervalle de 2 jours
-      } else {
-        interval = interval * easeFactor * 1.3;
-      }
-      easeFactor = easeFactor + 0.15;
+      // Facile : à revoir dans 1 jour (mode révision classique)
+      nextReviewDate.setDate(nextReviewDate.getDate() + 1);
+      this.interval = 1;
+      this.status = 'review';
       break;
   }
 
-  // Calculer la prochaine date de révision
-  const nextReviewDate = new Date();
-  nextReviewDate.setDate(nextReviewDate.getDate() + Math.round(interval));
-
   // Mettre à jour les propriétés
-  this.interval = interval;
-  this.easeFactor = easeFactor;
   this.nextReviewDate = nextReviewDate;
   
-  // Mettre à jour le statut en fonction de l'intervalle
-  if (interval < 1) {
-    this.status = 'learning';
-  } else if (interval < 7) {
-    this.status = 'review';
-  } else {
-    this.status = 'mastered';
-  }
+  console.log(`Carte ${this._id} - Performance: ${performance}, Prochaine révision: ${nextReviewDate}`);
 
   return nextReviewDate;
 };

@@ -332,7 +332,7 @@ const ReviewPage = () => {
 
   // Handle next card in all modes
   const handleNextCard = (quality = null) => {
-    // In classic mode, update the spaced repetition algorithm
+    // In classic mode, update the spaced repetition algorithm and stats
     if (currentMode === MODES.CLASSIC_REVIEW && quality !== null) {
       const currentCard = cardsToReview[currentCardIndex];
       // Formater les données pour correspondre à ce qu'attend le backend
@@ -347,6 +347,14 @@ const ReviewPage = () => {
         console.error('Erreur lors de la mise à jour de la révision:', error);
         // Continuer malgré l'erreur pour ne pas bloquer l'expérience utilisateur
       }
+      
+      // Mettre à jour les statistiques : quality 3 = facile (correct), quality 1 = difficile (incorrect)
+      const isCorrect = quality === 3; // 3 = Facile, 1 = Difficile
+      setStats(prev => ({
+        ...prev,
+        correct: isCorrect ? prev.correct + 1 : prev.correct,
+        incorrect: !isCorrect ? prev.incorrect + 1 : prev.incorrect
+      }));
     }
     
     // IMPORTANT: ORDRE SPÉCIFIQUE POUR ÉVITER LES PROBLÈMES DE SYNCHRONISATION
@@ -603,9 +611,7 @@ const ReviewPage = () => {
           <div className="review-actions">
             <p className="text-center text-muted mb-3">Comment avez-vous connu cette réponse ?</p>
             <div className="d-grid gap-3 d-md-flex justify-content-md-center">
-              <Button variant="danger" onClick={() => handleNextCard(0)}>À revoir</Button>
-              <Button variant="warning" onClick={() => handleNextCard(1)}>Difficile</Button>
-              <Button variant="info" onClick={() => handleNextCard(2)}>Bien</Button>
+              <Button variant="danger" onClick={() => handleNextCard(1)}>Difficile</Button>
               <Button variant="success" onClick={() => handleNextCard(3)}>Facile</Button>
             </div>
           </div>
@@ -838,11 +844,11 @@ const ReviewPage = () => {
           <Row className="text-center">
             <Col>
               <div className="fs-1 text-success">{stats.correct}</div>
-              <div className="text-muted">Correct</div>
+              <div className="text-muted">{selectedMode === 'classic' ? 'Facile' : 'Correct'}</div>
             </Col>
             <Col>
               <div className="fs-1 text-danger">{stats.incorrect}</div>
-              <div className="text-muted">Incorrect</div>
+              <div className="text-muted">{selectedMode === 'classic' ? 'Difficile' : 'Incorrect'}</div>
             </Col>
             <Col>
               <div className="fs-1 text-warning">{stats.skipped}</div>

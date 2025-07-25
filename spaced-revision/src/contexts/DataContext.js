@@ -197,6 +197,16 @@ export const DataProvider = ({ children }) => {
       return [];
     }
   };
+
+  const getFlashcardsDueNow = async () => {
+    try {
+      const response = await flashcardService.getFlashcardsDueNow();
+      return response.data || response;
+    } catch (error) {
+      console.error("Failed to get cards due now:", error);
+      return { total: 0, difficultCards: 0, easyCards: 0, cards: [] };
+    }
+  };
   
   // Créer des alias pour compatibilité avec le code existant
   const getCardsByCollection = getFlashcardsByCollection;
@@ -224,7 +234,8 @@ export const DataProvider = ({ children }) => {
     startReviewSession,
     updateReviewSession,
     getUserReviewSessions,
-    getReviewHistory
+    getReviewHistory,
+    getFlashcardsDueNow
   };
 
   return (

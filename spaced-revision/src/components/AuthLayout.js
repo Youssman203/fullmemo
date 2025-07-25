@@ -13,7 +13,7 @@ const AuthLayout = ({ children, title, subtitle }) => {
         />
         <div className="auth-image-overlay">
           <div className="auth-marketing-text">
-            <h2>Spaced Revision</h2>
+            <h2>REVALO</h2>
             <p>Gérez vos révisions,</p>
             <p>Planifiez vos sessions d'étude,</p>
             <p>Mesurez vos progrès,</p>

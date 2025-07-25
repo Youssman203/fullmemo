@@ -45,6 +45,11 @@ const flashcardService = {
   // Récupérer toutes les flashcards de l'utilisateur
   getAllUserFlashcards: async () => {
     return await api.get('/flashcards');
+  },
+
+  // Récupérer les flashcards à revoir maintenant
+  getFlashcardsDueNow: async () => {
+    return await api.get('/flashcards/due-now');
   }
 };
 

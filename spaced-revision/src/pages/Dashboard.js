@@ -7,6 +7,7 @@ import { FiCalendar, FiBookOpen, FiUser, FiTrendingUp, FiClock } from 'react-ico
 import QuoteCarousel from '../components/QuoteCarousel';
 import RecentActivity from '../components/RecentActivity';
 import StreakCalendar from '../components/StreakCalendar';
+import ReviewBox from '../components/ReviewBox';
 import '../assets/dashboard.css';
 
 const Dashboard = () => {
@@ -159,12 +160,8 @@ const Dashboard = () => {
               </Card.Body>
             </Card>
             
-            {/* Recent Activity */}
-            <Card className="border-0 shadow-sm">
-              <Card.Body>
-                <RecentActivity darkMode={false} />
-              </Card.Body>
-            </Card>
+            {/* Review Box */}
+            <ReviewBox />
           </Col>
           
           {/* Right Column */}
