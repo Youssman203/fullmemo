@@ -54,26 +54,49 @@ const TeacherClassDetailView = ({ classId, onClose }) => {
 
   const fetchSharedCollections = async () => {
     try {
+      console.log('🔄 Récupération des collections partagées pour classe:', classId);
       const response = await getClassCollections(classId);
-      setSharedCollections(response.data.collections || []);
+      console.log('📊 Réponse getClassCollections:', response);
+      
+      const sharedColls = response.data?.collections || response.collections || [];
+      console.log('📚 Collections partagées trouvées:', sharedColls.length, sharedColls);
+      
+      setSharedCollections(sharedColls);
     } catch (error) {
-      console.error('Erreur lors de la récupération des collections partagées:', error);
+      console.error('❌ Erreur lors de la récupération des collections partagées:', error);
+      console.error('Error details:', error.response?.data || error.message);
     }
   };
 
   const handleShareCollection = async () => {
-    if (!selectedCollection) return;
+    if (!selectedCollection) {
+      console.log('⚠️ Aucune collection sélectionnée');
+      return;
+    }
+
+    console.log('🚀 Début du partage:');
+    console.log('Classe ID:', classId);
+    console.log('Collection ID:', selectedCollection);
 
     try {
       setShareLoading(true);
-      await shareCollectionWithClass(classId, selectedCollection);
+      console.log('📞 Appel shareCollectionWithClass...');
+      const result = await shareCollectionWithClass(classId, selectedCollection);
+      console.log('✅ Partage réussi:', result);
+      
       setShowShareModal(false);
       setSelectedCollection('');
       fetchSharedCollections();
       // Afficher un message de succès
     } catch (error) {
-      console.error('Erreur lors du partage:', error);
-      setError(error.response?.data?.message || 'Erreur lors du partage de la collection');
+      console.error('❌ Erreur lors du partage:', error);
+      console.error('Error response:', error.response);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+      
+      const errorMessage = error.response?.data?.message || error.message || 'Erreur lors du partage de la collection';
+      console.log('🚨 Message d\'erreur final:', errorMessage);
+      setError(errorMessage);
     } finally {
       setShareLoading(false);
     }
@@ -104,6 +127,11 @@ const TeacherClassDetailView = ({ classId, onClose }) => {
   const availableCollections = collections.filter(collection => 
     !sharedCollections.some(shared => shared._id === collection._id)
   );
+  
+  console.log('🎯 DEBUG FILTRE:');
+  console.log('Collections totales:', collections.length, collections.map(c => ({ id: c._id, name: c.name })));
+  console.log('Collections partagées:', sharedCollections.length, sharedCollections.map(c => ({ id: c._id, name: c.name })));
+  console.log('Collections disponibles:', availableCollections.length, availableCollections.map(c => ({ id: c._id, name: c.name })));
 
   if (loading) {
     return (

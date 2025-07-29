@@ -24,18 +24,47 @@ const ClassCollectionsView = ({ classId, className, onBack }) => {
 
   const fetchClassCollections = async () => {
     try {
+      console.log('🔍 [ClassCollectionsView] Début récupération collections');
+      console.log('🔍 [ClassCollectionsView] classId:', classId);
+      
       setLoading(true);
       setError('');
+      
+      console.log('🔍 [ClassCollectionsView] Appel getClassCollections...');
       const response = await getClassCollections(classId);
-      setClassInfo(response.data.class);
-      setCollections(response.data.collections || []);
+      
+      console.log('🔍 [ClassCollectionsView] Réponse reçue:', response);
+      console.log('🔍 [ClassCollectionsView] Structure réponse:', Object.keys(response));
+      console.log('🔍 [ClassCollectionsView] response.data:', response.data);
+      
+      if (response.data) {
+        console.log('🔍 [ClassCollectionsView] Classe:', response.data.class);
+        console.log('🔍 [ClassCollectionsView] Collections:', response.data.collections);
+        console.log('🔍 [ClassCollectionsView] Nombre collections:', response.data.collections?.length);
+        
+        setClassInfo(response.data.class);
+        setCollections(response.data.collections || []);
+        
+        console.log('✅ [ClassCollectionsView] Données mises à jour avec succès');
+      } else {
+        console.log('⚠️ [ClassCollectionsView] Pas de data dans la réponse');
+      }
+      
     } catch (error) {
-      console.error('Erreur lors de la récupération des collections:', error);
+      console.error('❌ [ClassCollectionsView] Erreur lors de la récupération des collections:', error);
+      console.error('❌ [ClassCollectionsView] Type erreur:', typeof error);
+      console.error('❌ [ClassCollectionsView] error.response:', error.response);
+      console.error('❌ [ClassCollectionsView] error.response?.status:', error.response?.status);
+      console.error('❌ [ClassCollectionsView] error.response?.data:', error.response?.data);
+      console.error('❌ [ClassCollectionsView] error.message:', error.message);
+      
       setError(
         error.response?.data?.message || 
+        error.message ||
         'Erreur lors de la récupération des collections de la classe'
       );
     } finally {
+      console.log('🔍 [ClassCollectionsView] Fin fetchClassCollections, loading=false');
       setLoading(false);
     }
   };

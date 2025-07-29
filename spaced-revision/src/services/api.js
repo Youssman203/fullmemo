@@ -10,6 +10,12 @@ const getToken = () => {
 const api = {
   // Méthode GET
   async get(endpoint) {
+    // Logs spéciaux pour les collections de classe
+    const isClassCollections = endpoint.includes('/collections');
+    if (isClassCollections) {
+      console.log('🔍 [API] Requête collections classe:', endpoint);
+    }
+    
     const headers = {
       'Content-Type': 'application/json',
     };
@@ -18,6 +24,16 @@ const api = {
     const token = getToken();
     if (token) {
       headers.Authorization = `Bearer ${token}`;
+      if (isClassCollections) {
+        console.log('🔍 [API] Token présent:', token.substring(0, 20) + '...');
+      }
+    } else if (isClassCollections) {
+      console.log('⚠️ [API] Pas de token d\'authentification');
+    }
+    
+    if (isClassCollections) {
+      console.log('🔍 [API] URL complète:', `${API_URL}${endpoint}`);
+      console.log('🔍 [API] Headers:', headers);
     }
     
     try {
@@ -25,6 +41,11 @@ const api = {
         method: 'GET',
         headers
       });
+      
+      if (isClassCollections) {
+        console.log('🔍 [API] Statut réponse:', response.status);
+        console.log('🔍 [API] Headers réponse:', [...response.headers.entries()]);
+      }
       
       // Gestion des erreurs
       if (!response.ok) {
