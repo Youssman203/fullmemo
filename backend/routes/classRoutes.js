@@ -12,7 +12,8 @@ const {
   removeStudent,
   shareCollectionWithClass,
   unshareCollectionFromClass,
-  getClassCollections
+  getClassCollections,
+  importCollectionFromClass
 } = require('../controllers/classController');
 
 const { protect, requireTeacher, requireStudent } = require('../middleware/authMiddleware');
@@ -35,6 +36,8 @@ router.post('/:id/invite', protect, requireTeacher, inviteStudents);
 router.delete('/:id/students/:studentId', protect, requireTeacher, removeStudent);
 
 // Routes pour le partage de collections
+// IMPORTANT: Routes spécifiques en premier pour éviter les conflits
+router.post('/:id/collections/import', protect, requireStudent, importCollectionFromClass);
 router.post('/:id/collections', protect, requireTeacher, shareCollectionWithClass);
 router.delete('/:id/collections/:collectionId', protect, requireTeacher, unshareCollectionFromClass);
 router.get('/:id/collections', protect, getClassCollections);

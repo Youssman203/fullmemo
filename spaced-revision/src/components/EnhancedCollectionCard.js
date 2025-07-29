@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Dropdown, Badge, ProgressBar, Card } from 'react-bootstrap';
-import { FiLayers, FiClock, FiMoreVertical, FiEdit2, FiTrash2, FiPlay, FiBook, FiPackage } from 'react-icons/fi';
+import { FiLayers, FiClock, FiMoreVertical, FiEdit2, FiTrash2, FiPlay, FiBook, FiPackage, FiShare2, FiHash } from 'react-icons/fi';
 
-const EnhancedCollectionCard = ({ collection, onRename, onDelete, viewMode = 'grid' }) => {
+const EnhancedCollectionCard = ({ collection, onRename, onDelete, onShare, onShareCode, viewMode = 'grid' }) => {
   // Get or generate card count
   const cardCount = collection.cardCount || 0;
   
@@ -134,6 +134,16 @@ const EnhancedCollectionCard = ({ collection, onRename, onDelete, viewMode = 'gr
             <Dropdown.Item onClick={onRename}>
               <FiEdit2 className="me-2" /> Renommer
             </Dropdown.Item>
+            {onShare && (
+              <Dropdown.Item onClick={onShare}>
+                <FiShare2 className="me-2" /> Partager par lien
+              </Dropdown.Item>
+            )}
+            {onShareCode && (
+              <Dropdown.Item onClick={onShareCode}>
+                <FiHash className="me-2" /> Partager par code
+              </Dropdown.Item>
+            )}
             <Dropdown.Divider />
             <Dropdown.Item onClick={onDelete} className="text-danger">
               <FiTrash2 className="me-2" /> Supprimer

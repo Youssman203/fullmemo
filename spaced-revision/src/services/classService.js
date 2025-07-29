@@ -191,6 +191,19 @@ const classService = {
       console.error('Erreur lors de la récupération des collections:', error);
       throw error;
     }
+  },
+
+  // Importer une collection partagée dans les collections personnelles de l'étudiant
+  importCollectionFromClass: async (classId, collectionId) => {
+    try {
+      const response = await api.post(`/classes/${classId}/collections/import`, {
+        collectionId
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de l\'importation de la collection:', error);
+      throw error;
+    }
   }
 };
 

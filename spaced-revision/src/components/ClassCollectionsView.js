@@ -1,20 +1,24 @@
 // src/components/ClassCollectionsView.js
 import React, { useState, useEffect } from 'react';
 import { 
-  Container, Row, Col, Card, Button, Badge, Alert, Spinner 
+  Container, Row, Col, Card, Button, Badge, Alert, Spinner, Toast, ToastContainer 
 } from 'react-bootstrap';
 import { 
-  FiBook, FiBookOpen, FiUser, FiCalendar, FiArrowLeft, FiPlay
+  FiBook, FiBookOpen, FiUser, FiCalendar, FiArrowLeft, FiPlay, FiDownload, FiCopy, FiShare2
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { useData } from '../contexts/DataContext';
 
 const ClassCollectionsView = ({ classId, className, onBack }) => {
-  const { getClassCollections } = useData();
+  const { getClassCollections, importCollectionFromClass } = useData();
   const [collections, setCollections] = useState([]);
   const [classInfo, setClassInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [importingIds, setImportingIds] = useState(new Set());
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState('success');
 
   useEffect(() => {
     if (classId) {
@@ -76,6 +80,99 @@ const ClassCollectionsView = ({ classId, className, onBack }) => {
       month: 'long',
       day: 'numeric'
     });
+  };
+
+  const handleImportCollection = async (collectionId, collectionName) => {
+    console.log('📎 [Import] Début importation:', collectionId, collectionName);
+    
+    try {
+      // Ajouter l'ID à la liste des importations en cours
+      setImportingIds(prev => new Set([...prev, collectionId]));
+      
+      // Appeler l'API d'importation
+      const result = await importCollectionFromClass(classId, collectionId);
+      
+      console.log('✅ [Import] Résultat:', result);
+      
+      // Afficher un message de succès
+      setToastMessage(`Collection "${collectionName}" importée avec succès ! (${result.cardsImported || 0} cartes)`);
+      setToastType('success');
+      setShowToast(true);
+      
+    } catch (error) {
+      console.error('❌ [Import] Erreur:', error);
+      
+      let errorMessage = 'Erreur lors de l\'importation de la collection';
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      setToastMessage(errorMessage);
+      setToastType('error');
+      setShowToast(true);
+    } finally {
+      // Retirer l'ID de la liste des importations en cours
+      setImportingIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(collectionId);
+        return newSet;
+      });
+    }
+  };
+
+  const handleCopyCollectionInfo = (collection) => {
+    const info = `📚 Collection: ${collection.name}\n` +
+                 `📖 Description: ${collection.description || 'Aucune description'}\n` +
+                 `🃏 Cartes: ${collection.cardCount || 0}\n` +
+                 `👨‍🏫 Enseignant: ${collection.user?.name || 'Enseignant'}\n` +
+                 `📅 Créé le: ${formatDate(collection.createdAt)}`;
+
+    navigator.clipboard.writeText(info).then(() => {
+      setToastMessage('Informations de la collection copiées !');
+      setToastType('success');
+      setShowToast(true);
+    }).catch(() => {
+      setToastMessage('Erreur lors de la copie');
+      setToastType('danger');
+      setShowToast(true);
+    });
+  };
+
+  const handleDownloadCollectionInfo = (collection) => {
+    const data = {
+      collection: {
+        name: collection.name,
+        description: collection.description,
+        category: collection.category,
+        difficulty: collection.difficulty,
+        cardCount: collection.cardCount,
+        teacher: collection.user?.name || 'Enseignant',
+        createdAt: collection.createdAt,
+        classId: classId,
+        className: className
+      },
+      exportedAt: new Date().toISOString(),
+      note: 'Informations de collection - Les cartes ne sont pas incluses. Utilisez le bouton Télécharger pour importer la collection complète.'
+    };
+
+    const content = JSON.stringify(data, null, 2);
+    const filename = `${collection.name.replace(/[^a-zA-Z0-9]/g, '_')}_info.json`;
+    
+    const blob = new Blob([content], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    setToastMessage('Informations téléchargées !');
+    setToastType('success');
+    setShowToast(true);
   };
 
   if (loading) {
@@ -234,28 +331,79 @@ const ClassCollectionsView = ({ classId, className, onBack }) => {
                     </div>
 
                     {/* Actions */}
-                    <div className="d-flex gap-2">
+                    <div className="d-flex flex-column gap-2">
+                      {/* Ligne 1: Actions principales */}
+                      <div className="d-flex gap-2 flex-wrap">
+                        <Button
+                          as={Link}
+                          to={`/collections/${collection._id}`}
+                          variant="primary"
+                          size="sm"
+                          className="flex-fill d-flex align-items-center justify-content-center"
+                          style={{ minWidth: '100px' }}
+                        >
+                          <FiBookOpen className="me-2" />
+                          Voir les cartes
+                        </Button>
+                        
+                        <Button
+                          as={Link}
+                          to={`/review-cards?collection=${collection._id}`}
+                          variant="outline-success"
+                          size="sm"
+                          className="flex-fill d-flex align-items-center justify-content-center"
+                          disabled={!collection.cardCount || collection.cardCount === 0}
+                          style={{ minWidth: '90px' }}
+                        >
+                          <FiPlay className="me-2" />
+                          Réviser
+                        </Button>
+                      </div>
+
+                      {/* Ligne 2: Import et actions */}
+                      <div className="d-flex gap-2 flex-wrap">
+                        <Button
+                          onClick={() => handleImportCollection(collection._id, collection.name)}
+                          variant="outline-primary"
+                          size="sm"
+                          className="flex-fill d-flex align-items-center justify-content-center"
+                          disabled={importingIds.has(collection._id) || !collection.cardCount || collection.cardCount === 0}
+                          style={{ minWidth: '110px' }}
+                        >
+                          {importingIds.has(collection._id) ? (
+                            <>
+                              <Spinner animation="border" size="sm" className="me-2" />
+                              Import...
+                            </>
+                          ) : (
+                            <>
+                              <FiDownload className="me-2" />
+                              Importer
+                            </>
+                          )}
+                        </Button>
+
+                        <Button
+                          onClick={() => handleCopyCollectionInfo(collection)}
+                          variant="outline-secondary"
+                          size="sm"
+                          className="flex-fill d-flex align-items-center justify-content-center"
+                          style={{ minWidth: '90px' }}
+                        >
+                          <FiCopy className="me-2" />
+                          Copier infos
+                        </Button>
+                      </div>
+
+                      {/* Ligne 3: Actions supplémentaires */}
                       <Button
-                        as={Link}
-                        to={`/collections/${collection._id}`}
-                        variant="primary"
+                        onClick={() => handleDownloadCollectionInfo(collection)}
+                        variant="outline-info"
                         size="sm"
-                        className="flex-fill d-flex align-items-center justify-content-center"
+                        className="d-flex align-items-center justify-content-center"
                       >
-                        <FiBookOpen className="me-2" />
-                        Voir les cartes
-                      </Button>
-                      
-                      <Button
-                        as={Link}
-                        to={`/review-cards?collection=${collection._id}`}
-                        variant="outline-success"
-                        size="sm"
-                        className="flex-fill d-flex align-items-center justify-content-center"
-                        disabled={!collection.cardCount || collection.cardCount === 0}
-                      >
-                        <FiPlay className="me-2" />
-                        Réviser
+                        <FiShare2 className="me-2" />
+                        Télécharger les infos
                       </Button>
                     </div>
                   </Card.Body>
@@ -265,6 +413,25 @@ const ClassCollectionsView = ({ classId, className, onBack }) => {
           </Row>
         </>
       )}
+      {/* Toast pour les messages d'importation */}
+      <ToastContainer position="top-end" className="p-3">
+        <Toast 
+          show={showToast} 
+          onClose={() => setShowToast(false)}
+          delay={5000}
+          autohide
+          bg={toastType === 'success' ? 'success' : 'danger'}
+        >
+          <Toast.Header>
+            <strong className="me-auto">
+              {toastType === 'success' ? '✅ Succès' : '❌ Erreur'}
+            </strong>
+          </Toast.Header>
+          <Toast.Body className="text-white">
+            {toastMessage}
+          </Toast.Body>
+        </Toast>
+      </ToastContainer>
     </Container>
   );
 };

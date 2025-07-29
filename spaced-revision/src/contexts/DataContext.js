@@ -4,6 +4,8 @@ import collectionService from '../services/collectionService';
 import flashcardService from '../services/flashcardService';
 import reviewService from '../services/reviewService';
 import classService from '../services/classService';
+import sharedLinkService from '../services/sharedLinkService';
+import shareCodeService from '../services/shareCodeService';
 import { useAuth } from './AuthContext';
 
 const DataContext = createContext(null);
@@ -239,6 +241,34 @@ export const DataProvider = ({ children }) => {
       throw error;
     }
   };
+
+  const importCollectionFromClass = async (classId, collectionId) => {
+    try {
+      const response = await classService.importCollectionFromClass(classId, collectionId);
+      // Rafraîchir les données pour inclure la nouvelle collection importée
+      refreshData();
+      return response.data || response;
+    } catch (error) {
+      console.error("Failed to import collection:", error);
+      throw error;
+    }
+  };
+  
+  // Wrapper pour importCollectionByCode avec rafraîchissement automatique
+  const importCollectionByCodeWithRefresh = async (code) => {
+    try {
+      console.log('📥 Import collection par code avec rafraîchissement:', code);
+      const response = await shareCodeService.importCollectionByCode(code);
+      console.log('✅ Collection importée, rafraîchissement en cours...');
+      // Rafraîchir les données pour inclure la nouvelle collection importée
+      await refreshData();
+      console.log('✅ Collections rafraîchies après import par code');
+      return response.data || response;
+    } catch (error) {
+      console.error("Failed to import collection by code:", error);
+      throw error;
+    }
+  };
   
   // Créer des alias pour compatibilité avec le code existant
   const getCardsByCollection = getFlashcardsByCollection;
@@ -276,7 +306,22 @@ export const DataProvider = ({ children }) => {
     shareCollectionWithClass: classService.shareCollectionWithClass,
     unshareCollectionFromClass: classService.unshareCollectionFromClass,
     getClassCollections: classService.getClassCollections,
-    getClassById: classService.getClassById
+    getClassById: classService.getClassById,
+    importCollectionFromClass,
+    
+    // Fonctions des liens partagés
+    createSharedLink: sharedLinkService.createSharedLink,
+    getSharedCollection: sharedLinkService.getSharedCollection,
+    downloadSharedCollection: sharedLinkService.downloadSharedCollection,
+    getUserSharedLinks: sharedLinkService.getUserSharedLinks,
+    deactivateSharedLink: sharedLinkService.deactivateSharedLink,
+    
+    // Fonctions des codes de partage
+    generateShareCode: shareCodeService.generateShareCode,
+    getCollectionByCode: shareCodeService.getCollectionByCode,
+    importCollectionByCode: importCollectionByCodeWithRefresh, // Utilise la version avec rafraîchissement
+    getUserShareCodes: shareCodeService.getUserShareCodes,
+    deactivateShareCode: shareCodeService.deactivateShareCode
   };
 
   return (

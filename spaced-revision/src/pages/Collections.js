@@ -5,12 +5,15 @@ import { FiSearch, FiGrid, FiList, FiFilter, FiPlus } from 'react-icons/fi';
 import EnhancedCollectionCard from '../components/EnhancedCollectionCard';
 import AddCollectionCard from '../components/AddCollectionCard';
 import EmptyCollectionsState from '../components/EmptyCollectionsState';
+import ShareLinkModal from '../components/ShareLinkModal';
+import ShareCodeModal from '../components/ShareCodeModal';
+import AccessByCodeModal from '../components/AccessByCodeModal';
 import '../assets/collections.css';
 import '../assets/collections-fix.css'; // Correctifs pour l'affichage des grilles
 import '../assets/modern-collections.css'; // Nouveau style inspiré de YouTube
 
 const Collections = () => {
-  const { collections, createCollection, updateCollection, deleteCollection } = useData();
+  const { collections, createCollection, updateCollection, deleteCollection, getUserCollections, refreshData } = useData();
   const [showAddModal, setShowAddModal] = useState(false);
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -22,6 +25,14 @@ const Collections = () => {
   const [sortBy, setSortBy] = useState('recent'); // 'recent', 'name', 'cards'
   const [filteredCollections, setFilteredCollections] = useState([]);
   const [darkMode, setDarkMode] = useState(false);
+  
+  // États pour la modal de partage
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [collectionToShare, setCollectionToShare] = useState(null);
+  
+  // États pour les codes de partage
+  const [showShareCodeModal, setShowShareCodeModal] = useState(false);
+  const [showAccessCodeModal, setShowAccessCodeModal] = useState(false);
 
   // Check for dark mode
   useEffect(() => {
@@ -106,6 +117,46 @@ const Collections = () => {
     setShowDeleteModal(true);
   };
 
+  // Handlers pour le partage
+  const openShareModal = (collection) => {
+    setCollectionToShare(collection);
+    setShowShareModal(true);
+  };
+  
+  // Handlers pour les codes de partage
+  const openShareCodeModal = (collection) => {
+    setCollectionToShare(collection);
+    setShowShareCodeModal(true);
+  };
+  
+  const handleCodeGenerated = (codeData) => {
+    console.log('✅ Code généré:', codeData);
+  };
+
+  const handleLinkCreated = (sharedLink) => {
+    console.log('Lien créé:', sharedLink);
+    // Optionnel: mettre à jour l'état des collections pour afficher un indicateur de partage
+  };
+
+  // Handler pour l'import de collection par code
+  const handleCollectionAccessed = async (importedCollection) => {
+    console.log('🎯 Collection importée:', importedCollection);
+    try {
+      // Rafraîchir complètement les données après l'import
+      await refreshData();
+      console.log('✅ Données complètement rafraîchies après import');
+    } catch (error) {
+      console.error('❌ Erreur lors du rafraîchissement complet:', error);
+      // Fallback sur getUserCollections si refreshData échoue
+      try {
+        await getUserCollections();
+        console.log('✅ Collections rafraîchies en fallback');
+      } catch (fallbackError) {
+        console.error('❌ Erreur fallback getUserCollections:', fallbackError);
+      }
+    }
+  };
+
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
   };
@@ -113,10 +164,22 @@ const Collections = () => {
   return (
     <Container className={`collections-container ${darkMode ? 'dark-mode' : ''}`}>
       <div className="collections-header">
-        <h1 className="collections-title">Mes Collections</h1>
-        <p className="collections-subtitle">
-          Organisez vos cartes en collections thématiques pour faciliter votre apprentissage
-        </p>
+        <div className="d-flex justify-content-between align-items-start">
+          <div>
+            <h1 className="collections-title">Mes Collections</h1>
+            <p className="collections-subtitle">
+              Organisez vos cartes en collections thématiques pour faciliter votre apprentissage
+            </p>
+          </div>
+          <Button 
+            variant="outline-primary" 
+            onClick={() => setShowAccessCodeModal(true)}
+            className="mt-2"
+          >
+            <FiPlus className="me-2" />
+            Accéder par code
+          </Button>
+        </div>
       </div>
 
       {collections.length > 0 ? (
@@ -175,6 +238,8 @@ const Collections = () => {
                       collection={collection} 
                       onRename={() => openRenameModal(collection)}
                       onDelete={() => openDeleteModal(collection)}
+                      onShare={() => openShareModal(collection)}
+                      onShareCode={() => openShareCodeModal(collection)}
                       viewMode={viewMode}
                     />
                   </div>
@@ -253,6 +318,29 @@ const Collections = () => {
           <Button variant="danger" onClick={handleDeleteCollection}>Supprimer</Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Share Link Modal */}
+      <ShareLinkModal
+        show={showShareModal}
+        onHide={() => setShowShareModal(false)}
+        collection={collectionToShare}
+        onLinkCreated={handleLinkCreated}
+      />
+      
+      {/* Share Code Modal */}
+      <ShareCodeModal
+        show={showShareCodeModal}
+        onHide={() => setShowShareCodeModal(false)}
+        collection={collectionToShare}
+        onCodeGenerated={handleCodeGenerated}
+      />
+      
+      {/* Access by Code Modal */}
+      <AccessByCodeModal
+        show={showAccessCodeModal}
+        onHide={() => setShowAccessCodeModal(false)}
+        onCollectionAccessed={handleCollectionAccessed}
+      />
     </Container>
   );
 };

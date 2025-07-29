@@ -22,6 +22,11 @@ import ReviewCards from './pages/ReviewCards';
 import Flashcards from './pages/Flashcards';
 import Classes from './pages/Classes';
 import StudentClassesDetailPage from './pages/StudentClassesDetailPage';
+import SharedCollection from './pages/SharedCollectionSimple';
+import ManageSharedLinks from './pages/ManageSharedLinks';
+import StudentSharedCollections from './pages/StudentSharedCollections';
+import TestShared from './pages/TestShared';
+// import SharedCollectionOriginal from './pages/SharedCollection';
 
 // A layout for protected routes that includes the Navbar
 const ProtectedLayout = () => (
@@ -50,38 +55,196 @@ function App() {
     <ThemeProvider>
     <Routes>
       {/* Public routes - redirect if logged in */}
-      <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
-      <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
-
-      <Route 
-        path="/*" 
-        element={
-          <ProtectedRoute>
-            <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
-              <Navbar />
-              <DebugRole />
-              <div className="main-content">
-                <Routes>
-                  <Route path="/" element={<Navigate to="/home" replace />} />
-                  <Route path="/home" element={<Dashboard />} />
-                  <Route path="/review" element={<ReviewPage />} />
-                  <Route path="/review-cards" element={<ReviewCards />} />
-                  <Route path="/flashcards" element={<Flashcards />} />
-                  <Route path="/collections" element={<Collections />} />
-                  <Route path="/collections/:collectionId" element={<Collections />} />
-                  <Route path="/card/new" element={<CardForm />} />
-                  <Route path="/card/edit/:cardId" element={<CardForm />} />
-                  <Route path="/stats" element={<Stats />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/classes" element={<Classes />} />
-                  <Route path="/classes/details" element={<StudentClassesDetailPage />} />
-                  <Route path="*" element={<Navigate to="/home" replace />} />
-                </Routes>
-              </div>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      {/* Route publique pour les collections partagées */}
+      <Route path="/shared/:token" element={<SharedCollection />} />
+      {/* Route de test */}
+      <Route path="/test-shared" element={<TestShared />} />
+      
+      {/* Protected routes */}
+      <Route path="/" element={
+        <ProtectedRoute>
+          <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
+            <Navbar />
+            <DebugRole />
+            <div className="main-content">
+              <Navigate to="/home" replace />
             </div>
-          </ProtectedRoute>
-        }
-      />
+          </div>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/home" element={
+        <ProtectedRoute>
+          <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
+            <Navbar />
+            <DebugRole />
+            <div className="main-content">
+              <Dashboard />
+            </div>
+          </div>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/review" element={
+        <ProtectedRoute>
+          <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
+            <Navbar />
+            <DebugRole />
+            <div className="main-content">
+              <ReviewPage />
+            </div>
+          </div>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/review-cards" element={
+        <ProtectedRoute>
+          <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
+            <Navbar />
+            <DebugRole />
+            <div className="main-content">
+              <ReviewCards />
+            </div>
+          </div>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/flashcards" element={
+        <ProtectedRoute>
+          <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
+            <Navbar />
+            <DebugRole />
+            <div className="main-content">
+              <Flashcards />
+            </div>
+          </div>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/collections" element={
+        <ProtectedRoute>
+          <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
+            <Navbar />
+            <DebugRole />
+            <div className="main-content">
+              <Collections />
+            </div>
+          </div>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/collections/:collectionId" element={
+        <ProtectedRoute>
+          <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
+            <Navbar />
+            <DebugRole />
+            <div className="main-content">
+              <Collections />
+            </div>
+          </div>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/card/new" element={
+        <ProtectedRoute>
+          <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
+            <Navbar />
+            <DebugRole />
+            <div className="main-content">
+              <CardForm />
+            </div>
+          </div>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/card/edit/:cardId" element={
+        <ProtectedRoute>
+          <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
+            <Navbar />
+            <DebugRole />
+            <div className="main-content">
+              <CardForm />
+            </div>
+          </div>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/stats" element={
+        <ProtectedRoute>
+          <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
+            <Navbar />
+            <DebugRole />
+            <div className="main-content">
+              <Stats />
+            </div>
+          </div>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/profile" element={
+        <ProtectedRoute>
+          <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
+            <Navbar />
+            <DebugRole />
+            <div className="main-content">
+              <Profile />
+            </div>
+          </div>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/classes" element={
+        <ProtectedRoute>
+          <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
+            <Navbar />
+            <DebugRole />
+            <div className="main-content">
+              <Classes />
+            </div>
+          </div>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/classes/details" element={
+        <ProtectedRoute>
+          <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
+            <Navbar />
+            <DebugRole />
+            <div className="main-content">
+              <StudentClassesDetailPage />
+            </div>
+          </div>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/shared-links" element={
+        <ProtectedRoute>
+          <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
+            <Navbar />
+            <DebugRole />
+            <div className="main-content">
+              <ManageSharedLinks />
+            </div>
+          </div>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/student-shared" element={
+        <ProtectedRoute>
+          <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
+            <Navbar />
+            <DebugRole />
+            <div className="main-content">
+              <StudentSharedCollections />
+            </div>
+          </div>
+        </ProtectedRoute>
+      } />
+      
+      {/* Catch-all route */}
+      <Route path="*" element={<Navigate to="/home" replace />} />
     </Routes>
     </ThemeProvider>
   );

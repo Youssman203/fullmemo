@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { FaHome, FaSyncAlt, FaBook, FaClone, FaLayerGroup, FaUserCircle, FaSignOutAlt, FaChartBar, FaBars, FaTimes, FaUsers, FaUserPlus, FaEye } from 'react-icons/fa';
+import { FaHome, FaSyncAlt, FaBook, FaClone, FaLayerGroup, FaUserCircle, FaSignOutAlt, FaChartBar, FaBars, FaTimes, FaUsers, FaUserPlus, FaEye, FaShare, FaExternalLinkAlt } from 'react-icons/fa';
 
 const Navbar = () => {
   const { user, logout, isTeacher, isStudent } = useAuth();
@@ -76,11 +76,28 @@ const Navbar = () => {
           <FaChartBar /><span>Statistiques</span>
         </NavLink>
         
-        {/* Liens spécifiques aux enseignants */}
-        {isTeacher() && (
-          <NavLink to="/classes" className="sidebar-link" onClick={handleNavLinkClick}>
-            <FaUsers /><span>Mes Classes</span>
-          </NavLink>
+        {/* Liens pour les enseignants uniquement */}
+        {user && user.role === 'teacher' && (
+          <>
+            <NavLink to="/classes" className="sidebar-link" onClick={handleNavLinkClick}>
+              <FaUsers /><span>Mes Classes</span>
+            </NavLink>
+            <NavLink to="/shared-links" className="sidebar-link" onClick={handleNavLinkClick}>
+              <FaExternalLinkAlt /><span>Liens Partagés</span>
+            </NavLink>
+          </>
+        )}
+
+        {/* Liens pour les étudiants uniquement */}
+        {user && user.role === 'student' && (
+          <>
+            <NavLink to="/classes" className="sidebar-link" onClick={handleNavLinkClick}>
+              <FaUsers /><span>Mes Classes</span>
+            </NavLink>
+            <NavLink to="/student-shared" className="sidebar-link" onClick={handleNavLinkClick}>
+              <FaShare /><span>Collections Partagées</span>
+            </NavLink>
+          </>
         )}
         
         {/* Liens spécifiques aux étudiants */}

@@ -268,6 +268,9 @@ const Dashboard = () => {
                   <Button variant="outline-primary" className="d-flex align-items-center justify-content-center" as={Link} to="/card/new">
                     <FiBookOpen className="me-2" /> Créer une nouvelle carte
                   </Button>
+                  <Button variant="outline-success" className="d-flex align-items-center justify-content-center" as={Link} to="/student-shared">
+                    <FiUser className="me-2" /> Collections partagées
+                  </Button>
                   <JoinClassButton variant="outline-info" />
                 </div>
               </Card.Body>

@@ -83,4 +83,36 @@ const requireStudent = asyncHandler(async (req, res, next) => {
   next();
 });
 
-module.exports = { protect, checkOwnership, requireTeacher, requireStudent };
+/**
+ * Middleware d'authentification optionnel
+ * Vérifie l'authentification si un token est présent, sinon continue sans utilisateur
+ */
+const optionalProtect = asyncHandler(async (req, res, next) => {
+  let token;
+
+  // Vérifier si le token existe dans les headers
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    try {
+      // Récupérer le token du header
+      token = req.headers.authorization.split(' ')[1];
+
+      // Vérifier le token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      // Récupérer l'utilisateur sans le mot de passe
+      req.user = await User.findById(decoded.id).select('-password');
+    } catch (error) {
+      console.log('Token invalide, mais accès autorisé sans authentification');
+      // Ne pas lever d'erreur, juste continuer sans utilisateur
+      req.user = null;
+    }
+  }
+
+  // Continuer dans tous les cas (avec ou sans utilisateur)
+  next();
+});
+
+module.exports = { protect, optionalProtect, checkOwnership, requireTeacher, requireStudent };

@@ -86,7 +86,10 @@ const getFlashcardsByCollection = asyncHandler(async (req, res) => {
   const flashcards = await Flashcard.find({ collection: collectionId })
     .sort({ createdAt: 1 }); // Tri croissant: du plus ancien au plus récent
 
-  res.json(flashcards);
+  res.json({
+    success: true,
+    data: flashcards
+  });
 });
 
 /**

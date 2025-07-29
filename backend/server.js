@@ -21,6 +21,8 @@ const collectionRoutes = require('./routes/collectionRoutes');
 const flashcardRoutes = require('./routes/flashcardRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const classRoutes = require('./routes/classRoutes');
+const sharedLinkRoutes = require('./routes/sharedLinkRoutes');
+const shareCodeRoutes = require('./routes/shareCodeRoutes');
 
 // Initialiser l'application Express
 const app = express();
@@ -58,6 +60,8 @@ app.use('/api/collections', collectionRoutes);
 app.use('/api/flashcards', flashcardRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/classes', classRoutes);
+app.use('/api/shared', sharedLinkRoutes);
+app.use('/api/share', shareCodeRoutes);
 
 // Dossier statique pour les uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

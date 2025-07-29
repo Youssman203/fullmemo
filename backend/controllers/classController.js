@@ -491,7 +491,7 @@ const getClassCollections = asyncHandler(async (req, res) => {
   const classData = await Class.findById(classId)
     .populate({
       path: 'collections',
-      select: 'name description cardCount createdAt',
+      select: 'name description cardsCount createdAt category difficulty tags',
       populate: {
         path: 'user',
         select: 'name email'
@@ -515,6 +515,27 @@ const getClassCollections = asyncHandler(async (req, res) => {
     throw new Error('Accès refusé à cette classe');
   }
 
+  // Récupérer le nombre réel de cartes pour chaque collection
+  const Flashcard = require('../models/flashcardModel');
+  const collectionsWithCardCount = [];
+
+  for (const collection of classData.collections || []) {
+    const realCardCount = await Flashcard.countDocuments({ collection: collection._id });
+    
+    collectionsWithCardCount.push({
+      _id: collection._id,
+      name: collection.name,
+      description: collection.description,
+      cardsCount: collection.cardsCount || 0,
+      cardCount: realCardCount, // Nombre réel de cartes
+      category: collection.category,
+      difficulty: collection.difficulty,
+      tags: collection.tags,
+      createdAt: collection.createdAt,
+      user: collection.user
+    });
+  }
+
   res.json({
     success: true,
     data: {
@@ -524,9 +545,136 @@ const getClassCollections = asyncHandler(async (req, res) => {
         description: classData.description,
         teacher: classData.teacherId
       },
-      collections: classData.collections || []
+      collections: collectionsWithCardCount
     }
   });
+});
+
+// Importer une collection partagée dans les collections personnelles de l'étudiant
+const importCollectionFromClass = asyncHandler(async (req, res) => {
+  const { id: classId } = req.params;
+  const { collectionId } = req.body;
+
+  console.log('Import collection - ClassId:', classId, 'CollectionId:', collectionId, 'UserId:', req.user._id);
+
+  // Vérifier que la classe existe
+  const classData = await Class.findById(classId);
+  if (!classData) {
+    res.status(404);
+    throw new Error('Classe non trouvée');
+  }
+
+  // Vérifier que l'utilisateur est bien un étudiant de cette classe
+  const isStudent = classData.students.some(
+    studentId => studentId.toString() === req.user._id.toString()
+  );
+
+  if (!isStudent) {
+    res.status(403);
+    throw new Error('Vous devez être inscrit dans cette classe pour importer des collections');
+  }
+
+  // Vérifier que la collection est bien partagée avec cette classe
+  if (!classData.collections.includes(collectionId)) {
+    res.status(403);
+    throw new Error('Cette collection n\'est pas partagée avec cette classe');
+  }
+
+  const Collection = require('../models/collectionModel');
+  const Flashcard = require('../models/flashcardModel');
+
+  // Récupérer la collection originale avec ses cartes
+  const originalCollection = await Collection.findById(collectionId);
+  if (!originalCollection) {
+    res.status(404);
+    throw new Error('Collection non trouvée');
+  }
+
+  // Vérifier si l'étudiant a déjà importé cette collection de cette classe
+  // Utilisation d'un identifiant unique basé sur l'ID original et la classe
+  const importKey = `source_${collectionId}_class_${classId}`;
+  const existingImport = await Collection.findOne({
+    user: req.user._id,
+    tags: { $in: [importKey] }
+  });
+
+  if (existingImport) {
+    res.status(400);
+    throw new Error(`Vous avez déjà importé la collection "${originalCollection.name}" de cette classe`);
+  }
+
+  try {
+    // Créer une copie de la collection pour l'étudiant
+    const importedCollection = new Collection({
+      name: originalCollection.name,
+      description: `Importée de la classe "${classData.name}" - ${originalCollection.description || ''}`,
+      category: originalCollection.category,
+      difficulty: originalCollection.difficulty,
+      tags: [...(originalCollection.tags || []), 'importé', 'classe', importKey],
+      user: req.user._id,
+      isPublic: false
+    });
+
+    await importedCollection.save();
+    console.log('Collection importée créée:', importedCollection._id);
+
+    // Récupérer toutes les cartes de la collection originale
+    const originalCards = await Flashcard.find({ collection: collectionId });
+    console.log('Cartes à copier:', originalCards.length);
+
+    // Créer des copies de toutes les cartes pour l'étudiant
+    const importedCards = [];
+    for (const originalCard of originalCards) {
+      const importedCard = new Flashcard({
+        collection: importedCollection._id,
+        question: originalCard.question,
+        answer: originalCard.answer,
+        difficulty: originalCard.difficulty,
+        cardType: originalCard.cardType,
+        options: originalCard.options ? [...originalCard.options] : undefined,
+        imageUrl: originalCard.imageUrl,
+        notes: originalCard.notes,
+        tags: [...(originalCard.tags || []), 'importé'],
+        user: req.user._id,
+        // Réinitialiser les données de révision pour l'étudiant
+        status: 'new',
+        nextReviewDate: new Date(),
+        reviewHistory: [],
+        interval: 0,
+        easeFactor: 2.5
+      });
+
+      await importedCard.save();
+      importedCards.push(importedCard);
+    }
+
+    console.log('Cartes importées créées:', importedCards.length);
+
+    // Mettre à jour le compteur de cartes de la collection importée
+    importedCollection.cardsCount = importedCards.length;
+    await importedCollection.save();
+
+    // Peupler les données pour la réponse
+    await importedCollection.populate('user', 'name email');
+
+    res.status(201).json({
+      success: true,
+      data: {
+        collection: importedCollection,
+        cardsImported: importedCards.length,
+        originalCollection: {
+          name: originalCollection.name,
+          cardsCount: originalCards.length
+        }
+      },
+      message: `Collection "${originalCollection.name}" importée avec succès (${importedCards.length} cartes)`
+    });
+
+  } catch (error) {
+    console.error('Erreur lors de l\'importation:', error);
+    res.status(500);
+    throw new Error('Erreur lors de l\'importation de la collection');
+  }
 });
 
 module.exports = {
@@ -541,5 +689,6 @@ module.exports = {
   removeStudent,
   shareCollectionWithClass,
   unshareCollectionFromClass,
-  getClassCollections
+  getClassCollections,
+  importCollectionFromClass
 };

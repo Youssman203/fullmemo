@@ -37,7 +37,10 @@ const getUserCollections = asyncHandler(async (req, res) => {
   const collections = await Collection.find({ user: req.user._id })
     .sort({ updatedAt: -1 });
 
-  res.json(collections);
+  res.json({
+    success: true,
+    data: collections
+  });
 });
 
 /**
