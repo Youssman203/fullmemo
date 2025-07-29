@@ -7,7 +7,7 @@ const User = require('../models/userModel');
  * @access  Public
  */
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body;
 
   // Vérifier si les champs requis sont fournis
   if (!name || !email || !password) {
@@ -28,6 +28,7 @@ const registerUser = asyncHandler(async (req, res) => {
     name,
     email,
     password,
+    role: role || 'student', // Utiliser le rôle fourni ou 'student' par défaut
   });
 
   if (user) {
@@ -35,6 +36,7 @@ const registerUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role, // Inclure le rôle dans la réponse
       profileImage: user.profileImage,
       joinDate: user.joinDate,
       preferences: user.preferences,
@@ -80,6 +82,7 @@ const loginUser = asyncHandler(async (req, res) => {
     _id: user._id,
     name: user.name,
     email: user.email,
+    role: user.role, // Inclure le rôle dans la réponse
     profileImage: user.profileImage,
     joinDate: user.joinDate,
     preferences: user.preferences,
@@ -100,6 +103,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role, // Inclure le rôle dans la réponse
       profileImage: user.profileImage,
       joinDate: user.joinDate,
       preferences: user.preferences,
@@ -143,6 +147,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
       _id: updatedUser._id,
       name: updatedUser.name,
       email: updatedUser.email,
+      role: updatedUser.role, // Inclure le rôle dans la réponse
       profileImage: updatedUser.profileImage,
       joinDate: updatedUser.joinDate,
       preferences: updatedUser.preferences,

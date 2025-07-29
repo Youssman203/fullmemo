@@ -22,6 +22,11 @@ const userSchema = mongoose.Schema({
     minlength: 6,
     select: false
   },
+  role: {
+    type: String,
+    enum: ['student', 'teacher'],
+    default: 'student'
+  },
   profileImage: {
     type: String,
     default: 'default-profile.jpg'

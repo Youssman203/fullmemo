@@ -248,10 +248,58 @@ const getReviewStats = asyncHandler(async (req, res) => {
   });
 });
 
+/**
+ * @desc    Obtenir le temps d'étude d'aujourd'hui
+ * @route   GET /api/reviews/today-time
+ * @access  Private
+ */
+const getTodayStudyTime = asyncHandler(async (req, res) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  // Calculer le temps total d'étude d'aujourd'hui
+  const todayStats = await ReviewSession.aggregate([
+    { 
+      $match: { 
+        user: req.user._id,
+        completed: true,
+        endTime: { 
+          $gte: today,
+          $lt: tomorrow
+        }
+      } 
+    },
+    { 
+      $group: { 
+        _id: null, 
+        totalTime: { $sum: '$duration' },
+        sessionsCount: { $sum: 1 },
+        cardsReviewed: { $sum: '$totalCards' }
+      }
+    }
+  ]);
+
+  const totalTimeSeconds = todayStats.length > 0 ? todayStats[0].totalTime : 0;
+  const totalTimeMinutes = Math.round(totalTimeSeconds / 60);
+  const sessionsCount = todayStats.length > 0 ? todayStats[0].sessionsCount : 0;
+  const cardsReviewed = todayStats.length > 0 ? todayStats[0].cardsReviewed : 0;
+
+  res.json({
+    totalTimeMinutes,
+    totalTimeSeconds,
+    sessionsCount,
+    cardsReviewed
+  });
+});
+
 module.exports = {
   startReviewSession,
   updateReviewSession,
   getReviewSessionById,
   getUserReviewSessions,
-  getReviewStats
+  getReviewStats,
+  getTodayStudyTime
 };

@@ -1,0 +1,67 @@
+/* src/assets/teacher-theme.css */
+/* Styles spécifiques pour les enseignants */
+
+/* Couleur principale verte pour les enseignants */
+.teacher-theme {
+  --primary-color: #2E8B57; /* SeaGreen */
+}
+
+/* Styles de la barre latérale pour les enseignants */
+.teacher-theme .sidebar-link:hover {
+  background-color: #edf7f0; /* Light green */
+  color: #2E8B57;
+}
+
+.teacher-theme .sidebar-link.active {
+  background-color: #e0f2e9; /* Light green */
+  color: #2E8B57;
+  font-weight: 700;
+}
+
+/* Styles des boutons pour les enseignants */
+.teacher-theme .btn-primary {
+  background-color: #2E8B57;
+  border-color: #2E8B57;
+}
+
+.teacher-theme .btn-primary:hover {
+  background-color: #25704a;
+  border-color: #25704a;
+}
+
+.teacher-theme .btn-outline-primary {
+  color: #2E8B57;
+  border-color: #2E8B57;
+}
+
+.teacher-theme .btn-outline-primary:hover {
+  background-color: #2E8B57;
+  color: white;
+}
+
+/* Autres éléments utilisant la couleur primaire */
+.teacher-theme .text-primary {
+  color: #2E8B57 !important;
+}
+
+.teacher-theme .bg-primary {
+  background-color: #2E8B57 !important;
+}
+
+.teacher-theme .border-primary {
+  border-color: #2E8B57 !important;
+}
+
+/* Couleurs des cartes et éléments d'interface */
+.teacher-theme .flashcard-back {
+  background-color: #e0f2e9;
+}
+
+/* Styles pour les liens */
+.teacher-theme a:not(.btn) {
+  color: #2E8B57;
+}
+
+.teacher-theme a:not(.btn):hover {
+  color: #25704a;
+}

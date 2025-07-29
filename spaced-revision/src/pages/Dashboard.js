@@ -2,25 +2,44 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useData } from '../contexts/DataContext';
 import { Container, Row, Col, Card, Button, ProgressBar } from 'react-bootstrap';
 import { FiCalendar, FiBookOpen, FiUser, FiTrendingUp, FiClock } from 'react-icons/fi';
 import QuoteCarousel from '../components/QuoteCarousel';
 import RecentActivity from '../components/RecentActivity';
 import StreakCalendar from '../components/StreakCalendar';
 import ReviewBox from '../components/ReviewBox';
+import RoleTest from '../components/RoleTest';
+import TeacherPanel from '../components/TeacherPanel';
+import StudentClassesPanel from '../components/StudentClassesPanel';
+import JoinClassButton from '../components/JoinClassButton';
 import '../assets/dashboard.css';
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, isTeacher, isStudent } = useAuth();
+  const { getTodayStudyTime, getFlashcardsDueNow } = useData();
   const userName = user?.name || user?.email.split('@')[0];
   
-  // Mock data for demonstration
+  // State pour le temps d'étude réel
+  const [studyTimeData, setStudyTimeData] = useState({
+    totalTimeMinutes: 0,
+    sessionsCount: 0,
+    cardsReviewed: 0
+  });
+  
+  // State pour les données de révision
+  const [reviewData, setReviewData] = useState({
+    total: 0,
+    difficultCards: 0,
+    easyCards: 0
+  });
+  
+  // Mock data for demonstration (autres données)
   const mockData = {
     streakDays: 12,
     totalCards: 156,
     cardsToReview: 8,
     completionRate: 78,
-    studyTime: 45, // minutes today
     weeklyProgress: [
       { day: 'Mon', cards: 12 },
       { day: 'Tue', cards: 15 },
@@ -33,6 +52,48 @@ const Dashboard = () => {
     upcomingReviews: 23
   };
 
+  // Récupérer le temps d'étude d'aujourd'hui
+  useEffect(() => {
+    const fetchStudyTime = async () => {
+      try {
+        const data = await getTodayStudyTime();
+        setStudyTimeData(data);
+      } catch (error) {
+        console.error('Erreur lors de la récupération du temps d\'\u00e9tude:', error);
+      }
+    };
+
+    if (user) {
+      fetchStudyTime();
+      // Actualiser toutes les 30 secondes
+      const interval = setInterval(fetchStudyTime, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [user, getTodayStudyTime]);
+
+  // Récupérer les données de révision
+  useEffect(() => {
+    const fetchReviewData = async () => {
+      try {
+        const data = await getFlashcardsDueNow();
+        setReviewData({
+          total: data.total || 0,
+          difficultCards: data.difficultCards || 0,
+          easyCards: data.easyCards || 0
+        });
+      } catch (error) {
+        console.error('Erreur lors de la récupération des données de révision:', error);
+      }
+    };
+
+    if (user) {
+      fetchReviewData();
+      // Actualiser toutes les minutes
+      const interval = setInterval(fetchReviewData, 60000);
+      return () => clearInterval(interval);
+    }
+  }, [user, getFlashcardsDueNow]);
+
 
 
   return (
@@ -42,10 +103,22 @@ const Dashboard = () => {
         <Row className="mb-4 align-items-center">
           <Col>
             <h1 className="fw-bold mb-0">Bon retour, {userName} !</h1>
-            <p className="text-muted mb-0">Prêt à apprendre quelque chose de nouveau aujourd'hui ?</p>
+            <p className="text-muted mb-0">{isTeacher() ? "Prêt à guider vos étudiants dans leur apprentissage aujourd'hui ?" : "Prêt à apprendre quelque chose de nouveau aujourd'hui ?"}</p>
           </Col>
         </Row>
 
+        {/* Test du système de rôles */}
+        <RoleTest />
+
+        {/* Contenu spécifique enseignant */}
+        {isTeacher() && <TeacherPanel />}
+
+        {/* Contenu pour les étudiants uniquement */}
+        {isStudent() && (
+          <>
+        {/* Panel des classes pour les étudiants */}
+        <StudentClassesPanel />
+        
         {/* Stats Overview */}
         <Row className="mb-4 g-3">
           <Col lg={3} md={6}>
@@ -69,7 +142,18 @@ const Dashboard = () => {
                 </div>
                 <div>
                   <h6 className="mb-0">Cartes à réviser</h6>
-                  <h3 className="mb-0 fw-bold">{mockData.cardsToReview}</h3>
+                  {reviewData.total > 0 ? (
+                    <div>
+                      <h3 className="mb-0 fw-bold">{reviewData.total}</h3>
+                      <div className="mt-1">
+                        <small className="text-danger fw-bold">{reviewData.difficultCards} difficiles</small>
+                        <small className="text-muted mx-1">+</small>
+                        <small className="text-success fw-bold">{reviewData.easyCards} faciles</small>
+                      </div>
+                    </div>
+                  ) : (
+                    <h3 className="mb-0 fw-bold">0</h3>
+                  )}
                 </div>
               </Card.Body>
             </Card>
@@ -95,7 +179,7 @@ const Dashboard = () => {
                 </div>
                 <div>
                   <h6 className="mb-0">Temps d'étude</h6>
-                  <h3 className="mb-0 fw-bold">{mockData.studyTime} min</h3>
+                  <h3 className="mb-0 fw-bold">{studyTimeData.totalTimeMinutes} min</h3>
                 </div>
               </Card.Body>
             </Card>
@@ -184,14 +268,14 @@ const Dashboard = () => {
                   <Button variant="outline-primary" className="d-flex align-items-center justify-content-center" as={Link} to="/card/new">
                     <FiBookOpen className="me-2" /> Créer une nouvelle carte
                   </Button>
-                  <Button variant="outline-secondary" className="d-flex align-items-center justify-content-center" as={Link} to="/library">
-                    <FiBookOpen className="me-2" /> Parcourir la bibliothèque
-                  </Button>
+                  <JoinClassButton variant="outline-info" />
                 </div>
               </Card.Body>
             </Card>
           </Col>
         </Row>
+          </>
+        )}
       </Container>
     </div>
   );

@@ -9,7 +9,10 @@ const authService = {
       if (response && response.token) {
         // Sauvegarder le token et les infos utilisateur dans localStorage
         localStorage.setItem('token', response.token);
-        localStorage.setItem('user', JSON.stringify(response.user));
+        // L'API renvoie les données utilisateur directement, pas dans response.user
+        const userData = { ...response };
+        delete userData.token; // Retirer le token des données utilisateur
+        localStorage.setItem('user', JSON.stringify(userData));
       }
       return response;
     } catch (error) {
@@ -24,7 +27,10 @@ const authService = {
       if (response && response.token) {
         // Sauvegarder le token et les infos utilisateur dans localStorage
         localStorage.setItem('token', response.token);
-        localStorage.setItem('user', JSON.stringify(response.user));
+        // L'API renvoie les données utilisateur directement, pas dans response.user
+        const userData = { ...response };
+        delete userData.token; // Retirer le token des données utilisateur
+        localStorage.setItem('user', JSON.stringify(userData));
       }
       return response;
     } catch (error) {
@@ -77,13 +83,27 @@ const authService = {
   isAuthenticated: () => {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
-    return !!token && !!user;
+    // Vérifier que les valeurs existent et ne sont pas "undefined" ou "null"
+    return !!token && token !== 'undefined' && token !== 'null' &&
+           !!user && user !== 'undefined' && user !== 'null';
   },
 
   // Récupérer l'utilisateur courant depuis le localStorage
   getStoredUser: () => {
     const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
+    // Vérifier si la valeur existe et n'est pas "undefined"
+    if (user && user !== 'undefined' && user !== 'null') {
+      try {
+        return JSON.parse(user);
+      } catch (error) {
+        console.error('Erreur lors du parsing des données utilisateur:', error);
+        // Nettoyer le localStorage si les données sont corrompues
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        return null;
+      }
+    }
+    return null;
   }
 };
 

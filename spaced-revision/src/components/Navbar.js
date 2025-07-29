@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { FaHome, FaSyncAlt, FaBook, FaClone, FaLayerGroup, FaUserCircle, FaSignOutAlt, FaChartBar, FaBars, FaTimes } from 'react-icons/fa';
+import { FaHome, FaSyncAlt, FaBook, FaClone, FaLayerGroup, FaUserCircle, FaSignOutAlt, FaChartBar, FaBars, FaTimes, FaUsers, FaUserPlus, FaEye } from 'react-icons/fa';
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, isTeacher, isStudent } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
@@ -46,7 +46,11 @@ const Navbar = () => {
   return (
     <div className="sidebar">
       <div className="sidebar-header">
-        <h3 className="sidebar-brand">Memoire</h3>
+        <div className="brand-container">
+          <span className={`role-badge ${isTeacher() ? 'teacher' : 'student'}`}>
+            {isTeacher() ? '👨‍🏫 Enseignant' : '👨‍🎓 Étudiant'}
+          </span>
+        </div>
         <button 
           className="mobile-menu-toggle" 
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -71,9 +75,25 @@ const Navbar = () => {
         <NavLink to="/stats" className="sidebar-link" onClick={handleNavLinkClick}>
           <FaChartBar /><span>Statistiques</span>
         </NavLink>
-        <NavLink to="/library" className="sidebar-link" onClick={handleNavLinkClick}>
-          <FaBook /><span>Bibliothèque</span>
-        </NavLink>
+        
+        {/* Liens spécifiques aux enseignants */}
+        {isTeacher() && (
+          <NavLink to="/classes" className="sidebar-link" onClick={handleNavLinkClick}>
+            <FaUsers /><span>Mes Classes</span>
+          </NavLink>
+        )}
+        
+        {/* Liens spécifiques aux étudiants */}
+        {isStudent() && (
+          <>
+            <NavLink to="/classes" className="sidebar-link" onClick={handleNavLinkClick}>
+              <FaUsers /><span>Mes Classes</span>
+            </NavLink>
+            <NavLink to="/classes/details" className="sidebar-link" onClick={handleNavLinkClick}>
+              <FaEye /><span>Classes Détaillées</span>
+            </NavLink>
+          </>
+        )}
       </nav>
       <div className="sidebar-footer">
         <NavLink to="/profile" className="sidebar-link" onClick={handleNavLinkClick}>

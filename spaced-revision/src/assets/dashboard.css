@@ -48,6 +48,203 @@
   border-radius: 0 0 4px 4px;
 }
 
+/* Styles pour les composants de classes */
+.hover-shadow {
+  transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.hover-shadow:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  transform: translateY(-2px);
+}
+
+/* Modal de rejoindre une classe */
+.join-class-modal .form-control {
+  border: 2px solid #e9ecef;
+  transition: all 0.2s ease-in-out;
+}
+
+.join-class-modal .form-control:focus {
+  border-color: #0066cc;
+  box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+}
+
+/* Animation pour les cartes de classe */
+.class-card {
+  transition: all 0.3s ease;
+}
+
+.class-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+}
+
+/* Badge de statut actif */
+.badge-success {
+  background: linear-gradient(45deg, #28a745, #20c997);
+}
+
+/* État vide pour les classes */
+.empty-state {
+  padding: 3rem 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 0.5rem;
+  border: 1px dashed #dee2e6;
+}
+
+.empty-state .icon {
+  opacity: 0.5;
+  margin-bottom: 1rem;
+}
+
+/* Responsive pour les classes */
+@media (max-width: 768px) {
+  .class-card {
+    margin-bottom: 1rem;
+  }
+  
+  .join-class-modal .modal-dialog {
+    margin: 1rem;
+  }
+}
+
+/* Styles pour la vue détaillée des classes */
+.class-detail-card {
+  border: none;
+  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.class-detail-card:hover {
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.class-detail-header {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  border: none;
+  color: white;
+}
+
+.class-stats-card {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.class-stats-card:hover {
+  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+  transform: scale(1.02);
+}
+
+.class-progress-bar {
+  height: 0.5rem;
+  border-radius: 0.25rem;
+  background: #e9ecef;
+  overflow: hidden;
+}
+
+.class-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  border-radius: 0.25rem;
+  transition: width 0.8s ease;
+}
+
+.classmate-item {
+  padding: 0.75rem;
+  border-bottom: 1px solid #f1f3f4;
+  transition: background-color 0.2s ease;
+}
+
+.classmate-item:hover {
+  background-color: #f8f9fa;
+}
+
+.classmate-item:last-child {
+  border-bottom: none;
+}
+
+.classmate-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6c757d, #495057);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.875rem;
+}
+
+/* Animations pour les statistiques */
+.stats-card-animate {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Styles pour les détails en modal */
+.class-details-modal .modal-content {
+  border: none;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.class-details-modal .modal-header {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  border: none;
+}
+
+.class-details-modal .modal-header .btn-close {
+  filter: invert(1);
+}
+
+.class-info-section {
+  border: 1px solid #e9ecef;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.class-info-header {
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+}
+
+/* Responsive pour la vue détaillée */
+@media (max-width: 768px) {
+  .class-detail-card {
+    margin-bottom: 1.5rem;
+  }
+  
+  .class-stats-card {
+    margin-bottom: 1rem;
+  }
+  
+  .class-details-modal .modal-dialog {
+    margin: 0.5rem;
+  }
+  
+  .classmate-item {
+    padding: 0.5rem;
+  }
+}
+
 .weekly-progress {
   height: 150px;
   align-items: flex-end;

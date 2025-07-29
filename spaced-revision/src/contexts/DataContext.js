@@ -3,6 +3,7 @@ import React, { createContext, useState, useContext, useEffect, useCallback } fr
 import collectionService from '../services/collectionService';
 import flashcardService from '../services/flashcardService';
 import reviewService from '../services/reviewService';
+import classService from '../services/classService';
 import { useAuth } from './AuthContext';
 
 const DataContext = createContext(null);
@@ -207,6 +208,37 @@ export const DataProvider = ({ children }) => {
       return { total: 0, difficultCards: 0, easyCards: 0, cards: [] };
     }
   };
+
+  const getTodayStudyTime = async () => {
+    try {
+      const response = await reviewService.getTodayStudyTime();
+      return response.data || response;
+    } catch (error) {
+      console.error("Failed to get today study time:", error);
+      return { totalTimeMinutes: 0, totalTimeSeconds: 0, sessionsCount: 0, cardsReviewed: 0 };
+    }
+  };
+
+  // Fonctions pour gérer les classes
+  const getStudentClasses = async () => {
+    try {
+      const response = await classService.getStudentClasses();
+      return response.data || response;
+    } catch (error) {
+      console.error("Failed to get student classes:", error);
+      return [];
+    }
+  };
+
+  const joinClassByCode = async (inviteCode) => {
+    try {
+      const response = await classService.joinClassByCode(inviteCode);
+      return response.data || response;
+    } catch (error) {
+      console.error("Failed to join class:", error);
+      throw error;
+    }
+  };
   
   // Créer des alias pour compatibilité avec le code existant
   const getCardsByCollection = getFlashcardsByCollection;
@@ -235,7 +267,16 @@ export const DataProvider = ({ children }) => {
     updateReviewSession,
     getUserReviewSessions,
     getReviewHistory,
-    getFlashcardsDueNow
+    getFlashcardsDueNow,
+    getTodayStudyTime,
+    // Class operations
+    getStudentClasses,
+    joinClassByCode,
+    // Collection sharing operations
+    shareCollectionWithClass: classService.shareCollectionWithClass,
+    unshareCollectionFromClass: classService.unshareCollectionFromClass,
+    getClassCollections: classService.getClassCollections,
+    getClassById: classService.getClassById
   };
 
   return (

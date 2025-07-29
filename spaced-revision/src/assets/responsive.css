@@ -45,9 +45,22 @@
     justify-content: space-between;
   }
   
-  .sidebar-brand {
+  .brand-container {
     margin-bottom: 0;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .sidebar-brand {
+    margin: 0;
     font-size: 1.5rem;
+  }
+  
+  .role-badge {
+    font-size: 0.65rem;
+    padding: 3px 6px;
+    white-space: nowrap;
   }
   
   .sidebar-nav {

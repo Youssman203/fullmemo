@@ -5,9 +5,11 @@ import { ThemeProvider } from './contexts/ThemeContext';
 
 // Styles
 import './assets/darkmode.css';
+import './assets/teacher-theme.css'; // Styles spécifiques aux enseignants
 
 // Components and Pages
 import Navbar from './components/Navbar';
+import DebugRole from './components/DebugRole';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import Dashboard from './pages/Dashboard';
@@ -16,8 +18,10 @@ import CardForm from './pages/CardForm';
 import Stats from './pages/Stats';
 import Profile from './pages/Profile';
 import ReviewPage from './pages/ReviewPage';
-import Library from './pages/Library';
+import ReviewCards from './pages/ReviewCards';
 import Flashcards from './pages/Flashcards';
+import Classes from './pages/Classes';
+import StudentClassesDetailPage from './pages/StudentClassesDetailPage';
 
 // A layout for protected routes that includes the Navbar
 const ProtectedLayout = () => (
@@ -40,7 +44,7 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
-  const { user } = useAuth();
+  const { user, isTeacher } = useAuth();
 
   return (
     <ThemeProvider>
@@ -53,14 +57,15 @@ function App() {
         path="/*" 
         element={
           <ProtectedRoute>
-            <div className="app-layout">
+            <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
               <Navbar />
+              <DebugRole />
               <div className="main-content">
                 <Routes>
                   <Route path="/" element={<Navigate to="/home" replace />} />
                   <Route path="/home" element={<Dashboard />} />
                   <Route path="/review" element={<ReviewPage />} />
-                  <Route path="/library" element={<Library />} />
+                  <Route path="/review-cards" element={<ReviewCards />} />
                   <Route path="/flashcards" element={<Flashcards />} />
                   <Route path="/collections" element={<Collections />} />
                   <Route path="/collections/:collectionId" element={<Collections />} />
@@ -68,6 +73,8 @@ function App() {
                   <Route path="/card/edit/:cardId" element={<CardForm />} />
                   <Route path="/stats" element={<Stats />} />
                   <Route path="/profile" element={<Profile />} />
+                  <Route path="/classes" element={<Classes />} />
+                  <Route path="/classes/details" element={<StudentClassesDetailPage />} />
                   <Route path="*" element={<Navigate to="/home" replace />} />
                 </Routes>
               </div>

@@ -239,14 +239,18 @@ const Flashcards = () => {
 
   // Handle card deletion
   const handleDeleteCard = async (cardId) => {
-    if (window.confirm('Are you sure you want to delete this card?')) {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette carte ?')) {
       try {
         await deleteFlashcard(cardId);
-        setAllCards(prevCards => prevCards.filter(card => card.id !== cardId));
-        showFeedback('Card deleted successfully', 'success');
+        // Filtrer les cartes en gérant les deux formats d'ID possibles (_id et id)
+        setAllCards(prevCards => prevCards.filter(card => {
+          const currentCardId = card._id || card.id;
+          return String(currentCardId) !== String(cardId);
+        }));
+        showFeedback('Carte supprimée avec succès', 'success');
       } catch (error) {
-        console.error('Error deleting card:', error);
-        showFeedback(error.message || 'Failed to delete card', 'danger');
+        console.error('Erreur lors de la suppression de la carte:', error);
+        showFeedback(error.message || 'Échec de la suppression de la carte', 'danger');
       }
     }
   };
@@ -542,14 +546,14 @@ const Flashcards = () => {
                       <Button 
                         variant="link" 
                         className="p-1 text-warning" 
-                        onClick={() => handleEditCard(card.id)}
+                        onClick={() => handleEditCard(card._id || card.id)}
                       >
                         <FiEdit size={18} />
                       </Button>
                       <Button 
                         variant="link" 
                         className="p-1 text-danger" 
-                        onClick={() => handleDeleteCard(card.id)}
+                        onClick={() => handleDeleteCard(card._id || card.id)}
                       >
                         <FiTrash2 size={18} />
                       </Button>

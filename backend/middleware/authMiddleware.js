@@ -61,4 +61,26 @@ const checkOwnership = (model) => asyncHandler(async (req, res, next) => {
   next();
 });
 
-module.exports = { protect, checkOwnership };
+/**
+ * Middleware pour vérifier si l'utilisateur est un enseignant
+ */
+const requireTeacher = asyncHandler(async (req, res, next) => {
+  if (req.user.role !== 'teacher') {
+    res.status(403);
+    throw new Error('Accès refusé. Permissions enseignant requises.');
+  }
+  next();
+});
+
+/**
+ * Middleware pour vérifier si l'utilisateur est un étudiant
+ */
+const requireStudent = asyncHandler(async (req, res, next) => {
+  if (req.user.role !== 'student') {
+    res.status(403);
+    throw new Error('Accès refusé. Permissions étudiant requises.');
+  }
+  next();
+});
+
+module.exports = { protect, checkOwnership, requireTeacher, requireStudent };

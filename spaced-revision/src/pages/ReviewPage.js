@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { getCollectionColor } from '../utils/colorUtils';
 import { useData } from '../contexts/DataContext';
 import { useAuth } from '../contexts/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, Form, ProgressBar, Badge } from 'react-bootstrap';
 import { FiBook, FiHelpCircle, FiEdit3, FiArrowRight, FiCheck, FiX, FiRotateCw } from 'react-icons/fi';
 import '../assets/review.css';
@@ -20,8 +20,9 @@ const MODES = {
 
 const ReviewPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
-  const { collections, cards, getCardsByCollection, updateCardReview } = useData();
+  const { collections, cards, getCardsByCollection, updateCardReview, startReviewSession, updateReviewSession } = useData();
   
   // Fonction utilitaire pour convertir les valeurs numériques en valeurs d'enum pour la performance
   const convertPerformanceValue = (numericValue) => {
@@ -51,6 +52,7 @@ const ReviewPage = () => {
   
   // State for quiz mode
   const [quizOptions, setQuizOptions] = useState([]);
+  const [quizOptionsCache, setQuizOptionsCache] = useState(new Map()); // Cache des options par carte
   const [selectedOption, setSelectedOption] = useState(null);
   const [showQuizResult, setShowQuizResult] = useState(false);
   
@@ -65,6 +67,75 @@ const ReviewPage = () => {
     skipped: 0,
     total: 0
   });
+
+  // State for session tracking
+  const [currentSession, setCurrentSession] = useState(null);
+  const [sessionStartTime, setSessionStartTime] = useState(null);
+
+  // Détecter les sessions spéciales passées via navigation
+  useEffect(() => {
+    const navigationState = location.state;
+    if (navigationState && navigationState.specialSession) {
+      console.log('Session spéciale détectée:', navigationState);
+      
+      // Configurer la session avec les cartes fournies (triées et dédupliquées)
+      const providedCards = navigationState.cardsToReview || [];
+      
+      // Éliminer les doublons avec la même logique robuste
+      const seenIds = new Set();
+      const uniqueCards = providedCards.filter(card => {
+        const cardId = card._id || card.id;
+        if (!cardId) {
+          console.warn('Carte sans ID trouvée dans la session spéciale:', card);
+          return false;
+        }
+        
+        const idString = String(cardId);
+        if (seenIds.has(idString)) {
+          console.log('Doublon détecté et éliminé dans la session spéciale:', cardId);
+          return false;
+        }
+        
+        seenIds.add(idString);
+        return true;
+      });
+      
+      // Trier par ordre de création
+      const sortedCards = uniqueCards.sort((a, b) => {
+        const dateA = new Date(a.createdAt || a.createdDate || 0);
+        const dateB = new Date(b.createdAt || b.createdDate || 0);
+        return dateA - dateB;
+      });
+      
+      console.log(`Session spéciale: ${providedCards.length} cartes fournies, ${uniqueCards.length} uniques, ${sortedCards.length} triées`);
+      
+      setSelectedMode(navigationState.mode || 'classic');
+      setCardsToReview(sortedCards);
+      setCurrentMode(MODES.CLASSIC_REVIEW);
+      setCurrentCardIndex(0);
+      
+      // Démarrer une session de révision
+      const startSpecialSession = async () => {
+        try {
+          const sessionData = {
+            mode: navigationState.mode || 'classic',
+            specialSession: true,
+            title: navigationState.sessionTitle || 'Session spéciale'
+          };
+          const session = await startReviewSession(sessionData);
+          setCurrentSession(session.data || session);
+          setSessionStartTime(new Date());
+          console.log('Session spéciale démarrée:', session);
+        } catch (error) {
+          console.error('Erreur lors du démarrage de la session spéciale:', error);
+        }
+      };
+      
+      if (navigationState.cardsToReview && navigationState.cardsToReview.length > 0) {
+        startSpecialSession();
+      }
+    }
+  }, [location.state, startReviewSession]);
 
   // Shuffle cards when collection is selected
   useEffect(() => {
@@ -88,10 +159,45 @@ const ReviewPage = () => {
             collectionCards = [];
           }
           
-          // Shuffle the cards
-          const shuffled = [...collectionCards].sort(() => Math.random() - 0.5);
-          setCardsToReview(shuffled);
-          setStats(prev => ({ ...prev, total: shuffled.length }));
+          // Éliminer les doublons basés sur l'ID avec une approche plus robuste
+          const seenIds = new Set();
+          const uniqueCards = collectionCards.filter(card => {
+            const cardId = card._id || card.id;
+            if (!cardId) {
+              console.warn('Carte sans ID trouvée:', card);
+              return false; // Exclure les cartes sans ID
+            }
+            
+            const idString = String(cardId);
+            if (seenIds.has(idString)) {
+              console.log('Doublon détecté et éliminé:', cardId);
+              return false;
+            }
+            
+            seenIds.add(idString);
+            return true;
+          });
+          
+          console.log(`Cartes récupérées: ${collectionCards.length}, Cartes uniques: ${uniqueCards.length}`);
+          
+          // Trier par ordre de création (du plus ancien au plus récent)
+          const sortedCards = uniqueCards.sort((a, b) => {
+            const dateA = new Date(a.createdAt || a.createdDate || 0);
+            const dateB = new Date(b.createdAt || b.createdDate || 0);
+            return dateA - dateB; // Tri croissant (plus ancien en premier)
+          });
+          
+          setCardsToReview(sortedCards);
+          setStats(prev => ({ ...prev, total: sortedCards.length }));
+          console.log('Cartes triées par ordre de création et prêtes pour la révision:', sortedCards.length);
+          
+          // Log des premières cartes pour vérification
+          if (sortedCards.length > 0) {
+            console.log('Première carte:', sortedCards[0].question, 'créée le:', sortedCards[0].createdAt);
+            if (sortedCards.length > 1) {
+              console.log('Dernière carte:', sortedCards[sortedCards.length - 1].question, 'créée le:', sortedCards[sortedCards.length - 1].createdAt);
+            }
+          }
         } catch (error) {
           console.error('Erreur lors de la récupération des cartes:', error);
           setCardsToReview([]);
@@ -139,6 +245,16 @@ const ReviewPage = () => {
     if (cardsToReview.length === 0) return;
     
     const currentCard = cardsToReview[currentCardIndex];
+    const cardId = currentCard._id || currentCard.id;
+    
+    // Vérifier si les options existent déjà dans le cache pour cette carte
+    if (quizOptionsCache.has(cardId)) {
+      const cachedOptions = quizOptionsCache.get(cardId);
+      setQuizOptions(cachedOptions);
+      console.log('Options du quiz récupérées depuis le cache pour la carte:', cardId);
+      return;
+    }
+    
     const correctAnswer = currentCard.answer;
     
     // Créer une liste de toutes les cartes sauf la carte actuelle
@@ -196,7 +312,7 @@ const ReviewPage = () => {
           uniqueAnswersSet.add(normalizedDemo);
           uniqueAnswers.push(demoAnswer);
           
-          // S'arrêter quand nous avons au moins 3 réponses alternatives
+          // S'arrêter quand nous avons exactement 3 réponses alternatives
           if (uniqueAnswers.length >= 3) break;
         }
       }
@@ -205,8 +321,8 @@ const ReviewPage = () => {
     // Mélanger les réponses possibles
     const shuffledAnswers = uniqueAnswers.sort(() => Math.random() - 0.5);
     
-    // Prendre un minimum de 3 réponses et un maximum de 5 réponses
-    const selectedWrongAnswers = shuffledAnswers.slice(0, Math.min(5, shuffledAnswers.length));
+    // Prendre exactement 3 réponses incorrectes pour avoir 4 options au total
+    const selectedWrongAnswers = shuffledAnswers.slice(0, 3);
     
     // Vérification finale: s'assurer qu'il n'y a pas de doublons avec la réponse correcte
     const finalWrongAnswers = selectedWrongAnswers.filter(answer => {
@@ -216,9 +332,16 @@ const ReviewPage = () => {
     // Combiner et mélanger les options avec la bonne réponse
     const options = [correctAnswer, ...finalWrongAnswers].sort(() => Math.random() - 0.5);
     
+    // Sauvegarder les options dans le cache pour cette carte
+    setQuizOptionsCache(prev => {
+      const newCache = new Map(prev);
+      newCache.set(cardId, options);
+      return newCache;
+    });
+    
     // Définir les options du quiz
     setQuizOptions(options);
-    console.log(`Quiz options générées: ${options.length} options au total (${finalWrongAnswers.length} distracteurs uniques)`);
+    console.log(`Quiz options générées et mises en cache: 4 options au total (1 correcte + 3 distracteurs uniques)`);
   };
 
   // Handle mode selection
@@ -232,7 +355,7 @@ const ReviewPage = () => {
   };
 
   // Start review with selected mode and collection
-  const handleStartReview = () => {
+  const handleStartReview = async () => {
     if (!selectedMode) {
       alert('Veuillez sélectionner un mode de révision');
       return;
@@ -244,6 +367,20 @@ const ReviewPage = () => {
       if (!selectedCollection) {
         alert('Veuillez sélectionner une collection');
         return;
+      }
+      
+      // Démarrer une session de révision
+      try {
+        const sessionData = {
+          collection: selectedCollection.id,
+          mode: selectedMode
+        };
+        const session = await startReviewSession(sessionData);
+        setCurrentSession(session.data || session);
+        setSessionStartTime(new Date());
+        console.log('Session de révision démarrée:', session);
+      } catch (error) {
+        console.error('Erreur lors du démarrage de la session:', error);
       }
       
       switch (selectedMode) {
@@ -297,13 +434,71 @@ const ReviewPage = () => {
     }
   };
 
+  // Fonction utilitaire pour normaliser une chaîne de caractères
+  const normalizeString = (str) => {
+    if (!str) return '';
+    
+    return str
+      .trim() // Supprimer les espaces en début et fin
+      .toLowerCase() // Convertir en minuscules
+      .normalize('NFD') // Décomposer les caractères accentués
+      .replace(/[\u0300-\u036f]/g, '') // Supprimer les diacritiques (accents)
+      .replace(/[.,;:!?"'()\[\]{}]/g, '') // Supprimer la ponctuation courante
+      .replace(/\s+/g, ' ') // Normaliser les espaces multiples en un seul
+      .trim(); // Supprimer les espaces résiduels
+  };
+
+  // Fonction pour vérifier si deux réponses sont équivalentes
+  const areAnswersEquivalent = (userAnswer, correctAnswer) => {
+    const normalizedUser = normalizeString(userAnswer);
+    const normalizedCorrect = normalizeString(correctAnswer);
+    
+    // Vérification exacte après normalisation
+    if (normalizedUser === normalizedCorrect) {
+      return true;
+    }
+    
+    // Vérification de similarité pour les réponses très proches
+    // Accepter si la différence de longueur est minime et qu'il y a une correspondance partielle
+    if (Math.abs(normalizedUser.length - normalizedCorrect.length) <= 2) {
+      // Vérifier si l'une contient l'autre (pour gérer les articles, prépositions, etc.)
+      if (normalizedUser.includes(normalizedCorrect) || normalizedCorrect.includes(normalizedUser)) {
+        return true;
+      }
+      
+      // Vérifier la similarité par mots
+      const userWords = normalizedUser.split(' ').filter(word => word.length > 2);
+      const correctWords = normalizedCorrect.split(' ').filter(word => word.length > 2);
+      
+      if (userWords.length > 0 && correctWords.length > 0) {
+        const commonWords = userWords.filter(word => correctWords.includes(word));
+        const similarity = commonWords.length / Math.max(userWords.length, correctWords.length);
+        
+        // Accepter si au moins 80% des mots importants correspondent
+        if (similarity >= 0.8) {
+          return true;
+        }
+      }
+    }
+    
+    return false;
+  };
+
   // Check test answer
   const handleCheckTestAnswer = () => {
     if (!testAnswer.trim()) return;
     
     const currentCard = cardsToReview[currentCardIndex];
-    // Simple string comparison - could be improved with fuzzy matching
-    const isCorrect = testAnswer.trim().toLowerCase() === currentCard.answer.toLowerCase();
+    const isCorrect = areAnswersEquivalent(testAnswer, currentCard.answer);
+    
+    // Log pour debugging
+    console.log('Vérification réponse test:', {
+      userAnswer: testAnswer,
+      correctAnswer: currentCard.answer,
+      normalizedUser: normalizeString(testAnswer),
+      normalizedCorrect: normalizeString(currentCard.answer),
+      isCorrect
+    });
     
     setTestResult({ show: true, correct: isCorrect });
     updateStats(isCorrect);
@@ -331,18 +526,36 @@ const ReviewPage = () => {
   };
 
   // Handle next card in all modes
-  const handleNextCard = (quality = null) => {
+  const handleNextCard = async (quality = null) => {
     // In classic mode, update the spaced repetition algorithm and stats
     if (currentMode === MODES.CLASSIC_REVIEW && quality !== null) {
       const currentCard = cardsToReview[currentCardIndex];
+      const performance = convertPerformanceValue(quality);
+      
+      // Calculer le temps passé sur cette carte (estimation)
+      const timeSpent = sessionStartTime ? Math.round((new Date() - sessionStartTime) / cardsToReview.length / 1000) : 0;
+      
       // Formater les données pour correspondre à ce qu'attend le backend
       const reviewData = {
-        performance: convertPerformanceValue(quality), // Conversion des valeurs numériques en valeurs d'enum
-        timeSpent: 0 // Valeur par défaut, à remplacer par un calcul réel si nécessaire
+        performance,
+        timeSpent
       };
+      
       console.log('Envoi des données de performance:', reviewData);
+      
       try {
         updateCardReview(currentCard.id || currentCard._id, reviewData);
+        
+        // Ajouter la carte à la session si elle existe
+        if (currentSession) {
+          const isCorrect = quality === 3; // 3 = Facile, 1 = Difficile
+          await updateReviewSession(currentSession._id || currentSession.id, {
+            flashcardId: currentCard.id || currentCard._id,
+            performance,
+            timeSpent,
+            isCorrect
+          });
+        }
       } catch (error) {
         console.error('Erreur lors de la mise à jour de la révision:', error);
         // Continuer malgré l'erreur pour ne pas bloquer l'expérience utilisateur
@@ -357,25 +570,38 @@ const ReviewPage = () => {
       }));
     }
     
-    // IMPORTANT: ORDRE SPÉCIFIQUE POUR ÉVITER LES PROBLÈMES DE SYNCHRONISATION
-    // 1. D'abord, réinitialiser complètement TOUS les états liés aux quiz et tests
+    // CORRECTION CRITIQUE : Réinitialiser IMMÉDIATEMENT tous les états pour éviter les fuites visuelles
+    // 1. Réinitialiser l'état de retournement de carte (CRITIQUE pour éviter de voir la réponse suivante)
+    setIsFlipped(false);
+    
+    // 2. Réinitialiser tous les autres états
     setSelectedOption(null);
     setShowQuizResult(false);
     setTestAnswer('');
     setTestResult({ show: false, correct: false });
     
-    // 2. Attendre un moment pour assurer que les états sont réinitialisés
-    setTimeout(() => {
-      // 3. ENSUITE seulement, passer à la carte suivante ou terminer la session
-      if (currentCardIndex < cardsToReview.length - 1) {
-        console.log('Passage à la carte suivante, index:', currentCardIndex + 1);
-        setCurrentCardIndex(currentCardIndex + 1);
-      } else {
-        // Session finished
-        console.log('Session terminée, passage à l\'écran de complétion');
-        setCurrentMode(MODES.COMPLETED);
+    // 3. Passer à la carte suivante ou terminer la session
+    if (currentCardIndex < cardsToReview.length - 1) {
+      console.log('Passage à la carte suivante, index:', currentCardIndex + 1);
+      setCurrentCardIndex(currentCardIndex + 1);
+    } else {
+      // Session finished
+      console.log('Session terminée, passage à l\'écran de complétion');
+      
+      // Terminer la session de révision
+      if (currentSession) {
+        try {
+          await updateReviewSession(currentSession._id || currentSession.id, {
+            completed: true
+          });
+          console.log('Session de révision terminée');
+        } catch (error) {
+          console.error('Erreur lors de la fermeture de la session:', error);
+        }
       }
-    }, 50); // Un court délai pour garantir la séquence correcte
+      
+      setCurrentMode(MODES.COMPLETED);
+    }
   };
 
   // Handle skipping a card
@@ -391,6 +617,7 @@ const ReviewPage = () => {
     setSelectedCollection(null);
     setCardsToReview([]);
     setCurrentCardIndex(0);
+    setQuizOptionsCache(new Map()); // Nettoyer le cache des options
     setStats({
       correct: 0,
       incorrect: 0,
@@ -570,8 +797,20 @@ const ReviewPage = () => {
       <Container className="py-4">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h4>
-            <Badge bg="primary" className="me-2">{selectedCollection.name}</Badge>
-            <span className="text-muted">Révision classique</span>
+            {location.state && location.state.specialSession ? (
+              <>
+                <Badge bg="warning" className="me-2">
+                  <FiBook className="me-1" />
+                  Session spéciale
+                </Badge>
+                <span className="text-muted">Cartes à revoir</span>
+              </>
+            ) : (
+              <>
+                <Badge bg="primary" className="me-2">{selectedCollection?.name || 'Collection'}</Badge>
+                <span className="text-muted">Révision classique</span>
+              </>
+            )}
           </h4>
           <div>
             <span className="me-2">{currentCardIndex + 1} of {cardsToReview.length}</span>

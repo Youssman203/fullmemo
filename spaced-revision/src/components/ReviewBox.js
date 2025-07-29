@@ -2,10 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Badge } from 'react-bootstrap';
 import { FiClock, FiBookOpen, FiArrowRight } from 'react-icons/fi';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContext';
 
 const ReviewBox = () => {
+  const navigate = useNavigate();
   const { getFlashcardsDueNow } = useData();
   const [reviewData, setReviewData] = useState({
     total: 0,
@@ -55,16 +56,60 @@ const ReviewBox = () => {
   }
 
   return (
-    <Card className="border-0 shadow-sm">
+    <Card 
+      className={`border-0 shadow-sm ${reviewData.total > 0 ? 'review-card-clickable' : ''}`}
+      style={{ 
+        cursor: reviewData.total > 0 ? 'pointer' : 'default',
+        transition: 'all 0.2s ease-in-out'
+      }}
+      onClick={() => reviewData.total > 0 && navigate('/review-cards')}
+      onMouseEnter={(e) => {
+        if (reviewData.total > 0) {
+          e.currentTarget.style.transform = 'translateY(-2px)';
+          e.currentTarget.style.boxShadow = '0 0.5rem 1rem rgba(0, 0, 0, 0.15)';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (reviewData.total > 0) {
+          e.currentTarget.style.transform = 'translateY(0)';
+          e.currentTarget.style.boxShadow = '0 0.125rem 0.25rem rgba(0, 0, 0, 0.075)';
+        }
+      }}
+    >
       <Card.Body>
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h5 className="card-title mb-0">
             <FiClock className="me-2" />
             À revoir
+            {reviewData.total > 0 && (
+              <small className="text-muted ms-2">(cliquez pour voir)</small>
+            )}
           </h5>
-          <Badge bg="primary" pill>
-            {reviewData.total}
-          </Badge>
+          <div className="d-flex align-items-center">
+            {reviewData.total > 0 ? (
+              <div className="text-end">
+                <div className="d-flex align-items-center justify-content-end mb-1">
+                  <small className="text-danger me-2">
+                    {reviewData.difficultCards} difficiles
+                  </small>
+                  <small className="text-muted me-2">+</small>
+                  <small className="text-success me-2">
+                    {reviewData.easyCards} faciles
+                  </small>
+                </div>
+                <div className="d-flex align-items-center justify-content-end">
+                  <Badge bg="primary" pill className="me-2">
+                    {reviewData.total} total
+                  </Badge>
+                  <FiArrowRight className="text-muted" size={16} />
+                </div>
+              </div>
+            ) : (
+              <Badge bg="secondary" pill>
+                0
+              </Badge>
+            )}
+          </div>
         </div>
 
         {reviewData.total === 0 ? (
@@ -121,8 +166,16 @@ const ReviewBox = () => {
               <Button 
                 variant="primary" 
                 className="d-flex align-items-center justify-content-center"
-                as={Link} 
-                to="/review"
+                onClick={() => {
+                  navigate('/review', {
+                    state: {
+                      mode: 'classic',
+                      specialSession: true,
+                      cardsToReview: reviewData.cards,
+                      sessionTitle: 'Révision spéciale - Cartes à revoir'
+                    }
+                  });
+                }}
               >
                 <FiBookOpen className="me-2" />
                 Commencer la révision

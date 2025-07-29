@@ -12,26 +12,44 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
+        // Vérifier d'abord si nous avons un token et un utilisateur valides
         if (authService.isAuthenticated()) {
-          // Récupérer les données utilisateur depuis le localStorage d'abord pour un chargement rapide
+          // Récupérer les données utilisateur depuis le localStorage
           const storedUser = authService.getStoredUser();
           if (storedUser) {
+            console.log('Utilisateur trouvé dans le localStorage:', storedUser.name);
             setUser(storedUser);
-          }
-          
-          // Puis essayer de rafraîchir depuis l'API si possible
-          try {
-            const userData = await authService.getUserProfile();
-            if (userData) {
-              setUser(userData.user || userData);
+            
+            // Essayer de rafraîchir les données depuis l'API en arrière-plan
+            // Mais ne pas échouer si l'API n'est pas disponible
+            try {
+              const userData = await authService.getUserProfile();
+              if (userData && (userData.user || userData)) {
+                const freshUser = userData.user || userData;
+                console.log('Données utilisateur rafraîchies depuis l\'API');
+                setUser(freshUser);
+                // Mettre à jour le localStorage avec les nouvelles données
+                localStorage.setItem('user', JSON.stringify(freshUser));
+              }
+            } catch (apiError) {
+              // Si l'API échoue, on garde l'utilisateur du localStorage
+              console.warn('Impossible de rafraîchir les données depuis l\'API, utilisation du cache local:', apiError.message);
+              // Ne pas déconnecter l'utilisateur, juste continuer avec les données en cache
             }
-          } catch (apiError) {
-            // Si l'API échoue mais que nous avons un utilisateur en cache, on continue
-            console.warn('Could not refresh user data from API:', apiError);
+          } else {
+            console.log('Aucun utilisateur trouvé dans le localStorage');
+            // Si pas d'utilisateur en cache, nettoyer le token aussi
+            authService.logout();
           }
+        } else {
+          console.log('Utilisateur non authentifié');
+          // S'assurer que l'état est propre
+          setUser(null);
         }
       } catch (error) {
-        console.error('Error loading user:', error);
+        console.error('Erreur lors du chargement de l\'utilisateur:', error);
+        // En cas d'erreur critique, ne pas déconnecter automatiquement
+        // Laisser l'utilisateur décider
       } finally {
         setLoading(false);
       }
@@ -43,6 +61,19 @@ export const AuthProvider = ({ children }) => {
   const setSession = (data) => {
     // Pour gérer à la fois le format { user, token } et le format où l'utilisateur est directement à la racine
     const userData = data.user || data;
+    const token = data.token;
+    
+    console.log('Sauvegarde de la session utilisateur:', userData.name);
+    
+    // Sauvegarder dans le localStorage
+    if (token) {
+      localStorage.setItem('token', token);
+    }
+    if (userData) {
+      localStorage.setItem('user', JSON.stringify(userData));
+    }
+    
+    // Mettre à jour l'état
     setUser(userData);
     return userData;
   }
@@ -103,9 +134,33 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    console.log('Déconnexion de l\'utilisateur');
     authService.logout();
     setUser(null);
   };
+
+  // Vérifier périodiquement si le token est encore valide
+  useEffect(() => {
+    if (!user) return;
+
+    const checkTokenValidity = async () => {
+      try {
+        // Essayer de faire une requête authentifiée pour vérifier si le token est valide
+        await authService.getUserProfile();
+      } catch (error) {
+        // Si le token est expiré ou invalide, déconnecter l'utilisateur
+        if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+          console.log('Token expiré, déconnexion automatique');
+          logout();
+        }
+      }
+    };
+
+    // Vérifier la validité du token toutes les 30 minutes
+    const interval = setInterval(checkTokenValidity, 30 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [user]);
 
   const updateProfile = async (userData) => {
     try {
@@ -129,6 +184,19 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Fonctions utilitaires pour les rôles
+  const isTeacher = () => {
+    return user?.role === 'teacher';
+  };
+
+  const isStudent = () => {
+    return user?.role === 'student';
+  };
+
+  const getUserRole = () => {
+    return user?.role || 'student';
+  };
+
   const value = { 
     user, 
     loading, 
@@ -137,7 +205,11 @@ export const AuthProvider = ({ children }) => {
     register, 
     loginWithGoogle, 
     updateProfile, 
-    deleteAccount 
+    deleteAccount,
+    // Fonctions de rôle
+    isTeacher,
+    isStudent,
+    getUserRole
   };
 
   return (

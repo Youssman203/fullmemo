@@ -31,6 +31,11 @@ const reviewService = {
   getReviewHistory: async () => {
     // Utiliser la route existante qui retourne les sessions de l'utilisateur
     return await api.get('/reviews');
+  },
+
+  // Obtenir le temps d'étude d'aujourd'hui
+  getTodayStudyTime: async () => {
+    return await api.get('/reviews/today-time');
   }
 };
 

@@ -5,7 +5,8 @@ const {
   updateReviewSession,
   getReviewSessionById,
   getUserReviewSessions,
-  getReviewStats
+  getReviewStats,
+  getTodayStudyTime
 } = require('../controllers/reviewController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -19,6 +20,9 @@ router.route('/')
 
 router.route('/stats')
   .get(getReviewStats);
+
+router.route('/today-time')
+  .get(getTodayStudyTime);
 
 router.route('/:id')
   .get(getReviewSessionById)

@@ -13,6 +13,7 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
+  const [role, setRole] = useState('student'); // Nouveau state pour le rôle
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -57,7 +58,8 @@ const Register = () => {
       const userData = {
         name: username,
         email: email,
-        password: password
+        password: password,
+        role: role // Ajouter le rôle
       };
       
       const newUser = await register(userData);
@@ -164,6 +166,34 @@ const Register = () => {
               {validationErrors.email}
             </Form.Text>
           )}
+        </Form.Group>
+        
+        <Form.Group className="mb-3">
+          <Form.Label className="text-muted mb-2">
+            <strong>Je suis un(e) :</strong>
+          </Form.Label>
+          <div className="d-flex gap-3">
+            <Form.Check
+              type="radio"
+              id="student-role"
+              name="role"
+              value="student"
+              checked={role === 'student'}
+              onChange={(e) => setRole(e.target.value)}
+              label="Étudiant"
+              className="role-option"
+            />
+            <Form.Check
+              type="radio"
+              id="teacher-role"
+              name="role"
+              value="teacher"
+              checked={role === 'teacher'}
+              onChange={(e) => setRole(e.target.value)}
+              label="Enseignant"
+              className="role-option"
+            />
+          </div>
         </Form.Group>
         
         <Form.Group className="mb-4">

@@ -84,7 +84,7 @@ const getFlashcardsByCollection = asyncHandler(async (req, res) => {
   }
 
   const flashcards = await Flashcard.find({ collection: collectionId })
-    .sort({ createdAt: -1 });
+    .sort({ createdAt: 1 }); // Tri croissant: du plus ancien au plus récent
 
   res.json(flashcards);
 });
@@ -324,7 +324,7 @@ const getAllUserFlashcards = asyncHandler(async (req, res) => {
   // Récupérer toutes les cartes de l'utilisateur connecté
   const flashcards = await Flashcard.find({ user: req.user._id })
     .populate('collection', 'name imageUrl')
-    .sort({ createdAt: -1 });
+    .sort({ createdAt: 1 }); // Tri croissant: du plus ancien au plus récent
 
   res.json(flashcards);
 });
@@ -346,17 +346,15 @@ const getFlashcardsDueNow = asyncHandler(async (req, res) => {
 
   // Séparer les cartes par type de révision
   const difficultCards = flashcards.filter(card => {
-    const timeDiff = now - new Date(card.nextReviewDate);
-    const minutesDiff = timeDiff / (1000 * 60);
-    // Cartes marquées comme difficiles (à revoir dans 5 minutes)
-    return card.interval <= 0.01 && minutesDiff >= 0;
+    // Cartes marquées comme difficiles (interval très court)
+    // Inclut 'again' (0.001) et 'hard' (0.003)
+    return card.interval <= 0.01;
   });
 
   const easyCards = flashcards.filter(card => {
-    const timeDiff = now - new Date(card.nextReviewDate);
-    const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
-    // Cartes marquées comme faciles (à revoir dans 1 jour)
-    return card.interval >= 1 && daysDiff >= 0;
+    // Cartes marquées comme faciles ou correctes (interval d'1 jour ou plus)
+    // Inclut 'good' et 'easy' (interval = 1)
+    return card.interval >= 1;
   });
 
   res.json({
