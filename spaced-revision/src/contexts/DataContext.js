@@ -6,7 +6,7 @@ import collectionService from '../services/collectionService';
 import flashcardService from '../services/flashcardService';
 import reviewService from '../services/reviewService';
 import classService from '../services/classService';
-import sharedLinkService from '../services/sharedLinkService';
+// 🗑️ sharedLinkService supprimé - WebSocket par code remplace les liens partagés
 import shareCodeService from '../services/shareCodeService';
 import { useAuth } from './AuthContext';
 
@@ -464,13 +464,9 @@ export const DataProvider = ({ children }) => {
     getClassCollections: classService.getClassCollections,
     getClassById: classService.getClassById,
     importCollectionFromClass,
+    getClassCollectionCards: classService.getClassCollectionCards,
     
-    // Fonctions des liens partagés
-    createSharedLink: sharedLinkService.createSharedLink,
-    getSharedCollection: sharedLinkService.getSharedCollection,
-    downloadSharedCollection: sharedLinkService.downloadSharedCollection,
-    getUserSharedLinks: sharedLinkService.getUserSharedLinks,
-    deactivateSharedLink: sharedLinkService.deactivateSharedLink,
+    // 🗑️ Fonctions des liens partagés supprimées - WebSocket par code les remplace
     
     // Fonctions des codes de partage
     generateShareCode: shareCodeService.generateShareCode,

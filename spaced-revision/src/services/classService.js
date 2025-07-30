@@ -204,6 +204,19 @@ const classService = {
       console.error('Erreur lors de l\'importation de la collection:', error);
       throw error;
     }
+  },
+
+  // Récupérer les cartes d'une collection partagée (pour aperçu)
+  getClassCollectionCards: async (classId, collectionId) => {
+    try {
+      console.log('📖 Récupération cartes collection:', { classId, collectionId });
+      const response = await api.get(`/classes/${classId}/collections/${collectionId}/cards`);
+      console.log('✅ Cartes récupérées:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Erreur lors de la récupération des cartes:', error);
+      throw error;
+    }
   }
 };
 

@@ -22,11 +22,7 @@ import ReviewCards from './pages/ReviewCards';
 import Flashcards from './pages/Flashcards';
 import Classes from './pages/Classes';
 import StudentClassesDetailPage from './pages/StudentClassesDetailPage';
-import SharedCollection from './pages/SharedCollectionSimple';
-import ManageSharedLinks from './pages/ManageSharedLinks';
-import StudentSharedCollections from './pages/StudentSharedCollections';
-import TestShared from './pages/TestShared';
-// import SharedCollectionOriginal from './pages/SharedCollection';
+// 🗑️ Imports liens partagés supprimés - WebSocket par code remplace tout
 
 // A layout for protected routes that includes the Navbar
 const ProtectedLayout = () => (
@@ -57,10 +53,6 @@ function App() {
       {/* Public routes - redirect if logged in */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      {/* Route publique pour les collections partagées */}
-      <Route path="/shared/:token" element={<SharedCollection />} />
-      {/* Route de test */}
-      <Route path="/test-shared" element={<TestShared />} />
       
       {/* Protected routes */}
       <Route path="/" element={
@@ -219,29 +211,7 @@ function App() {
         </ProtectedRoute>
       } />
       
-      <Route path="/shared-links" element={
-        <ProtectedRoute>
-          <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
-            <Navbar />
-            <DebugRole />
-            <div className="main-content">
-              <ManageSharedLinks />
-            </div>
-          </div>
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/student-shared" element={
-        <ProtectedRoute>
-          <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
-            <Navbar />
-            <DebugRole />
-            <div className="main-content">
-              <StudentSharedCollections />
-            </div>
-          </div>
-        </ProtectedRoute>
-      } />
+      {/* 🗑️ Routes liens partagés supprimées - WebSocket par code les remplace */}
       
       {/* Catch-all route */}
       <Route path="*" element={<Navigate to="/home" replace />} />

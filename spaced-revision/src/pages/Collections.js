@@ -5,7 +5,7 @@ import { FiSearch, FiGrid, FiList, FiFilter, FiPlus } from 'react-icons/fi';
 import EnhancedCollectionCard from '../components/EnhancedCollectionCard';
 import AddCollectionCard from '../components/AddCollectionCard';
 import EmptyCollectionsState from '../components/EmptyCollectionsState';
-import ShareLinkModal from '../components/ShareLinkModal';
+// 🗑️ ShareLinkModal supprimé - WebSocket par code remplace les liens partagés
 import ShareCodeModal from '../components/ShareCodeModal';
 import AccessByCodeModal from '../components/AccessByCodeModal';
 import '../assets/collections.css';
@@ -27,13 +27,12 @@ const Collections = () => {
   const [filteredCollections, setFilteredCollections] = useState([]);
   const [darkMode, setDarkMode] = useState(false);
   
-  // États pour la modal de partage
-  const [showShareModal, setShowShareModal] = useState(false);
-  const [collectionToShare, setCollectionToShare] = useState(null);
+  // 🗑️ États pour la modal de partage supprimés - WebSocket par code remplace
   
   // États pour les codes de partage
   const [showShareCodeModal, setShowShareCodeModal] = useState(false);
   const [showAccessCodeModal, setShowAccessCodeModal] = useState(false);
+  const [collectionToShare, setCollectionToShare] = useState(null); // Pour codes de partage
 
   // Check for dark mode
   useEffect(() => {
@@ -138,11 +137,7 @@ const Collections = () => {
     setShowDeleteModal(true);
   };
 
-  // Handlers pour le partage
-  const openShareModal = (collection) => {
-    setCollectionToShare(collection);
-    setShowShareModal(true);
-  };
+  // 🗑️ openShareModal supprimé - WebSocket par code remplace les liens partagés
   
   // Handlers pour les codes de partage
   const openShareCodeModal = (collection) => {
@@ -152,11 +147,6 @@ const Collections = () => {
   
   const handleCodeGenerated = (codeData) => {
     console.log('✅ Code généré:', codeData);
-  };
-
-  const handleLinkCreated = (sharedLink) => {
-    console.log('Lien créé:', sharedLink);
-    // Optionnel: mettre à jour l'état des collections pour afficher un indicateur de partage
   };
 
   // Handler pour l'import de collection par code
@@ -251,7 +241,6 @@ const Collections = () => {
                       collection={collection} 
                       onRename={() => openRenameModal(collection)}
                       onDelete={() => openDeleteModal(collection)}
-                      onShare={() => openShareModal(collection)}
                       onShareCode={() => openShareCodeModal(collection)}
                       viewMode={viewMode}
                     />
@@ -332,13 +321,7 @@ const Collections = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* Share Link Modal */}
-      <ShareLinkModal
-        show={showShareModal}
-        onHide={() => setShowShareModal(false)}
-        collection={collectionToShare}
-        onLinkCreated={handleLinkCreated}
-      />
+      {/* 🗑️ Share Link Modal supprimé - WebSocket par code remplace les liens partagés */}
       
       {/* Share Code Modal */}
       <ShareCodeModal

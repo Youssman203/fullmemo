@@ -456,7 +456,6 @@ const unshareCollectionFromClass = asyncHandler(async (req, res) => {
   const { id: classId, collectionId } = req.params;
 
   const classData = await Class.findById(classId);
-
   if (!classData) {
     res.status(404);
     throw new Error('Classe non trouvée');
@@ -677,6 +676,47 @@ const importCollectionFromClass = asyncHandler(async (req, res) => {
   }
 });
 
+/**
+ * @desc    Récupérer les cartes d'une collection partagée avec une classe (aperçu)
+ * @route   GET /api/classes/:classId/collections/:collectionId/cards
+ * @access  Private (Student only)
+ */
+const getClassCollectionCards = asyncHandler(async (req, res) => {
+  const { classId, collectionId } = req.params;
+
+  // Récupérer la classe et vérifier que l'étudiant en fait partie  
+  const classData = await Class.findById(classId);
+  if (!classData) {
+    res.status(404);
+    throw new Error('Classe non trouvée');
+  }
+
+  if (!classData.students.includes(req.user._id)) {
+    res.status(403);
+    throw new Error('Vous n\'êtes pas inscrit à cette classe');
+  }
+
+  // Vérifier que la collection est bien partagée avec cette classe
+  if (!classData.collections.includes(collectionId)) {
+    res.status(403);
+    throw new Error('Cette collection n\'est pas partagée avec cette classe');
+  }
+
+  const Flashcard = require('../models/flashcardModel');
+
+  // Récupérer les cartes de la collection (limité pour l'aperçu)
+  const cards = await Flashcard.find({ collection: collectionId })
+    .select('question answer difficulty cardType options imageUrl notes tags createdAt')
+    .sort({ createdAt: 1 })
+    .limit(10); // Limité à 10 cartes pour l'aperçu
+
+  res.json({
+    success: true,
+    count: cards.length,
+    data: cards
+  });
+});
+
 module.exports = {
   createClass,
   getTeacherClasses,
@@ -690,5 +730,6 @@ module.exports = {
   shareCollectionWithClass,
   unshareCollectionFromClass,
   getClassCollections,
-  importCollectionFromClass
+  importCollectionFromClass,
+  getClassCollectionCards
 };

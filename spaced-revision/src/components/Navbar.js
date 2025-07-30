@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { FaHome, FaSyncAlt, FaBook, FaClone, FaLayerGroup, FaUserCircle, FaSignOutAlt, FaChartBar, FaBars, FaTimes, FaUsers, FaUserPlus, FaEye, FaShare, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaHome, FaSyncAlt, FaClone, FaLayerGroup, FaUserCircle, FaSignOutAlt, FaChartBar, FaBars, FaTimes, FaUsers, FaEye } from 'react-icons/fa';
 
 const Navbar = () => {
   const { user, logout, isTeacher, isStudent } = useAuth();
@@ -82,23 +82,11 @@ const Navbar = () => {
             <NavLink to="/classes" className="sidebar-link" onClick={handleNavLinkClick}>
               <FaUsers /><span>Mes Classes</span>
             </NavLink>
-            <NavLink to="/shared-links" className="sidebar-link" onClick={handleNavLinkClick}>
-              <FaExternalLinkAlt /><span>Liens Partagés</span>
-            </NavLink>
+            {/* 🗑️ Liens partagés supprimés - WebSocket par code les remplace */}
           </>
         )}
 
-        {/* Liens pour les étudiants uniquement */}
-        {user && user.role === 'student' && (
-          <>
-            <NavLink to="/classes" className="sidebar-link" onClick={handleNavLinkClick}>
-              <FaUsers /><span>Mes Classes</span>
-            </NavLink>
-            <NavLink to="/student-shared" className="sidebar-link" onClick={handleNavLinkClick}>
-              <FaShare /><span>Collections Partagées</span>
-            </NavLink>
-          </>
-        )}
+        {/* 🗑️ Section étudiants supprimée pour éviter doublon avec isStudent() */}
         
         {/* Liens spécifiques aux étudiants */}
         {isStudent() && (

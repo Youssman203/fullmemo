@@ -4,10 +4,11 @@ import {
   Container, Row, Col, Card, Button, Badge, Alert, Spinner, Toast, ToastContainer 
 } from 'react-bootstrap';
 import { 
-  FiBook, FiBookOpen, FiUser, FiCalendar, FiArrowLeft, FiPlay, FiDownload, FiCopy, FiShare2
+  FiBook, FiBookOpen, FiUser, FiCalendar, FiArrowLeft, FiPlay, FiDownload, FiCopy, FiShare2, FiEye
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { useData } from '../contexts/DataContext';
+import CollectionPreviewModal from './CollectionPreviewModal';
 
 const ClassCollectionsView = ({ classId, className, onBack }) => {
   const { getClassCollections, importCollectionFromClass } = useData();
@@ -19,6 +20,10 @@ const ClassCollectionsView = ({ classId, className, onBack }) => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
+  
+  // États pour la modal d'aperçu
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [selectedCollection, setSelectedCollection] = useState(null);
 
   useEffect(() => {
     if (classId) {
@@ -173,6 +178,24 @@ const ClassCollectionsView = ({ classId, className, onBack }) => {
     setToastMessage('Informations téléchargées !');
     setToastType('success');
     setShowToast(true);
+  };
+
+  // Fonctions pour la modal d'aperçu
+  const handlePreviewCollection = (collection) => {
+    console.log('📖 [Preview] Ouverture aperçu collection:', collection.name);
+    setSelectedCollection(collection);
+    setShowPreviewModal(true);
+  };
+
+  const handleClosePreview = () => {
+    setShowPreviewModal(false);
+    setSelectedCollection(null);
+  };
+
+  const handleImportFromPreview = async (collectionId, collectionName) => {
+    console.log('📎 [Preview Import] Import depuis aperçu:', collectionId, collectionName);
+    await handleImportCollection(collectionId, collectionName);
+    handleClosePreview();
   };
 
   if (loading) {
@@ -360,8 +383,19 @@ const ClassCollectionsView = ({ classId, className, onBack }) => {
                         </Button>
                       </div>
 
-                      {/* Ligne 2: Import et actions */}
+                      {/* Ligne 2: Aperçu et actions */}
                       <div className="d-flex gap-2 flex-wrap">
+                        <Button
+                          onClick={() => handlePreviewCollection(collection)}
+                          variant="outline-info"
+                          size="sm"
+                          className="flex-fill d-flex align-items-center justify-content-center"
+                          style={{ minWidth: '110px' }}
+                        >
+                          <FiEye className="me-2" />
+                          Aperçu
+                        </Button>
+
                         <Button
                           onClick={() => handleImportCollection(collection._id, collection.name)}
                           variant="outline-primary"
@@ -382,7 +416,10 @@ const ClassCollectionsView = ({ classId, className, onBack }) => {
                             </>
                           )}
                         </Button>
+                      </div>
 
+                      {/* Ligne 3: Actions supplémentaires */}
+                      <div className="d-flex gap-2 flex-wrap">
                         <Button
                           onClick={() => handleCopyCollectionInfo(collection)}
                           variant="outline-secondary"
@@ -393,18 +430,18 @@ const ClassCollectionsView = ({ classId, className, onBack }) => {
                           <FiCopy className="me-2" />
                           Copier infos
                         </Button>
-                      </div>
 
-                      {/* Ligne 3: Actions supplémentaires */}
-                      <Button
-                        onClick={() => handleDownloadCollectionInfo(collection)}
-                        variant="outline-info"
-                        size="sm"
-                        className="d-flex align-items-center justify-content-center"
-                      >
-                        <FiShare2 className="me-2" />
-                        Télécharger les infos
-                      </Button>
+                        <Button
+                          onClick={() => handleDownloadCollectionInfo(collection)}
+                          variant="outline-secondary"
+                          size="sm"
+                          className="flex-fill d-flex align-items-center justify-content-center"
+                          style={{ minWidth: '90px' }}
+                        >
+                          <FiShare2 className="me-2" />
+                          Télécharger
+                        </Button>
+                      </div>
                     </div>
                   </Card.Body>
                 </Card>
@@ -432,6 +469,16 @@ const ClassCollectionsView = ({ classId, className, onBack }) => {
           </Toast.Body>
         </Toast>
       </ToastContainer>
+      
+      {/* Modal d'aperçu de collection */}
+      <CollectionPreviewModal
+        show={showPreviewModal}
+        onHide={handleClosePreview}
+        collection={selectedCollection}
+        classInfo={classInfo}
+        onImport={handleImportFromPreview}
+        isImporting={selectedCollection ? importingIds.has(selectedCollection._id) : false}
+      />
     </Container>
   );
 };
