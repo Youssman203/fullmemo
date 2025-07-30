@@ -169,7 +169,9 @@ const importCollectionByCode = async (req, res) => {
     const userId = req.user._id;
 
     console.log('📥 Import collection avec code:', code);
-    console.log('👤 Par utilisateur:', userId);
+    console.log('👤 Par utilisateur (ObjectId):', userId);
+    console.log('👤 Type userId:', typeof userId);
+    console.log('🕐 Timestamp import:', new Date().toISOString());
 
     // Rechercher le code de partage
     const shareCode = await CollectionShareCode.findOne({ 
@@ -237,6 +239,9 @@ const importCollectionByCode = async (req, res) => {
 
     await newCollection.save();
     console.log('✅ Nouvelle collection créée:', newCollection._id);
+    console.log('💾 Collection user field:', newCollection.user);
+    console.log('💾 User field type:', typeof newCollection.user);
+    console.log('💾 Collection name:', newCollection.name);
 
     // Copier les cartes
     const newCards = [];
@@ -264,6 +269,41 @@ const importCollectionByCode = async (req, res) => {
 
     // Enregistrer l'utilisation
     await shareCode.recordUsage(userId);
+
+    // 🔥 ÉMISSION WEBSOCKET - NOUVELLE COLLECTION IMPORTÉE
+    const io = req.app.get('io');
+    if (io) {
+      const collectionData = {
+        _id: newCollection._id,
+        name: newCollection.name,
+        description: newCollection.description,
+        category: newCollection.category,
+        difficulty: newCollection.difficulty,
+        tags: newCollection.tags,
+        user: newCollection.user,
+        createdAt: newCollection.createdAt,
+        flashcardsCount: newCards.length,
+        isImported: true,
+        sourceCode: shareCode.code,
+        originalCollection: {
+          name: shareCode.collection.name,
+          author: shareCode.createdBy.name
+        }
+      };
+      
+      // Émettre vers la room de l'utilisateur qui importe
+      io.to(`user_${userId}`).emit('newCollection', {
+        type: 'collection_imported',
+        collection: collectionData,
+        message: `Collection "${shareCode.collection.name}" importée avec succès`,
+        timestamp: new Date().toISOString()
+      });
+      
+      console.log(`🚀 WebSocket: Collection importée émise vers user_${userId}`.green);
+      console.log(`📊 Données envoyées: ${collectionData.name} (${newCards.length} cartes)`.cyan);
+    } else {
+      console.log('⚠️ WebSocket non disponible pour l\'émission'.yellow);
+    }
 
     res.status(201).json({
       success: true,

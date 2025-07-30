@@ -143,8 +143,12 @@ const ReviewPage = () => {
       // Créer une fonction async interne pour récupérer les cartes
       const fetchAndSetCards = async () => {
         try {
+          console.log('🔍 [ReviewPage] Début récupération cartes pour collection:', selectedCollection);
+          console.log('🔍 [ReviewPage] ID utilisé:', selectedCollection._id || selectedCollection.id);
+          
           // Récupérer les cartes de façon asynchrone
-          const response = await getCardsByCollection(selectedCollection.id);
+          const response = await getCardsByCollection(selectedCollection._id || selectedCollection.id);
+          console.log('🔍 [ReviewPage] Réponse API cartes:', response);
           
           // Extraire les cartes de la réponse API
           let collectionCards = [];
@@ -157,6 +161,11 @@ const ReviewPage = () => {
           } else {
             console.error('Format de réponse inattendu:', response);
             collectionCards = [];
+          }
+          
+          console.log('🔍 [ReviewPage] Cartes extraites:', collectionCards.length, 'cartes');
+          if (collectionCards.length > 0) {
+            console.log('🔍 [ReviewPage] Première carte:', collectionCards[0]);
           }
           
           // Éliminer les doublons basés sur l'ID avec une approche plus robuste
@@ -199,7 +208,9 @@ const ReviewPage = () => {
             }
           }
         } catch (error) {
-          console.error('Erreur lors de la récupération des cartes:', error);
+          console.error('❌ [ReviewPage] Erreur lors de la récupération des cartes:', error);
+          console.error('❌ [ReviewPage] Collection ID utilisé:', selectedCollection._id || selectedCollection.id);
+          console.error('❌ [ReviewPage] Collection complète:', selectedCollection);
           setCardsToReview([]);
           setStats(prev => ({ ...prev, total: 0 }));
         }
@@ -372,7 +383,7 @@ const ReviewPage = () => {
       // Démarrer une session de révision
       try {
         const sessionData = {
-          collection: selectedCollection.id,
+          collection: selectedCollection._id || selectedCollection.id,
           mode: selectedMode
         };
         const session = await startReviewSession(sessionData);

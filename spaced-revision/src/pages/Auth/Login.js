@@ -2,9 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { GoogleLogin } from '@react-oauth/google';
 import { FiEye, FiEyeOff, FiMail, FiLock } from 'react-icons/fi';
-import { FaGoogle } from 'react-icons/fa';
 import { Form, Button, InputGroup } from 'react-bootstrap';
 import AuthLayout from '../../components/AuthLayout';
 import '../../assets/auth.css';
@@ -15,7 +13,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { login, loginWithGoogle } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -37,30 +35,6 @@ const Login = () => {
     }
   };
 
-  const handleGoogleSuccess = async (credentialResponse) => {
-    setError('');
-    setIsLoading(true);
-    
-    try {
-      const result = await loginWithGoogle(credentialResponse);
-      if (result?.error) {
-        setError(result.error);
-      } else if (result) {
-        navigate('/dashboard');
-      } else {
-        setError('La connexion avec Google a échoué. Veuillez réessayer.');
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || 'Une erreur est survenue lors de la connexion avec Google.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoogleError = () => {
-    setError('La connexion avec Google a échoué. Veuillez réessayer.');
-  };
-  
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -71,21 +45,6 @@ const Login = () => {
       subtitle="Connectez-vous pour accéder à votre espace personnel"
     >
       {error && <div className="alert alert-danger">{error}</div>}
-      
-      {/* Google Login Button */}
-      <button className="auth-google-btn mb-3" onClick={() => document.querySelector('.google-login-button')?.click()}>
-        <FaGoogle size={18} />
-        <span>Se connecter avec Google</span>
-      </button>
-      
-      {/* Hidden Google Login component */}
-      <div style={{ display: 'none' }} className="google-login-button">
-        <GoogleLogin
-          onSuccess={handleGoogleSuccess}
-          onError={handleGoogleError}
-          useOneTap
-        />
-      </div>
       
       <div className="auth-divider">
         <span>ou</span>

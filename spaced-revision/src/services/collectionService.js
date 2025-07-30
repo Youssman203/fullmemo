@@ -3,8 +3,21 @@ import api from './api';
 // Service de gestion des collections
 const collectionService = {
   // Récupérer toutes les collections de l'utilisateur
-  getUserCollections: async () => {
-    return await api.get('/collections');
+  // NOUVEAU: Support cache busting avec paramètre refresh
+  getUserCollections: async (forceRefresh = false) => {
+    const url = forceRefresh ? '/collections?refresh=true&t=' + Date.now() : '/collections';
+    console.log('📡 API Call getUserCollections:', url);
+    
+    // Headers pour forcer le bypass cache navigateur
+    const config = forceRefresh ? {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    } : {};
+    
+    return await api.get(url, config);
   },
 
   // Récupérer une collection par son ID

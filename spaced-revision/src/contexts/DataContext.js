@@ -1,5 +1,7 @@
 // src/contexts/DataContext.js
-import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback, useRef } from 'react';
+import { io } from 'socket.io-client';
+import { toast } from 'react-toastify';
 import collectionService from '../services/collectionService';
 import flashcardService from '../services/flashcardService';
 import reviewService from '../services/reviewService';
@@ -15,6 +17,12 @@ export const DataProvider = ({ children }) => {
   const [collections, setCollections] = useState([]);
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // 🔌 WebSocket Configuration
+  const socketRef = useRef(null);
+  const [socketConnected, setSocketConnected] = useState(false);
+  const reconnectAttempts = useRef(0);
+  const maxReconnectAttempts = 5;
 
   const refreshData = useCallback(async () => {
     if (user) {
@@ -36,8 +44,16 @@ export const DataProvider = ({ children }) => {
           userCollections = collectionsResponse.data.collections;
         }
         
+        // 🔍 Déduplication simple pour éviter les doublons visuels
+        const uniqueCollections = userCollections.filter((collection, index, self) => 
+          index === self.findIndex(c => c._id === collection._id)
+        );
+        
         console.log("Collections formatées:", userCollections);
-        setCollections(userCollections);
+        if (userCollections.length !== uniqueCollections.length) {
+          console.log(`🔍 Doublons supprimés: ${userCollections.length} → ${uniqueCollections.length}`);
+        }
+        setCollections(uniqueCollections);
         
         // Charger toutes les cartes de l'utilisateur (pas seulement celles à réviser)
         const cardsResponse = await flashcardService.getAllUserFlashcards();
@@ -54,8 +70,8 @@ export const DataProvider = ({ children }) => {
         
         console.log("Toutes les cartes récupérées:", userCards);
         
-        // Calculer le nombre de cartes par collection
-        const collectionsWithCardCount = userCollections.map(collection => {
+        // Calculer le nombre de cartes par collection (utilise les collections dédupliquées)
+        const collectionsWithCardCount = uniqueCollections.map(collection => {
           const collectionId = collection._id || collection.id;
           // Compter le nombre de cartes pour cette collection
           const count = userCards.filter(card => {
@@ -88,6 +104,138 @@ export const DataProvider = ({ children }) => {
       }
     }
   }, [user]);
+  
+  // 🔥 WEBSOCKET FUNCTIONS - CONNEXION ET GESTION TEMPS RÉEL
+  
+  // Configuration et connexion WebSocket
+  const connectSocket = useCallback(() => {
+    if (!user || socketRef.current?.connected) return;
+    
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.warn('⚠️ Pas de token pour WebSocket');
+      return;
+    }
+    
+    console.log('🔌 Tentative connexion WebSocket...');
+    
+    // Création de la connexion Socket.IO
+    socketRef.current = io(process.env.REACT_APP_API_URL || 'http://localhost:5000', {
+      auth: { token },
+      transports: ['websocket', 'polling'],
+      timeout: 20000,
+      reconnection: true,
+      reconnectionAttempts: maxReconnectAttempts,
+      reconnectionDelay: 1000
+    });
+    
+    const socket = socketRef.current;
+    
+    // Événements de connexion
+    socket.on('connect', () => {
+      console.log('✅ WebSocket connecté:', socket.id);
+      setSocketConnected(true);
+      reconnectAttempts.current = 0;
+      
+      // Test de ping pour vérifier la connexion
+      socket.emit('ping');
+    });
+    
+    socket.on('disconnect', (reason) => {
+      console.log('🔌 WebSocket déconnecté:', reason);
+      setSocketConnected(false);
+    });
+    
+    socket.on('connect_error', (error) => {
+      console.error('❌ Erreur connexion WebSocket:', error.message);
+      setSocketConnected(false);
+      reconnectAttempts.current++;
+      
+      if (reconnectAttempts.current >= maxReconnectAttempts) {
+        console.error('❌ Limite de reconnexion atteinte');
+        socket.disconnect();
+      }
+    });
+    
+    // Réponse au ping
+    socket.on('pong', (data) => {
+      console.log('🏓 WebSocket pong reçu:', data.message);
+    });
+    
+    // 🚀 ÉCOUTE ÉVÉNEMENT PRINCIPALE - NOUVELLE COLLECTION
+    socket.on('newCollection', (data) => {
+      console.log('🎆 Événement newCollection reçu:', data);
+      
+      const { type, collection, message, timestamp } = data;
+      
+      if (type === 'collection_imported' && collection) {
+        // 🔄 MISE À JOUR AUTOMATIQUE DES COLLECTIONS SANS DOUBLONS
+        setCollections(prevCollections => {
+          console.log('🔄 Mise à jour collections via WebSocket...');
+          
+          // Vérifier si la collection existe déjà
+          const existingIndex = prevCollections.findIndex(c => 
+            String(c._id) === String(collection._id)
+          );
+          
+          if (existingIndex !== -1) {
+            // Mettre à jour collection existante
+            const updatedCollections = [...prevCollections];
+            updatedCollections[existingIndex] = { ...collection, cardCount: collection.flashcardsCount || 0 };
+            console.log('⚙️ Collection mise à jour:', collection.name);
+            return updatedCollections;
+          } else {
+            // Ajouter nouvelle collection
+            const newCollection = { ...collection, cardCount: collection.flashcardsCount || 0 };
+            console.log('➕ Nouvelle collection ajoutée:', collection.name);
+            return [newCollection, ...prevCollections];
+          }
+        });
+        
+        // Notification toast
+        toast.success(
+          `🎆 ${message}`,
+          {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true
+          }
+        );
+        
+        console.log(`✅ Collection "${collection.name}" ajoutée en temps réel`);
+      }
+    });
+    
+  }, [user]);
+  
+  // Déconnexion propre du WebSocket
+  const disconnectSocket = useCallback(() => {
+    if (socketRef.current) {
+      console.log('🔌 Fermeture connexion WebSocket');
+      socketRef.current.disconnect();
+      socketRef.current = null;
+      setSocketConnected(false);
+    }
+  }, []);
+  
+  // 🔄 EFFET POUR GÉRER CONNEXION/DÉCONNEXION WEBSOCKET
+  useEffect(() => {
+    if (user) {
+      // Connecter WebSocket quand utilisateur connecté
+      connectSocket();
+    } else {
+      // Déconnecter WebSocket quand utilisateur déconnecté
+      disconnectSocket();
+    }
+    
+    // Nettoyage au démontage
+    return () => {
+      disconnectSocket();
+    };
+  }, [user, connectSocket, disconnectSocket]);
 
   useEffect(() => {
     if (user) {
@@ -254,25 +402,33 @@ export const DataProvider = ({ children }) => {
     }
   };
   
-  // Wrapper pour importCollectionByCode avec rafraîchissement automatique
-  const importCollectionByCodeWithRefresh = async (code) => {
+  // 🔥 VERSION WEBSOCKET - Import simple sans refresh manuel
+  const importCollectionByCodeWebSocket = async (code) => {
     try {
-      console.log('📥 Import collection par code avec rafraîchissement:', code);
+      console.log('📥 Import collection par code WebSocket:', code);
+      
+      // 📡 Appel API simple - WebSocket s'occupe du refresh
       const response = await shareCodeService.importCollectionByCode(code);
-      console.log('✅ Collection importée, rafraîchissement en cours...');
-      // Rafraîchir les données pour inclure la nouvelle collection importée
-      await refreshData();
-      console.log('✅ Collections rafraîchies après import par code');
+      console.log('✅ Import WebSocket réussi:', response);
+      
+      // 🎯 Le refresh sera automatique via l'événement WebSocket 'newCollection'
+      console.log('⚡ Attente de l\'événement WebSocket pour mise à jour...');
+      
       return response.data || response;
+      
     } catch (error) {
-      console.error("Failed to import collection by code:", error);
+      console.error('❌ Erreur import WebSocket:', error);
       throw error;
     }
   };
   
+  // 🧺 FONCTIONS COMPLEXES SUPPRIMÉES - WebSocket gère tout
+  
   // Créer des alias pour compatibilité avec le code existant
   const getCardsByCollection = getFlashcardsByCollection;
   const updateCardReview = updateFlashcardReview;
+
+  // 🗑️ Code de tracking import supprimé - WebSocket gère le state
 
   const value = { 
     collections,
@@ -319,9 +475,22 @@ export const DataProvider = ({ children }) => {
     // Fonctions des codes de partage
     generateShareCode: shareCodeService.generateShareCode,
     getCollectionByCode: shareCodeService.getCollectionByCode,
-    importCollectionByCode: importCollectionByCodeWithRefresh, // Utilise la version avec rafraîchissement
+    importCollectionByCode: importCollectionByCodeWebSocket, // 🔥 WEBSOCKET VERSION
     getUserShareCodes: shareCodeService.getUserShareCodes,
-    deactivateShareCode: shareCodeService.deactivateShareCode
+    deactivateShareCode: shareCodeService.deactivateShareCode,
+    
+    // 🔌 WebSocket Status
+    socketConnected,
+    
+    // 🧪 Functions de debug WebSocket
+    testWebSocketConnection: () => {
+      if (socketRef.current?.connected) {
+        socketRef.current.emit('ping');
+        console.log('🏓 Test WebSocket envoyé');
+      } else {
+        console.log('❌ WebSocket non connecté');
+      }
+    }
   };
 
   return (

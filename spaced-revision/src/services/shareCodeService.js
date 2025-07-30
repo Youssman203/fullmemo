@@ -6,6 +6,10 @@ const shareCodeService = {
   generateShareCode: async (collectionId) => {
     try {
       console.log('🔢 Génération code de partage pour collection:', collectionId);
+      
+      // Authentification gérée par le service API
+      console.log('🔑 Auth gérée par l\'API...');
+      
       const response = await api.post(`/share/collections/${collectionId}/generate`);
       console.log('✅ Code généré:', response.data.code);
       return response;
@@ -31,12 +35,38 @@ const shareCodeService = {
   // Importer une collection via un code
   importCollectionByCode: async (code) => {
     try {
-      console.log('📥 Import collection avec code:', code);
+      console.log('📥 IMPORT COLLECTION PAR CODE - DÉBUT');
+      console.log('🔍 Code utilisé:', code);
+      
+      // 🔑 Authentification gérée par le service API
+      console.log('🔑 Auth gérée par l\'API...');
+      
+      console.log('📡 Envoi requête import...');
       const response = await api.post(`/share/code/${code.toUpperCase()}/import`);
-      console.log('✅ Collection importée:', response.data.collection?.name);
+      
+      console.log('✅ Réponse import reçue:', {
+        status: 'success',
+        collection: response.data?.collection?.name,
+        message: response.data?.message
+      });
+      
       return response;
     } catch (error) {
-      console.error('❌ Erreur import par code:', error);
+      console.error('❌ ERREUR IMPORT PAR CODE:', {
+        code: code,
+        error: error.message,
+        stack: error.stack
+      });
+      
+      // Messages d'erreur plus explicites
+      if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+        throw new Error('Session expirée - Veuillez vous reconnecter');
+      } else if (error.message.includes('404')) {
+        throw new Error(`Code de partage "${code}" introuvable ou expiré`);
+      } else if (error.message.includes('400')) {
+        throw new Error('Collection déjà importée ou code invalide');
+      }
+      
       throw error;
     }
   },

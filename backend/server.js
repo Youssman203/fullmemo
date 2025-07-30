@@ -1,4 +1,7 @@
 const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io');
+const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const morgan = require('morgan');
@@ -24,8 +27,62 @@ const classRoutes = require('./routes/classRoutes');
 const sharedLinkRoutes = require('./routes/sharedLinkRoutes');
 const shareCodeRoutes = require('./routes/shareCodeRoutes');
 
-// Initialiser l'application Express
+// Initialiser l'application Express et le serveur HTTP
 const app = express();
+const server = http.createServer(app);
+
+// Configuration Socket.IO avec CORS
+const io = socketIo(server, {
+  cors: {
+    origin: ["http://localhost:3000", "http://127.0.0.1:3000"],
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+});
+
+// Middleware d'authentification Socket.IO
+const socketAuth = (socket, next) => {
+  try {
+    const token = socket.handshake.auth.token;
+    if (!token) {
+      return next(new Error('Token manquant'));
+    }
+    
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    socket.userId = decoded.id;
+    socket.userRole = decoded.role;
+    console.log(`✅ Socket authentifié pour utilisateur: ${decoded.id} (${decoded.role})`.green);
+    next();
+  } catch (error) {
+    console.log(`❌ Erreur auth socket: ${error.message}`.red);
+    next(new Error('Token invalide'));
+  }
+};
+
+// Appliquer l'authentification aux sockets
+io.use(socketAuth);
+
+// Gestion des connexions Socket.IO
+io.on('connection', (socket) => {
+  console.log(`🔌 Nouvelle connexion socket: ${socket.id} (User: ${socket.userId})`.cyan);
+  
+  // Rejoindre la room personnelle de l'utilisateur
+  socket.join(`user_${socket.userId}`);
+  console.log(`👤 Utilisateur ${socket.userId} a rejoint sa room`.yellow);
+  
+  // Événement de déconnexion
+  socket.on('disconnect', () => {
+    console.log(`🔌 Déconnexion socket: ${socket.id} (User: ${socket.userId})`.cyan);
+  });
+  
+  // Événement de test pour vérifier la connexion
+  socket.on('ping', () => {
+    socket.emit('pong', { message: 'Connexion WebSocket active', userId: socket.userId });
+  });
+});
+
+// Rendre io accessible globalement pour les contrôleurs
+app.set('io', io);
 
 // Middleware pour parser le corps des requêtes
 app.use(express.json());
@@ -79,8 +136,9 @@ app.get('/', (req, res) => {
 app.use(notFound);
 app.use(errorHandler);
 
-// Démarrer le serveur
+// Démarrer le serveur HTTP avec Socket.IO
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Serveur en cours d'exécution sur le port ${PORT}`.cyan.bold);
+server.listen(PORT, () => {
+  console.log(`🚀 Serveur HTTP + WebSocket en cours d'exécution sur le port ${PORT}`.cyan.bold);
+  console.log(`🔌 WebSocket CORS configuré pour: http://localhost:3000`.green);
 });

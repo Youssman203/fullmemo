@@ -11,9 +11,10 @@ import AccessByCodeModal from '../components/AccessByCodeModal';
 import '../assets/collections.css';
 import '../assets/collections-fix.css'; // Correctifs pour l'affichage des grilles
 import '../assets/modern-collections.css'; // Nouveau style inspiré de YouTube
+import { toast } from 'react-toastify';
 
 const Collections = () => {
-  const { collections, createCollection, updateCollection, deleteCollection, getUserCollections, refreshData } = useData();
+  const { collections, createCollection, updateCollection, deleteCollection, getUserCollections } = useData();
   const [showAddModal, setShowAddModal] = useState(false);
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -56,15 +57,28 @@ const Collections = () => {
     // Apply sorting
     switch (sortBy) {
       case 'name':
-        result.sort((a, b) => a.name.localeCompare(b.name));
+        result.sort((a, b) => {
+          const nameA = a.name || '';
+          const nameB = b.name || '';
+          return nameA.localeCompare(nameB);
+        });
         break;
       case 'cards':
         result.sort((a, b) => (b.cardCount || 0) - (a.cardCount || 0));
         break;
       case 'recent':
       default:
-        // Assuming collections have a lastModified property, or fall back to id for consistent order
-        result.sort((a, b) => (b.lastModified || b.id).localeCompare(a.lastModified || a.id));
+        // Tri sécurisé par date de modification ou creation
+        result.sort((a, b) => {
+          const dateA = a.lastModified || a.updatedAt || a.createdAt || a._id || '';
+          const dateB = b.lastModified || b.updatedAt || b.createdAt || b._id || '';
+          // Tri par date (plus récent en premier)
+          if (dateA && dateB) {
+            return new Date(dateB) - new Date(dateA);
+          }
+          // Fallback sur comparaison string sécurisée
+          return String(dateB).localeCompare(String(dateA));
+        });
         break;
     }
     
@@ -97,11 +111,18 @@ const Collections = () => {
     }
   };
 
-  const handleDeleteCollection = () => {
+  const handleDeleteCollection = async () => {
     if (selectedCollection) {
-      deleteCollection(selectedCollection.id);
-      setShowDeleteModal(false);
-      setSelectedCollection(null);
+      try {
+        await deleteCollection(selectedCollection._id || selectedCollection.id);
+        toast.success(`Collection \"${selectedCollection.name}\" supprimée avec succès`);
+      } catch (error) {
+        console.error('❌ Erreur suppression collection:', error);
+        toast.error(error.response?.data?.message || error.message || 'Erreur lors de la suppression de la collection');
+      } finally {
+        setShowDeleteModal(false);
+        setSelectedCollection(null);
+      }
     }
   };
 
@@ -141,20 +162,12 @@ const Collections = () => {
   // Handler pour l'import de collection par code
   const handleCollectionAccessed = async (importedCollection) => {
     console.log('🎯 Collection importée:', importedCollection);
-    try {
-      // Rafraîchir complètement les données après l'import
-      await refreshData();
-      console.log('✅ Données complètement rafraîchies après import');
-    } catch (error) {
-      console.error('❌ Erreur lors du rafraîchissement complet:', error);
-      // Fallback sur getUserCollections si refreshData échoue
-      try {
-        await getUserCollections();
-        console.log('✅ Collections rafraîchies en fallback');
-      } catch (fallbackError) {
-        console.error('❌ Erreur fallback getUserCollections:', fallbackError);
-      }
-    }
+    console.log('ℹ️ Pas de rafraîchissement ici - Déjà fait dans DataContext');
+    // SUPPRIMÉ: Double rafraîchissement pour éviter les doublons
+    // Le rafraîchissement est déjà fait dans DataContext.importCollectionByCodeWithRefresh()
+    
+    // Optionnel: Toast de confirmation visuel
+    // toast.success(`Collection "${importedCollection?.name}" ajoutée à vos collections !`);
   };
 
   const handleSearchChange = (e) => {

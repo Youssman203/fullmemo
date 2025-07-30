@@ -34,12 +34,53 @@ const createCollection = asyncHandler(async (req, res) => {
  * @access  Private
  */
 const getUserCollections = asyncHandler(async (req, res) => {
-  const collections = await Collection.find({ user: req.user._id })
-    .sort({ updatedAt: -1 });
-
+  console.log('📡 getUserCollections - UserId:', req.user._id);
+  console.log('📡 Query params:', req.query);
+  
+  // CORRECTION: Requête Mongoose améliorée pour éviter doublons
+  const collections = await Collection.find({ 
+    user: req.user._id  // CORRECT: Utilise directement ObjectId
+  })
+    .sort({ createdAt: -1 })  // MODIFIÉ: Tri par date création pour consistance
+    .lean()                   // NOUVEAU: Performance + réduit mémoire
+    .exec();                  // NOUVEAU: Exécution explicite
+  
+  console.log(`📄 Collections trouvées: ${collections.length}`);
+  
+  // NOUVEAU: Déduplication côté backend (sécurité)
+  const uniqueCollections = [];
+  const seenIds = new Set();
+  
+  collections.forEach(collection => {
+    const idString = collection._id.toString();
+    if (!seenIds.has(idString)) {
+      seenIds.add(idString);
+      uniqueCollections.push(collection);
+    }
+  });
+  
+  if (collections.length !== uniqueCollections.length) {
+    console.log(`⚠️ Doublons détectés backend: ${collections.length} → ${uniqueCollections.length}`);
+  }
+  
+  // NOUVEAU: Headers anti-cache si refresh demandé
+  if (req.query.refresh === 'true') {
+    console.log('🔄 Mode refresh - Headers anti-cache activés');
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+      'ETag': false
+    });
+  }
+  
+  console.log('📤 Réponse envoyée avec', uniqueCollections.length, 'collections');
+  
   res.json({
     success: true,
-    data: collections
+    data: uniqueCollections,  // MODIFIÉ: Envoie collections dédupliquées
+    timestamp: Date.now(),    // NOUVEAU: Timestamp pour debug
+    userId: req.user._id      // NOUVEAU: Debug userId
   });
 });
 

@@ -71,32 +71,105 @@ const AccessByCodeModal = ({ show, onHide, onCollectionAccessed }) => {
   const handleImportCollection = async () => {
     if (!collection) return;
 
+    // 🔒 Vérifier si un import est déjà en cours
+    if (window.__importing__) {
+      toast.warning('Un import est déjà en cours, veuillez patienter...');
+      return;
+    }
+
     setImporting(true);
+    setError(''); // Effacer les erreurs précédentes
 
     try {
-      console.log('📥 Import collection avec code:', code);
+      console.log('📥 IMPORT COLLECTION STABLE - Code:', code);
+      console.log('📋 Collection à importer:', collection.collection.name);
+      
+      // 🔒 VALIDATION AUTHENTIFICATION SIMPLIFIÉE
+      console.log('🔒 Vérification authentification avant import...');
+      
+      // Vérifier présence du token (validation de base seulement)
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('❌ ERREUR AUTH: Pas de token d\'authentification');
+        setError('Vous devez être connecté pour importer une collection');
+        toast.error('Connexion requise - Veuillez vous reconnecter');
+        setImporting(false);
+        return;
+      }
+      
+      console.log('✅ Token présent, tentative d\'import...');
+      
+      // Optionnel: afficher info utilisateur sans bloquer
+      try {
+        const userData = localStorage.getItem('user');
+        if (userData) {
+          const user = JSON.parse(userData);
+          console.log('👤 Utilisateur connecté:', user.name, '(' + user.email + ')');
+          console.log('🎭 Rôle:', user.role);
+        }
+      } catch (userError) {
+        console.warn('⚠️ Info utilisateur non lisible (pas bloquant)');
+      }
+      
+      console.log('✅ PROCÉDURE D\'IMPORT...');
+      
+      // 🔄 Import avec système ultra-stable
       const response = await importCollectionByCode(code);
+      console.log('✅ Import réussi:', response);
       
       setStep('success');
-      toast.success(response.data.message || 'Collection importée avec succès !');
+      
+      // 🎉 Message de succès personnalisé
+      const successMessage = response.data?.message || 
+        `Collection "${collection.collection.name}" importée avec succès !`;
+      toast.success(successMessage);
 
-      // Appeler le callback pour rafraîchir les collections
+      // 🔄 Callback pour notification (pas de refresh, déjà fait dans DataContext)
       if (onCollectionAccessed) {
-        onCollectionAccessed(response.data.collection);
+        console.log('📨 Notification import réussi au parent');
+        onCollectionAccessed(response.data?.collection || collection.collection);
       }
 
-      // Fermer la modal après un délai
+      // 🚪 Fermer la modal avec délai plus court pour meilleure UX
       setTimeout(() => {
+        console.log('🚪 Fermeture modal après import réussi');
         onHide();
-      }, 2000);
+        
+        // 🎁 Toast de confirmation finale
+        setTimeout(() => {
+          toast.info(`Collection "${collection.collection.name}" maintenant disponible dans vos collections !`);
+        }, 500);
+      }, 1500); // Réduit de 2000ms à 1500ms
 
     } catch (error) {
-      console.error('❌ Erreur import collection:', error);
-      const errorMessage = error.response?.data?.message || error.message || 'Erreur lors de l\'import';
+      console.error('❌ ERREUR Import collection:', error);
+      
+      // 📝 Gestion détaillée des erreurs
+      let errorMessage = 'Erreur lors de l\'import';
+      
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        if (error.message.includes('already imported') || error.message.includes('déjà import')) {
+          errorMessage = `Collection "${collection.collection.name}" déjà importée`;
+        } else if (error.message.includes('expired') || error.message.includes('expir')) {
+          errorMessage = 'Code de partage expiré ou inactif';
+        } else if (error.message.includes('en cours')) {
+          errorMessage = 'Un autre import est en cours, veuillez patienter';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       setError(errorMessage);
       toast.error(errorMessage);
+      
+      // 🔄 Rester sur l'étape preview en cas d'erreur
+      setStep('preview');
+      
     } finally {
       setImporting(false);
+      console.log('📝 Import process terminé');
     }
   };
 

@@ -2,9 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { GoogleLogin } from '@react-oauth/google';
 import { FiEye, FiEyeOff, FiMail, FiLock, FiUser } from 'react-icons/fi';
-import { FaGoogle } from 'react-icons/fa';
 import { Form, Button, InputGroup } from 'react-bootstrap';
 import AuthLayout from '../../components/AuthLayout';
 import '../../assets/auth.css';
@@ -18,7 +16,7 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
-  const { register, loginWithGoogle } = useAuth();
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   const validateForm = () => {
@@ -59,7 +57,7 @@ const Register = () => {
         name: username,
         email: email,
         password: password,
-        role: role // Ajouter le rôle
+        role: role // AllowMultiple le rôle
       };
       
       const newUser = await register(userData);
@@ -73,30 +71,6 @@ const Register = () => {
     }
   };
 
-  const handleGoogleSuccess = async (credentialResponse) => {
-    setError('');
-    setIsLoading(true);
-    
-    try {
-      const result = await loginWithGoogle(credentialResponse);
-      if (result?.error) {
-        setError(result.error);
-      } else if (result) {
-        navigate('/dashboard');
-      } else {
-        setError('L\'inscription avec Google a échoué. Veuillez réessayer.');
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || 'Une erreur est survenue lors de l\'inscription avec Google.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoogleError = () => {
-    setError('L\'inscription avec Google a échoué. Veuillez réessayer.');
-  };
-  
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -107,21 +81,6 @@ const Register = () => {
       subtitle="Créez votre compte pour commencer à apprendre"
     >
       {error && <div className="alert alert-danger">{error}</div>}
-      
-      {/* Google Login Button */}
-      <button className="auth-google-btn mb-3" onClick={() => document.querySelector('.google-login-button')?.click()}>
-        <FaGoogle size={18} />
-        <span>S'inscrire avec Google</span>
-      </button>
-      
-      {/* Hidden Google Login component */}
-      <div style={{ display: 'none' }} className="google-login-button">
-        <GoogleLogin
-          onSuccess={handleGoogleSuccess}
-          onError={handleGoogleError}
-          useOneTap
-        />
-      </div>
       
       <div className="auth-divider">
         <span>ou</span>

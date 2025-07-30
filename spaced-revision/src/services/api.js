@@ -1,9 +1,73 @@
 // Configuration de base
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-// Fonction pour obtenir le token JWT du localStorage
+// Fonction pour obtenir le token JWT du localStorage avec validation
 const getToken = () => {
-  return localStorage.getItem('token');
+  const token = localStorage.getItem('token');
+  if (!token) {
+    console.warn('⚠️ [API] Pas de token d\'authentification');
+    return null;
+  }
+  
+  // Vérifier si le token est expiré
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const now = Math.floor(Date.now() / 1000);
+    
+    if (payload.exp < now) {
+      console.warn('⚠️ [API] Token expiré, nettoyage automatique');
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      return null;
+    }
+    
+    return token;
+  } catch (error) {
+    console.error('❌ [API] Token invalide, nettoyage:', error.message);
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    return null;
+  }
+};
+
+// Fonction pour gérer les erreurs d'authentification
+const handleAuthError = (endpoint, status) => {
+  console.error('❌ [API] Erreur d\'authentification:', status);
+  console.log('🔍 [API] Endpoint concerné:', endpoint);
+  
+  const token = localStorage.getItem('token');
+  console.log('🔍 [API] Token présent avant erreur:', !!token);
+  
+  if (token) {
+    console.log('🔍 [API] Token (20 premiers chars):', token.substring(0, 20));
+    
+    // Vérifier si le token est expiré
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const now = Math.floor(Date.now() / 1000);
+      const isExpired = payload.exp < now;
+      console.log('🔍 [API] Token expiré:', isExpired);
+      if (isExpired) {
+        console.log('🔍 [API] Expiration:', new Date(payload.exp * 1000));
+      }
+    } catch (e) {
+      console.log('🔍 [API] Erreur décodage token:', e.message);
+    }
+  }
+  
+  // Nettoyer complètement le storage
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  sessionStorage.clear();
+  
+  console.log('↩️ [API] Redirection vers login dans 1 seconde...');
+  
+  // Délai pour permettre de voir les logs
+  setTimeout(() => {
+    window.location.href = '/login?error=session_expired&from=' + encodeURIComponent(endpoint);
+  }, 1000);
+  
+  throw new Error(`Session expirée lors de l'accès à ${endpoint} - Reconnexion requise`);
 };
 
 // Service API utilisant Fetch au lieu d'axios
