@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useData } from '../contexts/DataContext';
+import { useAuth } from '../contexts/AuthContext';
 import { Modal, Button, Form, Container, Row, Col, InputGroup, Dropdown } from 'react-bootstrap';
 import { FiSearch, FiGrid, FiList, FiFilter, FiPlus } from 'react-icons/fi';
+import { FaFileImport } from 'react-icons/fa';
 import EnhancedCollectionCard from '../components/EnhancedCollectionCard';
 import AddCollectionCard from '../components/AddCollectionCard';
 import EmptyCollectionsState from '../components/EmptyCollectionsState';
 // 🗑️ ShareLinkModal supprimé - WebSocket par code remplace les liens partagés
 import ShareCodeModal from '../components/ShareCodeModal';
 import AccessByCodeModal from '../components/AccessByCodeModal';
+import SimpleBulkImportModal from '../components/SimpleBulkImportModal';
 import '../assets/collections.css';
 import '../assets/collections-fix.css'; // Correctifs pour l'affichage des grilles
 import '../assets/modern-collections.css'; // Nouveau style inspiré de YouTube
@@ -15,6 +18,7 @@ import { toast } from 'react-toastify';
 
 const Collections = () => {
   const { collections, createCollection, updateCollection, deleteCollection, getUserCollections } = useData();
+  const { user } = useAuth();
   const [showAddModal, setShowAddModal] = useState(false);
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -33,6 +37,9 @@ const Collections = () => {
   const [showShareCodeModal, setShowShareCodeModal] = useState(false);
   const [showAccessCodeModal, setShowAccessCodeModal] = useState(false);
   const [collectionToShare, setCollectionToShare] = useState(null); // Pour codes de partage
+  
+  // État pour import simple CSV
+  const [showSimpleBulkImportModal, setShowSimpleBulkImportModal] = useState(false);
 
   // Check for dark mode
   useEffect(() => {
@@ -99,7 +106,7 @@ const Collections = () => {
 
   const handleRenameCollection = () => {
     if (newCollectionName.trim() && selectedCollection) {
-      updateCollection(selectedCollection.id, {
+      updateCollection(selectedCollection._id || selectedCollection.id, {
         name: newCollectionName,
         description: newCollectionDescription
       });
@@ -174,14 +181,28 @@ const Collections = () => {
               Organisez vos cartes en collections thématiques pour faciliter votre apprentissage
             </p>
           </div>
-          <Button 
-            variant="outline-primary" 
-            onClick={() => setShowAccessCodeModal(true)}
-            className="mt-2"
-          >
-            <FiPlus className="me-2" />
-            Accéder par code
-          </Button>
+          <div className="d-flex gap-2 mt-2">
+            {/* Bouton pour les enseignants */}
+            {user?.role === 'teacher' && (
+              <Button 
+                variant="outline-success" 
+                onClick={() => setShowSimpleBulkImportModal(true)}
+                className="me-2"
+              >
+                <FaFileImport className="me-2" />
+                Import Simple CSV
+              </Button>
+            )}
+            
+            {/* Bouton d'accès par code pour tous */}
+            <Button 
+              variant="outline-primary" 
+              onClick={() => setShowAccessCodeModal(true)}
+            >
+              <FiPlus className="me-2" />
+              Accéder par code
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -336,6 +357,13 @@ const Collections = () => {
         show={showAccessCodeModal}
         onHide={() => setShowAccessCodeModal(false)}
         onCollectionAccessed={handleCollectionAccessed}
+      />
+      
+      {/* Simple Bulk Import Modal */}
+      <SimpleBulkImportModal
+        show={showSimpleBulkImportModal}
+        onHide={() => setShowSimpleBulkImportModal(false)}
+        collections={collections}
       />
     </Container>
   );

@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { useData } from '../contexts/DataContext';
 import JoinClassModal from './JoinClassModal';
 import ClassCollectionsView from './ClassCollectionsView';
+import CollectionSelectorModal from './CollectionSelectorModal';
 
 const StudentClassesPanel = () => {
   const { getStudentClasses } = useData();
@@ -14,6 +15,7 @@ const StudentClassesPanel = () => {
   const [error, setError] = useState('');
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [showCollectionsView, setShowCollectionsView] = useState(false);
+  const [showCollectionSelector, setShowCollectionSelector] = useState(false);
   const [selectedClass, setSelectedClass] = useState(null);
 
   useEffect(() => {
@@ -45,6 +47,11 @@ const StudentClassesPanel = () => {
   const handleViewCollections = (classItem) => {
     setSelectedClass(classItem);
     setShowCollectionsView(true);
+  };
+
+  const handleViewCollectionsSelector = (classItem) => {
+    setSelectedClass(classItem);
+    setShowCollectionSelector(true);
   };
 
   const handleBackToClasses = () => {
@@ -221,7 +228,7 @@ const StudentClassesPanel = () => {
                             variant="primary"
                             size="sm"
                             className="flex-fill"
-                            onClick={() => handleViewCollections(classItem)}
+                            onClick={() => handleViewCollectionsSelector(classItem)}
                           >
                             <FiBook className="me-2" size={14} />
                             Collections
@@ -241,6 +248,13 @@ const StudentClassesPanel = () => {
         show={showJoinModal}
         onHide={() => setShowJoinModal(false)}
         onClassJoined={handleClassJoined}
+      />
+      
+      <CollectionSelectorModal
+        show={showCollectionSelector}
+        onHide={() => setShowCollectionSelector(false)}
+        classId={selectedClass?._id}
+        className={selectedClass?.name}
       />
     </>
   );

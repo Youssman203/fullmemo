@@ -9,7 +9,6 @@ import './assets/teacher-theme.css'; // Styles spécifiques aux enseignants
 
 // Components and Pages
 import Navbar from './components/Navbar';
-import DebugRole from './components/DebugRole';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import Dashboard from './pages/Dashboard';
@@ -59,7 +58,6 @@ function App() {
         <ProtectedRoute>
           <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
             <Navbar />
-            <DebugRole />
             <div className="main-content">
               <Navigate to="/home" replace />
             </div>
@@ -71,7 +69,6 @@ function App() {
         <ProtectedRoute>
           <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
             <Navbar />
-            <DebugRole />
             <div className="main-content">
               <Dashboard />
             </div>
@@ -83,7 +80,6 @@ function App() {
         <ProtectedRoute>
           <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
             <Navbar />
-            <DebugRole />
             <div className="main-content">
               <ReviewPage />
             </div>
@@ -95,7 +91,6 @@ function App() {
         <ProtectedRoute>
           <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
             <Navbar />
-            <DebugRole />
             <div className="main-content">
               <ReviewCards />
             </div>
@@ -107,7 +102,6 @@ function App() {
         <ProtectedRoute>
           <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
             <Navbar />
-            <DebugRole />
             <div className="main-content">
               <Flashcards />
             </div>
@@ -119,7 +113,6 @@ function App() {
         <ProtectedRoute>
           <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
             <Navbar />
-            <DebugRole />
             <div className="main-content">
               <Collections />
             </div>
@@ -131,7 +124,6 @@ function App() {
         <ProtectedRoute>
           <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
             <Navbar />
-            <DebugRole />
             <div className="main-content">
               <Collections />
             </div>
@@ -143,7 +135,6 @@ function App() {
         <ProtectedRoute>
           <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
             <Navbar />
-            <DebugRole />
             <div className="main-content">
               <CardForm />
             </div>
@@ -155,7 +146,6 @@ function App() {
         <ProtectedRoute>
           <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
             <Navbar />
-            <DebugRole />
             <div className="main-content">
               <CardForm />
             </div>
@@ -167,7 +157,6 @@ function App() {
         <ProtectedRoute>
           <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
             <Navbar />
-            <DebugRole />
             <div className="main-content">
               <Stats />
             </div>
@@ -179,7 +168,6 @@ function App() {
         <ProtectedRoute>
           <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
             <Navbar />
-            <DebugRole />
             <div className="main-content">
               <Profile />
             </div>
@@ -191,7 +179,6 @@ function App() {
         <ProtectedRoute>
           <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
             <Navbar />
-            <DebugRole />
             <div className="main-content">
               <Classes />
             </div>
@@ -203,7 +190,6 @@ function App() {
         <ProtectedRoute>
           <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
             <Navbar />
-            <DebugRole />
             <div className="main-content">
               <StudentClassesDetailPage />
             </div>

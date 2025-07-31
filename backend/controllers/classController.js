@@ -390,6 +390,90 @@ const removeStudent = asyncHandler(async (req, res) => {
 });
 
 /**
+ * @desc    Récupérer les collections d'une classe
+ * @route   GET /api/classes/:id/collections
+ * @access  Private (Student/Teacher)
+ */
+const getClassCollections = asyncHandler(async (req, res) => {
+  const { id: classId } = req.params;
+
+  console.log(`📚 [API] Récupération collections classe ${classId} par utilisateur ${req.user._id}`);
+
+  // Récupérer la classe avec ses collections populées
+  const classData = await Class.findById(classId)
+    .populate({
+      path: 'collections',
+      populate: {
+        path: 'user',
+        select: 'name email'
+      }
+    })
+    .populate('teacherId', 'name email')
+    .populate('students', 'name email');
+
+  if (!classData) {
+    console.log(`❌ [API] Classe ${classId} non trouvée`);
+    res.status(404);
+    throw new Error('Classe non trouvée');
+  }
+
+  // Vérifier que l'utilisateur a accès à cette classe (étudiant ou enseignant)
+  const isTeacher = classData.teacherId._id.toString() === req.user._id.toString();
+  const isStudent = classData.students.some(student => 
+    student._id.toString() === req.user._id.toString()
+  );
+
+  if (!isTeacher && !isStudent) {
+    console.log(`❌ [API] Accès refusé à la classe ${classId} pour utilisateur ${req.user._id}`);
+    res.status(403);
+    throw new Error('Accès refusé à cette classe');
+  }
+
+  // Enrichir les collections avec des informations supplémentaires
+  const enrichedCollections = classData.collections.map(collection => {
+    const collectionObj = collection.toObject();
+    
+    return {
+      ...collectionObj,
+      // Ajouter le nombre de cartes si pas déjà présent
+      cardCount: collection.cardCount || 0,
+      // Informations sur le créateur
+      createdBy: {
+        _id: collection.user._id,
+        name: collection.user.name,
+        email: collection.user.email
+      },
+      // Métadonnées
+      sharedAt: collection.sharedAt || collection.createdAt,
+      canEdit: isTeacher || (collection.user._id.toString() === req.user._id.toString())
+    };
+  });
+
+  console.log(`✅ [API] ${enrichedCollections.length} collections trouvées pour classe ${classData.name}`);
+
+  res.json({
+    success: true,
+    data: {
+      class: {
+        _id: classData._id,
+        name: classData.name,
+        description: classData.description,
+        teacher: {
+          _id: classData.teacherId._id,
+          name: classData.teacherId.name,
+          email: classData.teacherId.email
+        },
+        studentCount: classData.students.length,
+        isTeacher,
+        isStudent
+      },
+      collections: enrichedCollections
+    },
+    message: `${enrichedCollections.length} collection(s) disponible(s)`
+  });
+});
+
+/**
  * @desc    Partager une collection avec une classe
  * @route   POST /api/classes/:id/collections
  * @access  Private (Teacher only)
@@ -435,14 +519,56 @@ const shareCollectionWithClass = asyncHandler(async (req, res) => {
   classData.collections.push(collectionId);
   await classData.save();
 
-  // Retourner la classe mise à jour avec les collections populées
-  const updatedClass = await Class.findById(classId)
-    .populate('collections', 'name description cardCount')
-    .populate('teacherId', 'name email');
+  console.log('Collection partagée avec succès:', {
+    classId,
+    collectionId,
+    className: classData.name,
+    collectionName: collection.name
+  });
+
+  // Émission WebSocket pour notifier les étudiants
+  const io = req.app.get('io');
+  if (io && classData.students && classData.students.length > 0) {
+    console.log('Émission WebSocket newSharedCollection aux étudiants...');
+    
+    // Notifier chaque étudiant de la classe
+    classData.students.forEach(studentId => {
+      const room = `user_${studentId}`;
+      console.log(`Envoi à ${room}: Collection "${collection.name}" partagée`);
+      
+      io.to(room).emit('newSharedCollection', {
+        success: true,
+        collection: {
+          _id: collection._id,
+          name: collection.name,
+          description: collection.description,
+          cardCount: collection.cardCount,
+          createdBy: {
+            name: req.user.name,
+            email: req.user.email
+          },
+          createdAt: collection.createdAt
+        },
+        class: {
+          _id: classData._id,
+          name: classData.name,
+          description: classData.description
+        },
+        message: `Nouvelle collection "${collection.name}" partagée par ${req.user.name} dans la classe "${classData.name}"`
+      });
+    });
+    
+    console.log(`WebSocket émis à ${classData.students.length} étudiant(s)`);
+  } else {
+    console.log('WebSocket non disponible ou classe sans étudiants');
+  }
 
   res.json({
     success: true,
-    data: updatedClass,
+    data: {
+      class: classData,
+      collection: collection
+    },
     message: `Collection "${collection.name}" partagée avec la classe avec succès`
   });
 });
@@ -476,76 +602,6 @@ const unshareCollectionFromClass = asyncHandler(async (req, res) => {
   res.json({
     success: true,
     message: 'Collection retirée de la classe avec succès'
-  });
-});
-
-/**
- * @desc    Obtenir les collections partagées d'une classe (pour les étudiants)
- * @route   GET /api/classes/:id/collections
- * @access  Private (Students of the class)
- */
-const getClassCollections = asyncHandler(async (req, res) => {
-  const { id: classId } = req.params;
-
-  const classData = await Class.findById(classId)
-    .populate({
-      path: 'collections',
-      select: 'name description cardsCount createdAt category difficulty tags',
-      populate: {
-        path: 'user',
-        select: 'name email'
-      }
-    })
-    .populate('teacherId', 'name email');
-
-  if (!classData) {
-    res.status(404);
-    throw new Error('Classe non trouvée');
-  }
-
-  // Vérifier que l'utilisateur est soit l'enseignant soit un étudiant de la classe
-  const isTeacher = classData.teacherId._id.toString() === req.user._id.toString();
-  const isStudent = classData.students.some(
-    studentId => studentId.toString() === req.user._id.toString()
-  );
-
-  if (!isTeacher && !isStudent) {
-    res.status(403);
-    throw new Error('Accès refusé à cette classe');
-  }
-
-  // Récupérer le nombre réel de cartes pour chaque collection
-  const Flashcard = require('../models/flashcardModel');
-  const collectionsWithCardCount = [];
-
-  for (const collection of classData.collections || []) {
-    const realCardCount = await Flashcard.countDocuments({ collection: collection._id });
-    
-    collectionsWithCardCount.push({
-      _id: collection._id,
-      name: collection.name,
-      description: collection.description,
-      cardsCount: collection.cardsCount || 0,
-      cardCount: realCardCount, // Nombre réel de cartes
-      category: collection.category,
-      difficulty: collection.difficulty,
-      tags: collection.tags,
-      createdAt: collection.createdAt,
-      user: collection.user
-    });
-  }
-
-  res.json({
-    success: true,
-    data: {
-      class: {
-        _id: classData._id,
-        name: classData.name,
-        description: classData.description,
-        teacher: classData.teacherId
-      },
-      collections: collectionsWithCardCount
-    }
   });
 });
 

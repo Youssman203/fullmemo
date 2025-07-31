@@ -209,6 +209,38 @@ export const DataProvider = ({ children }) => {
       }
     });
     
+    // 🎓 NOUVELLE ÉCOUTE ÉVÉNEMENT - COLLECTION PARTAGÉE PAR ENSEIGNANT
+    socket.on('newSharedCollection', (data) => {
+      console.log('🎓 Événement newSharedCollection reçu:', data);
+      
+      const { collection, class: classInfo, message } = data;
+      
+      if (collection && classInfo) {
+        console.log(`📚 Collection "${collection.name}" partagée dans la classe "${classInfo.name}"`);
+        
+        // Notification toast spécifique au partage de collection
+        toast.info(
+          `🎓 ${message || `Nouvelle collection "${collection.name}" disponible dans ${classInfo.name}`}`,
+          {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true
+          }
+        );
+        
+        // 📢 Émettre un événement personnalisé pour informer les composants
+        // Cela permet au CollectionSelectorModal de se rafraîchir si ouvert
+        window.dispatchEvent(new CustomEvent('newSharedCollection', { 
+          detail: { collection, classInfo } 
+        }));
+        
+        console.log('📡 Événement personnalisé newSharedCollection émis pour les composants');
+      }
+    });
+    
   }, [user]);
   
   // Déconnexion propre du WebSocket

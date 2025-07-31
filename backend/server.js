@@ -26,6 +26,7 @@ const reviewRoutes = require('./routes/reviewRoutes');
 const classRoutes = require('./routes/classRoutes');
 // 🗑️ sharedLinkRoutes supprimé - WebSocket par code remplace les liens partagés
 const shareCodeRoutes = require('./routes/shareCodeRoutes');
+const simpleBulkImportRoutes = require('./routes/simpleBulkImportRoutes');
 
 // Initialiser l'application Express et le serveur HTTP
 const app = express();
@@ -119,6 +120,7 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/classes', classRoutes);
 // 🗑️ app.use('/api/shared', sharedLinkRoutes) supprimé - WebSocket par code remplace
 app.use('/api/share', shareCodeRoutes);
+app.use('/api/simple-bulk-import', simpleBulkImportRoutes);
 
 // Dossier statique pour les uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
