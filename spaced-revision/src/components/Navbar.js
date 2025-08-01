@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { FaHome, FaSyncAlt, FaClone, FaLayerGroup, FaUserCircle, FaSignOutAlt, FaChartBar, FaBars, FaTimes, FaUsers, FaEye } from 'react-icons/fa';
+import { FaHome, FaSyncAlt, FaClone, FaLayerGroup, FaUserCircle, FaSignOutAlt, FaChartBar, FaBars, FaTimes, FaUsers, FaEye, FaUserCog } from 'react-icons/fa';
 
 const Navbar = () => {
-  const { user, logout, isTeacher, isStudent } = useAuth();
+  const { user, logout, isTeacher, isStudent, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
@@ -47,8 +47,12 @@ const Navbar = () => {
     <div className="sidebar">
       <div className="sidebar-header">
         <div className="brand-container">
-          <span className={`role-badge ${isTeacher() ? 'teacher' : 'student'}`}>
-            {isTeacher() ? '👨‍🏫 Enseignant' : '👨‍🎓 Étudiant'}
+          <span className={`role-badge ${
+            isAdmin() ? 'admin' : 
+            isTeacher() ? 'teacher' : 'student'
+          }`}>
+            {isAdmin() ? '👑 Administrateur' : 
+             isTeacher() ? '👨‍🏫 Enseignant' : '👨‍🎓 Étudiant'}
           </span>
         </div>
         <button 
@@ -60,43 +64,58 @@ const Navbar = () => {
         </button>
       </div>
       <nav className={`sidebar-nav ${mobileMenuOpen ? 'mobile-visible' : ''}`}>
-        <NavLink to="/home" className="sidebar-link" onClick={handleNavLinkClick}>
-          <FaHome /><span>Accueil</span>
-        </NavLink>
-        <NavLink to="/collections" className="sidebar-link" onClick={handleNavLinkClick}>
-          <FaLayerGroup /><span>Collections</span>
-        </NavLink>
-        <NavLink to="/flashcards" className="sidebar-link" onClick={handleNavLinkClick}>
-          <FaClone /><span>Cartes</span>
-        </NavLink>
-        <NavLink to="/review" className="sidebar-link" onClick={handleNavLinkClick}>
-          <FaSyncAlt /><span>Révisions</span>
-        </NavLink>
-        <NavLink to="/stats" className="sidebar-link" onClick={handleNavLinkClick}>
-          <FaChartBar /><span>Statistiques</span>
-        </NavLink>
-        
-        {/* Liens pour les enseignants uniquement */}
-        {user && user.role === 'teacher' && (
+        {/* Interface séparée pour l'admin */}
+        {isAdmin() ? (
           <>
-            <NavLink to="/classes" className="sidebar-link" onClick={handleNavLinkClick}>
-              <FaUsers /><span>Mes Classes</span>
+            <NavLink to="/admin" className="sidebar-link admin-link" onClick={handleNavLinkClick}>
+              <FaUserCog /><span>Dashboard Admin</span>
             </NavLink>
-            {/* 🗑️ Liens partagés supprimés - WebSocket par code les remplace */}
+            <NavLink to="/admin" className="sidebar-link admin-link" onClick={handleNavLinkClick}>
+              <FaUsers /><span>Gestion Utilisateurs</span>
+            </NavLink>
+            <NavLink to="/admin" className="sidebar-link admin-link" onClick={handleNavLinkClick}>
+              <FaChartBar /><span>Statistiques Système</span>
+            </NavLink>
           </>
-        )}
-
-        {/* 🗑️ Section étudiants supprimée pour éviter doublon avec isStudent() */}
-        
-        {/* Liens spécifiques aux étudiants */}
-        {isStudent() && (
+        ) : (
           <>
-            <NavLink to="/classes" className="sidebar-link" onClick={handleNavLinkClick}>
-              <FaUsers /><span>Mes Classes</span>
+            {/* Interface normale pour étudiants/enseignants */}
+            <NavLink to="/home" className="sidebar-link" onClick={handleNavLinkClick}>
+              <FaHome /><span>Accueil</span>
             </NavLink>
-            <NavLink to="/classes/details" className="sidebar-link" onClick={handleNavLinkClick}>
-              <FaEye /><span>Classes Détaillées</span>
+            <NavLink to="/collections" className="sidebar-link" onClick={handleNavLinkClick}>
+              <FaLayerGroup /><span>Collections</span>
             </NavLink>
+            <NavLink to="/flashcards" className="sidebar-link" onClick={handleNavLinkClick}>
+              <FaClone /><span>Cartes</span>
+            </NavLink>
+            <NavLink to="/review" className="sidebar-link" onClick={handleNavLinkClick}>
+              <FaSyncAlt /><span>Révisions</span>
+            </NavLink>
+            <NavLink to="/stats" className="sidebar-link" onClick={handleNavLinkClick}>
+              <FaChartBar /><span>Statistiques</span>
+            </NavLink>
+            
+            {/* Liens pour les enseignants uniquement */}
+            {user && user.role === 'teacher' && (
+              <>
+                <NavLink to="/classes" className="sidebar-link" onClick={handleNavLinkClick}>
+                  <FaUsers /><span>Mes Classes</span>
+                </NavLink>
+              </>
+            )}
+            
+            {/* Liens spécifiques aux étudiants */}
+            {isStudent() && (
+              <>
+                <NavLink to="/classes" className="sidebar-link" onClick={handleNavLinkClick}>
+                  <FaUsers /><span>Mes Classes</span>
+                </NavLink>
+                <NavLink to="/classes/details" className="sidebar-link" onClick={handleNavLinkClick}>
+                  <FaEye /><span>Classes Détaillées</span>
+                </NavLink>
+              </>
+            )}
           </>
         )}
       </nav>

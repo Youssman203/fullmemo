@@ -84,6 +84,17 @@ const requireStudent = asyncHandler(async (req, res, next) => {
 });
 
 /**
+ * Middleware pour vérifier si l'utilisateur est un administrateur
+ */
+const requireAdmin = asyncHandler(async (req, res, next) => {
+  if (req.user.role !== 'admin') {
+    res.status(403);
+    throw new Error('Accès refusé. Permissions administrateur requises.');
+  }
+  next();
+});
+
+/**
  * Middleware d'authentification optionnel
  * Vérifie l'authentification si un token est présent, sinon continue sans utilisateur
  */
@@ -115,4 +126,4 @@ const optionalProtect = asyncHandler(async (req, res, next) => {
   next();
 });
 
-module.exports = { protect, optionalProtect, checkOwnership, requireTeacher, requireStudent };
+module.exports = { protect, optionalProtect, checkOwnership, requireTeacher, requireStudent, requireAdmin };

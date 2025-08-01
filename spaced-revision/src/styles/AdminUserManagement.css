@@ -1,0 +1,280 @@
+.admin-user-management {
+  padding: 0;
+}
+
+/* Avatar utilisateur */
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+/* Tableau personnalisé */
+.admin-user-management .table {
+  margin: 0;
+}
+
+.admin-user-management .table th {
+  background-color: #f8f9fa;
+  border: none;
+  font-weight: 600;
+  color: #495057;
+  padding: 1rem;
+  vertical-align: middle;
+}
+
+.admin-user-management .table td {
+  padding: 1rem;
+  vertical-align: middle;
+  border-color: #e9ecef;
+}
+
+.admin-user-management .table tbody tr:hover {
+  background-color: rgba(102, 126, 234, 0.05);
+}
+
+/* Badges de rôles */
+.admin-user-management .badge {
+  font-size: 0.8rem;
+  padding: 0.5rem 0.8rem;
+  font-weight: 600;
+  border-radius: 20px;
+}
+
+.admin-user-management .badge svg {
+  margin-right: 0.25rem;
+}
+
+/* Boutons d'actions */
+.admin-user-management .btn-sm {
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.admin-user-management .btn-outline-primary:hover {
+  background-color: #0d6efd;
+  transform: translateY(-1px);
+}
+
+.admin-user-management .btn-outline-warning:hover {
+  background-color: #ffc107;
+  transform: translateY(-1px);
+}
+
+.admin-user-management .btn-outline-danger:hover {
+  background-color: #dc3545;
+  transform: translateY(-1px);
+}
+
+/* Pagination personnalisée */
+.admin-user-management .pagination {
+  margin: 0;
+}
+
+.admin-user-management .page-link {
+  color: #667eea;
+  border-color: #e9ecef;
+  padding: 0.5rem 0.8rem;
+  border-radius: 8px !important;
+  margin: 0 2px;
+  border: 1px solid #e9ecef;
+}
+
+.admin-user-management .page-link:hover {
+  color: #5a67d8;
+  background-color: #f8f9ff;
+  border-color: #667eea;
+}
+
+.admin-user-management .page-item.active .page-link {
+  background-color: #667eea;
+  border-color: #667eea;
+  color: white;
+}
+
+/* Barre de recherche */
+.admin-user-management .input-group-text {
+  background-color: #f8f9fa;
+  border-color: #e9ecef;
+  color: #6c757d;
+}
+
+.admin-user-management .form-control:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.admin-user-management .form-select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* Statistiques rapides */
+.admin-user-management .card-body.py-2 {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 8px;
+}
+
+/* État vide */
+.admin-user-management .text-muted svg {
+  opacity: 0.3;
+}
+
+/* Modales */
+.modal-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+}
+
+.modal-header .btn-close {
+  filter: invert(1);
+}
+
+.modal-title {
+  font-weight: 600;
+}
+
+.modal-body {
+  padding: 2rem;
+}
+
+.modal-footer {
+  border-top: 1px solid #e9ecef;
+  padding: 1.5rem;
+}
+
+/* Formulaires dans les modales */
+.modal .form-label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+.modal .form-control,
+.modal .form-select {
+  border-radius: 8px;
+  border: 2px solid #e9ecef;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.modal .form-control:focus,
+.modal .form-select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+}
+
+.modal .is-invalid {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+}
+
+/* Alertes dans les modales */
+.modal .alert {
+  border-radius: 10px;
+  border: none;
+}
+
+.modal .alert-danger {
+  background: linear-gradient(135deg, #ffe6e6 0%, #ffcccc 100%);
+  color: #721c24;
+}
+
+.modal .alert-info {
+  background: linear-gradient(135deg, #e6f3ff 0%, #cce7ff 100%);
+  color: #0c4a6e;
+}
+
+.modal .alert-light {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  color: #495057;
+  border: 1px solid #e9ecef;
+}
+
+/* Badges dans les modales */
+.modal .badge {
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  border-radius: 15px;
+  font-weight: 600;
+}
+
+/* Boutons des modales */
+.modal .btn {
+  border-radius: 8px;
+  padding: 0.6rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.modal .btn:hover {
+  transform: translateY(-1px);
+}
+
+.modal .btn-success {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  border: none;
+}
+
+.modal .btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+}
+
+.modal .btn-danger {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  border: none;
+}
+
+.modal .btn-warning {
+  background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+  border: none;
+  color: white;
+}
+
+/* Input group dans les modales */
+.modal .input-group .btn {
+  border-radius: 0 8px 8px 0;
+}
+
+.modal .input-group .form-control {
+  border-radius: 8px 0 0 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-user-management .table-responsive {
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  }
+  
+  .admin-user-management .d-flex.gap-1 {
+    flex-direction: column;
+  }
+  
+  .admin-user-management .d-flex.gap-1 .btn {
+    margin-bottom: 0.25rem;
+  }
+  
+  .user-avatar {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+  
+  .admin-user-management .table td {
+    padding: 0.75rem 0.5rem;
+  }
+}

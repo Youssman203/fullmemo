@@ -130,6 +130,45 @@ body {
   font-size: 1.25rem;
 }
 
+/* Sidebar Admin Section */
+.sidebar-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e9ecef, transparent);
+  margin: 1rem 0;
+}
+
+.sidebar-section-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 1rem 0 0.5rem 1rem;
+  padding: 0;
+}
+
+.sidebar-link.admin-link {
+  background: linear-gradient(135deg, #6f42c1 0%, #5a2d91 100%);
+  color: white;
+  font-weight: 600;
+  border-radius: 8px;
+  margin: 0.25rem 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.sidebar-link.admin-link:hover {
+  background: linear-gradient(135deg, #5a2d91 0%, #4a2578 100%);
+  color: white;
+  transform: translateX(3px);
+  box-shadow: 0 4px 15px rgba(111, 66, 193, 0.3);
+}
+
+.sidebar-link.admin-link.active {
+  background: linear-gradient(135deg, #5a2d91 0%, #4a2578 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(111, 66, 193, 0.4);
+}
+
 /* General Card Style */
 .content-card {
   background-color: var(--background-card);

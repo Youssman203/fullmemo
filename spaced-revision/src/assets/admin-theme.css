@@ -1,0 +1,165 @@
+/* Thème spécifique pour l'interface administrateur */
+
+/* Badge admin dans la navbar */
+.role-badge.admin {
+  background: linear-gradient(135deg, #6f42c1 0%, #5a2d91 100%);
+  color: white;
+  border: 2px solid #8a63d2;
+  box-shadow: 0 2px 8px rgba(111, 66, 193, 0.3);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  animation: adminGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes adminGlow {
+  from { box-shadow: 0 2px 8px rgba(111, 66, 193, 0.3); }
+  to { box-shadow: 0 4px 16px rgba(111, 66, 193, 0.6); }
+}
+
+.admin-theme {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  min-height: 100vh;
+}
+
+.admin-theme .navbar {
+  background: linear-gradient(135deg, #6f42c1 0%, #5a2d91 100%) !important;
+  border-bottom: 3px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-theme .navbar-brand {
+  color: white !important;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.admin-theme .navbar-nav .nav-link {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.admin-theme .navbar-nav .nav-link:hover {
+  color: white !important;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.admin-theme .navbar-nav .nav-link.active {
+  color: white !important;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+}
+
+.admin-theme .dropdown-menu {
+  background-color: white;
+  border: none;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-radius: 12px;
+  margin-top: 0.5rem;
+}
+
+.admin-theme .dropdown-item {
+  color: #495057;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  margin: 0.25rem 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.admin-theme .dropdown-item:hover {
+  background-color: #f8f9fa;
+  color: #6f42c1;
+  transform: translateX(2px);
+}
+
+.admin-theme .main-content {
+  padding-top: 2rem;
+}
+
+/* Personnalisations pour les badges admin */
+.admin-theme .badge {
+  border-radius: 20px;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+}
+
+.admin-theme .badge.bg-danger {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+}
+
+/* Boutons spéciaux admin */
+.admin-theme .btn-admin {
+  background: linear-gradient(135deg, #6f42c1 0%, #5a2d91 100%);
+  border: none;
+  color: white;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.admin-theme .btn-admin:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(111, 66, 193, 0.3);
+  color: white;
+}
+
+/* Cartes spéciales admin */
+.admin-theme .card {
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.admin-theme .card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* Alertes admin */
+.admin-theme .alert {
+  border: none;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.admin-theme .alert-danger {
+  background: linear-gradient(135deg, #ffe6e6 0%, #ffcccc 100%);
+  color: #721c24;
+}
+
+.admin-theme .alert-success {
+  background: linear-gradient(135deg, #e6ffe6 0%, #ccffcc 100%);
+  color: #0f5132;
+}
+
+.admin-theme .alert-warning {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  color: #664d03;
+}
+
+/* Breadcrumb admin */
+.admin-theme .breadcrumb {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.admin-theme .breadcrumb-item a {
+  color: #6f42c1;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.admin-theme .breadcrumb-item a:hover {
+  color: #5a2d91;
+}
+
+.admin-theme .breadcrumb-item.active {
+  color: #6c757d;
+  font-weight: 600;
+}

@@ -6,6 +6,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 // Styles
 import './assets/darkmode.css';
 import './assets/teacher-theme.css'; // Styles spécifiques aux enseignants
+import './assets/admin-theme.css'; // Styles spécifiques aux administrateurs
 
 // Components and Pages
 import Navbar from './components/Navbar';
@@ -21,6 +22,7 @@ import ReviewCards from './pages/ReviewCards';
 import Flashcards from './pages/Flashcards';
 import Classes from './pages/Classes';
 import StudentClassesDetailPage from './pages/StudentClassesDetailPage';
+import AdminDashboard from './pages/AdminDashboard';
 // 🗑️ Imports liens partagés supprimés - WebSocket par code remplace tout
 
 // A layout for protected routes that includes the Navbar
@@ -39,6 +41,19 @@ const ProtectedRoute = ({ children }) => {
   if (!user) {
     // If not logged in, redirect to the login page
     return <Navigate to="/login" />;
+  }
+  return children;
+};
+
+// A component to protect admin routes
+const AdminRoute = ({ children }) => {
+  const { user } = useAuth();
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+  if (user.role !== 'admin') {
+    // If not an admin, redirect to home
+    return <Navigate to="/home" />;
   }
   return children;
 };
@@ -198,6 +213,18 @@ function App() {
       } />
       
       {/* 🗑️ Routes liens partagés supprimées - WebSocket par code les remplace */}
+      
+      {/* Admin route */}
+      <Route path="/admin" element={
+        <AdminRoute>
+          <div className={`app-layout admin-theme`}>
+            <Navbar />
+            <div className="main-content">
+              <AdminDashboard />
+            </div>
+          </div>
+        </AdminRoute>
+      } />
       
       {/* Catch-all route */}
       <Route path="*" element={<Navigate to="/home" replace />} />

@@ -159,6 +159,10 @@ export const AuthProvider = ({ children }) => {
     return user?.role === 'student';
   };
 
+  const isAdmin = () => {
+    return user?.role === 'admin';
+  };
+
   const getUserRole = () => {
     return user?.role || 'student';
   };
@@ -174,6 +178,7 @@ export const AuthProvider = ({ children }) => {
     // Fonctions de rôle
     isTeacher,
     isStudent,
+    isAdmin,
     getUserRole
   };
 
