@@ -92,9 +92,13 @@ const Navbar = () => {
             <NavLink to="/review" className="sidebar-link" onClick={handleNavLinkClick}>
               <FaSyncAlt /><span>Révisions</span>
             </NavLink>
-            <NavLink to="/stats" className="sidebar-link" onClick={handleNavLinkClick}>
-              <FaChartBar /><span>Statistiques</span>
-            </NavLink>
+            
+            {/* Lien Évaluation pour les enseignants uniquement */}
+            {user && user.role === 'teacher' && (
+              <NavLink to="/stats" className="sidebar-link" onClick={handleNavLinkClick}>
+                <FaChartBar /><span>Évaluation</span>
+              </NavLink>
+            )}
             
             {/* Liens pour les enseignants uniquement */}
             {user && user.role === 'teacher' && (

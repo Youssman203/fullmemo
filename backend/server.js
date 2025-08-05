@@ -27,6 +27,7 @@ const classRoutes = require('./routes/classRoutes');
 // 🗑️ sharedLinkRoutes supprimé - WebSocket par code remplace les liens partagés
 const shareCodeRoutes = require('./routes/shareCodeRoutes');
 const simpleBulkImportRoutes = require('./routes/simpleBulkImportRoutes');
+const sessionRoutes = require('./routes/sessionRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
 // Initialiser l'application Express et le serveur HTTP
@@ -98,7 +99,7 @@ app.use(helmet());
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? 'https://spacedrevision.com' // URL de production
-    : 'http://localhost:3000', // URL de développement
+    : ['http://localhost:3000', 'http://localhost:3001'], // URLs de développement (multiples ports)
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
@@ -122,6 +123,7 @@ app.use('/api/classes', classRoutes);
 // 🗑️ app.use('/api/shared', sharedLinkRoutes) supprimé - WebSocket par code remplace
 app.use('/api/share', shareCodeRoutes);
 app.use('/api/simple-bulk-import', simpleBulkImportRoutes);
+app.use('/api/sessions', sessionRoutes);
 app.use('/api/admin', adminRoutes);
 
 // Dossier statique pour les uploads
@@ -141,7 +143,7 @@ app.use(notFound);
 app.use(errorHandler);
 
 // Démarrer le serveur HTTP avec Socket.IO
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001; // Modifié à 5001 pour éviter les conflits de port
 server.listen(PORT, () => {
   console.log(`🚀 Serveur HTTP + WebSocket en cours d'exécution sur le port ${PORT}`.cyan.bold);
   console.log(`🔌 WebSocket CORS configuré pour: http://localhost:3000`.green);

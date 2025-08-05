@@ -206,9 +206,12 @@ const Dashboard = () => {
               <Card.Body>
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <h5 className="card-title mb-0">Votre progression</h5>
-                  <Link to="/stats" className="text-decoration-none text-dark">
-                    Voir détails
-                  </Link>
+                  {/* Lien Statistiques pour les enseignants uniquement */}
+                  {user && user.role === 'teacher' && (
+                    <Link to="/stats" className="text-decoration-none text-dark">
+                      Voir détails
+                    </Link>
+                  )}
                 </div>
                 <div className="mb-4">
                   <div className="d-flex justify-content-between mb-1">
