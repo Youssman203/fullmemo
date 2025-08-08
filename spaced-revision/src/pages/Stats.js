@@ -14,18 +14,18 @@ const Evaluation = () => {
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState(null);
 
-  // Rediriger les étudiants vers le dashboard
-  if (isStudent()) {
-    window.location.href = '/home';
-    return null;
-  }
-
-  // Charger les données
+  // Charger les données - Hook appelé avant tout return conditionnel
   useEffect(() => {
     if (isTeacher()) {
       loadTeacherData();
     }
   }, [isTeacher]);
+
+  // Rediriger les étudiants vers le dashboard après les hooks
+  if (isStudent()) {
+    window.location.href = '/home';
+    return null;
+  }
 
   const loadTeacherData = async () => {
     try {
