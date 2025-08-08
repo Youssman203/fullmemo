@@ -1,4 +1,4 @@
-// Test de l'adhésion d'un étudiant à une classe
+// Test de l'adhésion d'un apprenant à une classe
 const http = require('http');
 
 // Fonction helper pour faire des requêtes HTTP
@@ -49,7 +49,7 @@ const makeRequest = (method, path, data, token) => {
 
 const testStudentJoin = async () => {
   try {
-    console.log('=== TEST ADHÉSION ÉTUDIANT À UNE CLASSE ===\n');
+    console.log('=== TEST ADHÉSION APPRENANT À UNE CLASSE ===\n');
 
     // 1. Connexion enseignant pour créer une classe
     console.log('1. Connexion enseignant...');
@@ -70,7 +70,7 @@ const testStudentJoin = async () => {
     console.log('\n2. Création d\'une classe de test...');
     const createResponse = await makeRequest('POST', '/classes', {
       name: 'Classe Test Adhésion',
-      description: 'Classe pour tester l\'adhésion des étudiants',
+      description: 'Classe pour tester l\'adhésion des apprenants',
       maxStudents: 30,
       allowSelfEnrollment: true
     }, teacherToken);
@@ -87,10 +87,10 @@ const testStudentJoin = async () => {
     console.log('   - Code d\'invitation:', inviteCode);
     console.log('   - ID:', classData._id);
 
-    // 3. Connexion étudiant (utilisons un étudiant existant)
-    console.log('\n3. Connexion étudiant...');
+    // 3. Connexion apprenant (utilisons un apprenant existant)
+    console.log('\n3. Connexion apprenant...');
     
-    // D'abord, trouvons un étudiant existant
+    // D'abord, trouvons un apprenant existant
     const mongoose = require('mongoose');
     const User = require('../models/userModel');
     require('dotenv').config();
@@ -99,11 +99,11 @@ const testStudentJoin = async () => {
     const student = await User.findOne({ role: 'student' });
     
     if (!student) {
-      console.log('❌ Aucun étudiant trouvé dans la base de données');
+      console.log('❌ Aucun apprenant trouvé dans la base de données');
       return;
     }
 
-    console.log('Étudiant trouvé:', student.email);
+    console.log('Apprenant trouvé:', student.email);
 
     // Supposons que le mot de passe est 'password123' pour tous les utilisateurs de test
     const studentLogin = await makeRequest('POST', '/users/login', {
@@ -112,15 +112,15 @@ const testStudentJoin = async () => {
     });
 
     if (!studentLogin.ok) {
-      console.log('❌ Impossible de se connecter avec cet étudiant');
+      console.log('❌ Impossible de se connecter avec cet apprenant');
       console.log('Erreur:', studentLogin.text);
       return;
     }
 
     const studentToken = studentLogin.data.token;
-    console.log('✅ Étudiant connecté:', studentLogin.data.email);
+    console.log('✅ Apprenant connecté:', studentLogin.data.email);
 
-    // 4. Étudiant rejoint la classe
+    // 4. Apprenant rejoint la classe
     console.log('\n4. Adhésion à la classe avec le code:', inviteCode);
     const joinResponse = await makeRequest('POST', `/classes/join/${inviteCode}`, null, studentToken);
 
@@ -132,7 +132,7 @@ const testStudentJoin = async () => {
       console.log('Classe rejointe:', joinResponse.data.data.class.name);
     }
 
-    // 5. Vérifier que l'étudiant est bien dans la classe
+    // 5. Vérifier que l'apprenant est bien dans la classe
     console.log('\n5. Vérification - Classes de l\'enseignant...');
     const checkResponse = await makeRequest('GET', '/classes', null, teacherToken);
     
@@ -140,9 +140,9 @@ const testStudentJoin = async () => {
       const classes = checkResponse.data.data;
       const testClass = classes.find(c => c._id === classData._id);
       if (testClass) {
-        console.log('✅ Nombre d\'étudiants dans la classe:', testClass.students.length);
+        console.log('✅ Nombre d\'apprenants dans la classe:', testClass.students.length);
         testClass.students.forEach(s => {
-          console.log('   - Étudiant:', s.name, '(' + s.email + ')');
+          console.log('   - Apprenant:', s.name, '(' + s.email + ')');
         });
       }
     }

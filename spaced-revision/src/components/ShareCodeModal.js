@@ -161,7 +161,7 @@ const ShareCodeModal = ({ show, onHide, collection, onCodeGenerated }) => {
                 </InputGroup>
 
                 <small className="text-muted">
-                  Communiquez ce code à vos étudiants pour qu'ils puissent accéder à votre collection
+                  Communiquez ce code à vos apprenants pour qu'ils puissent accéder à votre collection
                 </small>
               </Card.Body>
             </Card>
@@ -203,8 +203,8 @@ const ShareCodeModal = ({ show, onHide, collection, onCodeGenerated }) => {
             <Alert variant="info">
               <strong>💡 Comment utiliser ce code :</strong>
               <ol className="mb-0 mt-2">
-                <li>Communiquez le code <strong>{shareCode.code}</strong> à vos étudiants</li>
-                <li>Les étudiants vont dans "Accéder à une collection"</li>
+                <li>Communiquez le code <strong>{shareCode.code}</strong> à vos apprenants</li>
+                <li>Les apprenants vont dans "Accéder à une collection"</li>
                 <li>Ils saisissent le code et importent votre collection</li>
               </ol>
             </Alert>

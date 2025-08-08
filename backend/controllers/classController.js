@@ -183,7 +183,7 @@ const deleteClass = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc    Inviter des étudiants par email
+ * @desc    Inviter des apprenants par email
  * @route   POST /api/classes/:id/invite
  * @access  Private (Teacher only)
  */
@@ -234,7 +234,7 @@ const inviteStudents = asyncHandler(async (req, res) => {
   res.json({
     success: true,
     data: results,
-    message: `${results.invited.length} étudiant(s) invité(s) avec succès`
+    message: `${results.invited.length} apprenant(s) invité(s) avec succès`
   });
 });
 
@@ -262,19 +262,19 @@ const joinClassByCode = asyncHandler(async (req, res) => {
     throw new Error('L\'auto-inscription n\'est pas autorisée pour cette classe');
   }
 
-  // Vérifier la limite d'étudiants
+  // Vérifier la limite d'apprenants
   if (classData.students.length >= classData.settings.maxStudents) {
     res.status(400);
-    throw new Error('Cette classe a atteint sa limite d\'étudiants');
+    throw new Error('Cette classe a atteint sa limite d\'apprenants');
   }
 
-  // Vérifier si l'étudiant est déjà dans la classe
+  // Vérifier si l'apprenant est déjà dans la classe
   if (classData.hasStudent(req.user._id)) {
     res.status(400);
     throw new Error('Vous êtes déjà inscrit dans cette classe');
   }
 
-  // Ajouter l'étudiant à la classe
+  // Ajouter l'apprenant à la classe
   await classData.addStudent(req.user._id);
 
   res.json({
@@ -292,7 +292,7 @@ const joinClassByCode = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc    Récupérer les classes d'un étudiant
+ * @desc    Récupérer les classes d'un apprenant
  * @route   GET /api/classes/student
  * @access  Private (Student only)
  */
@@ -310,7 +310,7 @@ const getStudentClasses = asyncHandler(async (req, res) => {
   const enrichedClasses = classes.map(classData => {
     const classObj = classData.toObject();
     
-    // Trouver l'entrée de l'étudiant pour la date de rejointe
+    // Trouver l'entrée de l'apprenant pour la date de rejointe
     const studentEntry = classData.students.find(student => 
       student._id.toString() === req.user._id.toString()
     );
@@ -342,7 +342,7 @@ const getStudentClasses = asyncHandler(async (req, res) => {
         email: classData.teacherId.email
       },
       
-      // Liste des autres étudiants (sans l'étudiant actuel)
+      // Liste des autres apprenants (sans l'apprenant actuel)
       classmates: classData.students
         .filter(student => student._id.toString() !== req.user._id.toString())
         .map(student => ({
@@ -361,7 +361,7 @@ const getStudentClasses = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc    Retirer un étudiant d'une classe
+ * @desc    Retirer un apprenant d'une classe
  * @route   DELETE /api/classes/:id/students/:studentId
  * @access  Private (Teacher only)
  */
@@ -385,7 +385,7 @@ const removeStudent = asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
-    message: 'Étudiant retiré de la classe avec succès'
+    message: 'Apprenant retiré de la classe avec succès'
   });
 });
 
@@ -417,7 +417,7 @@ const getClassCollections = asyncHandler(async (req, res) => {
     throw new Error('Classe non trouvée');
   }
 
-  // Vérifier que l'utilisateur a accès à cette classe (étudiant ou enseignant)
+  // Vérifier que l'utilisateur a accès à cette classe (apprenant ou enseignant)
   const isTeacher = classData.teacherId._id.toString() === req.user._id.toString();
   const isStudent = classData.students.some(student => 
     student._id.toString() === req.user._id.toString()
@@ -526,12 +526,12 @@ const shareCollectionWithClass = asyncHandler(async (req, res) => {
     collectionName: collection.name
   });
 
-  // Émission WebSocket pour notifier les étudiants
+  // Émission WebSocket pour notifier les apprenants
   const io = req.app.get('io');
   if (io && classData.students && classData.students.length > 0) {
-    console.log('Émission WebSocket newSharedCollection aux étudiants...');
+    console.log('Émission WebSocket newSharedCollection aux apprenants...');
     
-    // Notifier chaque étudiant de la classe
+    // Notifier chaque apprenant de la classe
     classData.students.forEach(studentId => {
       const room = `user_${studentId}`;
       console.log(`Envoi à ${room}: Collection "${collection.name}" partagée`);
@@ -558,9 +558,9 @@ const shareCollectionWithClass = asyncHandler(async (req, res) => {
       });
     });
     
-    console.log(`WebSocket émis à ${classData.students.length} étudiant(s)`);
+    console.log(`WebSocket émis à ${classData.students.length} apprenant(s)`);
   } else {
-    console.log('WebSocket non disponible ou classe sans étudiants');
+    console.log('WebSocket non disponible ou classe sans apprenants');
   }
 
   res.json({
@@ -605,7 +605,7 @@ const unshareCollectionFromClass = asyncHandler(async (req, res) => {
   });
 });
 
-// Importer une collection partagée dans les collections personnelles de l'étudiant
+// Importer une collection partagée dans les collections personnelles de l'apprenant
 const importCollectionFromClass = asyncHandler(async (req, res) => {
   const { id: classId } = req.params;
   const { collectionId } = req.body;
@@ -619,7 +619,7 @@ const importCollectionFromClass = asyncHandler(async (req, res) => {
     throw new Error('Classe non trouvée');
   }
 
-  // Vérifier que l'utilisateur est bien un étudiant de cette classe
+  // Vérifier que l'utilisateur est bien un apprenant de cette classe
   const isStudent = classData.students.some(
     studentId => studentId.toString() === req.user._id.toString()
   );
@@ -645,7 +645,7 @@ const importCollectionFromClass = asyncHandler(async (req, res) => {
     throw new Error('Collection non trouvée');
   }
 
-  // Vérifier si l'étudiant a déjà importé cette collection de cette classe
+  // Vérifier si l'apprenant a déjà importé cette collection de cette classe
   // Utilisation d'un identifiant unique basé sur l'ID original et la classe
   const importKey = `source_${collectionId}_class_${classId}`;
   const existingImport = await Collection.findOne({
@@ -659,7 +659,7 @@ const importCollectionFromClass = asyncHandler(async (req, res) => {
   }
 
   try {
-    // Créer une copie de la collection pour l'étudiant
+    // Créer une copie de la collection pour l'apprenant
     const importedCollection = new Collection({
       name: originalCollection.name,
       description: `Importée de la classe "${classData.name}" - ${originalCollection.description || ''}`,
@@ -677,7 +677,7 @@ const importCollectionFromClass = asyncHandler(async (req, res) => {
     const originalCards = await Flashcard.find({ collection: collectionId });
     console.log('Cartes à copier:', originalCards.length);
 
-    // Créer des copies de toutes les cartes pour l'étudiant
+    // Créer des copies de toutes les cartes pour l'apprenant
     const importedCards = [];
     for (const originalCard of originalCards) {
       const importedCard = new Flashcard({
@@ -691,7 +691,7 @@ const importCollectionFromClass = asyncHandler(async (req, res) => {
         notes: originalCard.notes,
         tags: [...(originalCard.tags || []), 'importé'],
         user: req.user._id,
-        // Réinitialiser les données de révision pour l'étudiant
+        // Réinitialiser les données de révision pour l'apprenant
         status: 'new',
         nextReviewDate: new Date(),
         reviewHistory: [],
@@ -740,7 +740,7 @@ const importCollectionFromClass = asyncHandler(async (req, res) => {
 const getClassCollectionCards = asyncHandler(async (req, res) => {
   const { classId, collectionId } = req.params;
 
-  // Récupérer la classe et vérifier que l'étudiant en fait partie  
+  // Récupérer la classe et vérifier que l'apprenant en fait partie  
   const classData = await Class.findById(classId);
   if (!classData) {
     res.status(404);

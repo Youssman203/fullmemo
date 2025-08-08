@@ -56,20 +56,20 @@ const ReviewCards = () => {
   const getCardType = (card) => {
     if (card.interval <= 0.01) {
       return {
-        type: 'difficile',
-        label: 'Difficile',
-        color: 'danger',
-        bgColor: 'bg-danger',
-        textColor: 'text-danger',
+        type: 'recent',
+        label: 'Récent',
+        color: 'warning',
+        bgColor: 'bg-warning',
+        textColor: 'text-warning',
         description: 'À revoir dans 5 minutes'
       };
     } else {
       return {
-        type: 'facile',
-        label: 'Facile',
-        color: 'success',
-        bgColor: 'bg-success',
-        textColor: 'text-success',
+        type: 'reviewed',
+        label: 'Révisé',
+        color: 'info',
+        bgColor: 'bg-info',
+        textColor: 'text-info',
         description: 'À revoir dans 1 jour'
       };
     }

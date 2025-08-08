@@ -29,6 +29,7 @@ const shareCodeRoutes = require('./routes/shareCodeRoutes');
 const simpleBulkImportRoutes = require('./routes/simpleBulkImportRoutes');
 const sessionRoutes = require('./routes/sessionRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const evaluationRoutes = require('./routes/evaluationRoutes');
 
 // Initialiser l'application Express et le serveur HTTP
 const app = express();
@@ -72,6 +73,21 @@ io.on('connection', (socket) => {
   // Rejoindre la room personnelle de l'utilisateur
   socket.join(`user_${socket.userId}`);
   console.log(`👤 Utilisateur ${socket.userId} a rejoint sa room`.yellow);
+  
+  // Si l'utilisateur est un enseignant, rejoindre la room enseignant
+  socket.on('joinTeacherRoom', () => {
+    socket.join(`teacher_${socket.userId}`);
+    console.log(`👨‍🏫 Enseignant ${socket.userId} a rejoint sa room enseignant`.green);
+  });
+  
+  // Événement quand un apprenant termine une session
+  socket.on('sessionCompleted', (sessionData) => {
+    console.log(`📊 Session terminée par apprenant ${sessionData.studentId}`.blue);
+    // Notifier l'enseignant en temps réel
+    if (sessionData.teacherId) {
+      io.to(`teacher_${sessionData.teacherId}`).emit('newStudentSession', sessionData);
+    }
+  });
   
   // Événement de déconnexion
   socket.on('disconnect', () => {
@@ -125,6 +141,7 @@ app.use('/api/share', shareCodeRoutes);
 app.use('/api/simple-bulk-import', simpleBulkImportRoutes);
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/evaluation', evaluationRoutes);
 
 // Dossier statique pour les uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

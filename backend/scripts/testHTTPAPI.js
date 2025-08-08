@@ -98,7 +98,7 @@ const testAPI = async () => {
     const classesData = getResponse.data;
     console.log('Classes récupérées:', classesData.count);
     classesData.data.forEach(cls => {
-      console.log(`- ${cls.name} (${cls.inviteCode}) - ${cls.students.length} étudiants`);
+      console.log(`- ${cls.name} (${cls.inviteCode}) - ${cls.students.length} apprenants`);
     });
 
     // 4. Supprimer la classe de test

@@ -25,17 +25,17 @@ const testAPIRegistration = async () => {
     console.log(`   Rôle: ${teacherResponse.data.role}`);
     console.log(`   Token: ${teacherResponse.data.token ? 'Présent' : 'Absent'}`);
 
-    // Test 2: Inscription d'un étudiant
-    console.log('\n📝 Test 2: Inscription d\'un étudiant');
+    // Test 2: Inscription d'un apprenant
+    console.log('\n📝 Test 2: Inscription d\'un apprenant');
     const studentData = {
-      name: 'Étudiant API Test',
+      name: 'Apprenant API Test',
       email: 'student.api.test@example.com',
       password: 'password123',
       role: 'student'
     };
 
     const studentResponse = await axios.post(`${API_BASE_URL}/users`, studentData);
-    console.log('✅ Réponse API étudiant:');
+    console.log('✅ Réponse API apprenant:');
     console.log(`   Nom: ${studentResponse.data.name}`);
     console.log(`   Email: ${studentResponse.data.email}`);
     console.log(`   Rôle: ${studentResponse.data.role}`);
@@ -68,7 +68,7 @@ const testAPIRegistration = async () => {
     console.log('\n🎉 Tous les tests sont réussis !');
     console.log('\n📋 Identifiants de test créés:');
     console.log(`👨‍🏫 Enseignant: ${teacherData.email} / ${teacherData.password}`);
-    console.log(`👨‍🎓 Étudiant: ${studentData.email} / ${studentData.password}`);
+    console.log(`👨‍🎓 Apprenant: ${studentData.email} / ${studentData.password}`);
 
   } catch (error) {
     console.error('❌ Erreur lors du test:', error.response?.data || error.message);

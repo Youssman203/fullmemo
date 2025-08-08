@@ -73,12 +73,12 @@ const requireTeacher = asyncHandler(async (req, res, next) => {
 });
 
 /**
- * Middleware pour vérifier si l'utilisateur est un étudiant
+ * Middleware pour vérifier si l'utilisateur est un apprenant
  */
 const requireStudent = asyncHandler(async (req, res, next) => {
   if (req.user.role !== 'student') {
     res.status(403);
-    throw new Error('Accès refusé. Permissions étudiant requises.');
+    throw new Error('Accès refusé. Permissions apprenant requises.');
   }
   next();
 });

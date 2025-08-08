@@ -240,7 +240,7 @@ const StudentClassesDetailView = () => {
                       <div className="d-flex justify-content-between align-items-center mb-1">
                         <small className="text-muted">
                           <FiUsers size={14} className="me-1" />
-                          Étudiants inscrits
+                          Apprenants inscrits
                         </small>
                         <small className="fw-bold">
                           {classItem.stats?.totalStudents || 0} / {classItem.stats?.maxStudents || 50}
@@ -403,7 +403,7 @@ const StudentClassesDetailView = () => {
                       <div className="text-center p-3 class-stats-card">
                         <FiUsers size={24} className="text-primary mb-2" />
                         <div className="fw-bold fs-4">{selectedClass.stats?.totalStudents || 0}</div>
-                        <div className="small text-muted">Étudiants inscrits</div>
+                        <div className="small text-muted">Apprenants inscrits</div>
                         <div className="small text-muted">
                           (Max : {selectedClass.stats?.maxStudents || 50})
                         </div>

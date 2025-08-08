@@ -37,15 +37,15 @@ const classService = {
     }
   },
 
-  // Obtenir toutes les classes d'un étudiant
+  // Obtenir toutes les classes d'un apprenant
   getStudentClasses: async () => {
     try {
-      console.log('Tentative de récupération des classes de l\'étudiant...');
+      console.log('Tentative de récupération des classes de l\'apprenant...');
       const response = await api.get('/classes/student');
-      console.log('Réponse de récupération des classes de l\'étudiant:', response);
+      console.log('Réponse de récupération des classes de l\'apprenant:', response);
       return response;
     } catch (error) {
-      console.error('Erreur lors de la récupération des classes de l\'étudiant:', error);
+      console.error('Erreur lors de la récupération des classes de l\'apprenant:', error);
       console.error('Détails de l\'erreur:', {
         message: error.message,
         status: error.status
@@ -87,13 +87,13 @@ const classService = {
     }
   },
 
-  // Inviter des étudiants par email
+  // Inviter des apprenants par email
   inviteStudents: async (classId, emails) => {
     try {
       const response = await api.post(`/classes/${classId}/invite`, { emails });
       return response.data;
     } catch (error) {
-      console.error('Erreur lors de l\'invitation des étudiants:', error);
+      console.error('Erreur lors de l\'invitation des apprenants:', error);
       throw error;
     }
   },
@@ -116,13 +116,13 @@ const classService = {
     }
   },
 
-  // Retirer un étudiant d'une classe
+  // Retirer un apprenant d'une classe
   removeStudent: async (classId, studentId) => {
     try {
       const response = await api.delete(`/classes/${classId}/students/${studentId}`);
       return response.data;
     } catch (error) {
-      console.error('Erreur lors du retrait de l\'étudiant:', error);
+      console.error('Erreur lors du retrait de l\'apprenant:', error);
       throw error;
     }
   },
@@ -193,7 +193,7 @@ const classService = {
     }
   },
 
-  // Importer une collection partagée dans les collections personnelles de l'étudiant
+  // Importer une collection partagée dans les collections personnelles de l'apprenant
   importCollectionFromClass: async (classId, collectionId) => {
     try {
       const response = await api.post(`/classes/${classId}/collections/import`, {

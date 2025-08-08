@@ -66,7 +66,7 @@ const TeacherPanel = () => {
               👨‍🏫
             </div>
             <h2 className="mb-2 fw-bold">Bienvenue, Enseignant !</h2>
-            <p className="text-muted mb-4">Bienvenue dans votre espace pédagogique. Accompagnez vos étudiants dans leur parcours d'apprentissage</p>
+            <p className="text-muted mb-4">Bienvenue dans votre espace pédagogique. Accompagnez vos apprenants dans leur parcours d'apprentissage</p>
           </div>
           
           <div className="d-flex gap-3 justify-content-center flex-wrap">

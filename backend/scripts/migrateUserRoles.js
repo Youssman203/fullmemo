@@ -4,7 +4,7 @@ require('dotenv').config();
 
 /**
  * Script de migration pour ajouter le champ 'role' aux utilisateurs existants
- * Tous les utilisateurs existants deviennent des étudiants par défaut
+ * Tous les utilisateurs existants deviennent des apprenants par défaut
  */
 const migrateUserRoles = async () => {
   try {
@@ -48,7 +48,7 @@ const migrateUserRoles = async () => {
 
     console.log(`✅ Migration terminée avec succès !`);
     console.log(`📈 ${result.modifiedCount} utilisateurs mis à jour`);
-    console.log(`👨‍🎓 Tous les utilisateurs existants sont maintenant des étudiants`);
+    console.log(`👨‍🎓 Tous les utilisateurs existants sont maintenant des apprenants`);
 
     // Vérification finale
     const totalUsers = await User.countDocuments();
@@ -57,7 +57,7 @@ const migrateUserRoles = async () => {
 
     console.log('\n📊 Statistiques finales :');
     console.log(`   Total utilisateurs : ${totalUsers}`);
-    console.log(`   Étudiants : ${studentsCount}`);
+    console.log(`   Apprenants : ${studentsCount}`);
     console.log(`   Enseignants : ${teachersCount}`);
 
   } catch (error) {

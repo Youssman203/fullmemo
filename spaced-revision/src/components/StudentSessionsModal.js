@@ -42,7 +42,7 @@ const StudentSessionsModal = ({ show, onHide, student }) => {
         setStats(response.data.stats || []);
       }
     } catch (error) {
-      console.error('Erreur chargement sessions étudiant:', error);
+      console.error('Erreur chargement sessions apprenant:', error);
       setError('Erreur lors du chargement des sessions');
     } finally {
       setLoading(false);
@@ -149,7 +149,7 @@ const StudentSessionsModal = ({ show, onHide, student }) => {
           <p className="text-muted mb-0">
             {selectedSessionType 
               ? `Aucune session de type "${sessionService.formatSessionType(selectedSessionType)}" trouvée.`
-              : 'Cet étudiant n\'a pas encore effectué de sessions.'
+              : 'Cet apprenant n\'a pas encore effectué de sessions.'
             }
           </p>
         </div>

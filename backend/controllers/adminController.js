@@ -115,7 +115,7 @@ const createUser = asyncHandler(async (req, res) => {
         joinDate: user.joinDate,
         createdAt: user.createdAt
       },
-      message: `${role === 'teacher' ? 'Enseignant' : 'Étudiant'} créé avec succès`
+      message: `${role === 'teacher' ? 'Enseignant' : 'Apprenant'} créé avec succès`
     });
   } else {
     res.status(400);
@@ -208,11 +208,11 @@ const deleteUser = asyncHandler(async (req, res) => {
     // Supprimer les classes créées par l'enseignant
     await Class.deleteMany({ teacher: userId });
   } else if (user.role === 'student') {
-    // Supprimer les collections de l'étudiant
+    // Supprimer les collections de l'apprenant
     await Collection.deleteMany({ user: userId });
-    // Supprimer les cartes des collections de l'étudiant
+    // Supprimer les cartes des collections de l'apprenant
     await Flashcard.deleteMany({ user: userId });
-    // Retirer l'étudiant de toutes ses classes
+    // Retirer l'apprenant de toutes ses classes
     await Class.updateMany(
       { students: userId },
       { $pull: { students: userId } }
@@ -224,7 +224,7 @@ const deleteUser = asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
-    message: `${user.role === 'teacher' ? 'Enseignant' : 'Étudiant'} et toutes ses données supprimés avec succès`
+    message: `${user.role === 'teacher' ? 'Enseignant' : 'Apprenant'} et toutes ses données supprimés avec succès`
   });
 });
 

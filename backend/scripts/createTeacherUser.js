@@ -51,7 +51,7 @@ const createTeacherUser = async () => {
 
     console.log('\n📊 Statistiques des utilisateurs :');
     console.log(`   Total utilisateurs : ${totalUsers}`);
-    console.log(`   Étudiants : ${studentsCount}`);
+    console.log(`   Apprenants : ${studentsCount}`);
     console.log(`   Enseignants : ${teachersCount}`);
 
     console.log('\n🔑 Identifiants de connexion enseignant :');

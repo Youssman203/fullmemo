@@ -164,7 +164,7 @@ const CreateUserModal = ({ show, onHide, onSubmit }) => {
                   isInvalid={!!errors.role}
                   disabled={loading}
                 >
-                  <option value="student">Étudiant</option>
+                  <option value="student">Apprenant</option>
                   <option value="teacher">Enseignant</option>
                 </Form.Select>
                 <Form.Control.Feedback type="invalid">
@@ -252,11 +252,11 @@ const CreateUserModal = ({ show, onHide, onSubmit }) => {
           {formData.role && (
             <Alert variant="info" className="mb-0">
               <strong>
-                {formData.role === 'teacher' ? 'Enseignant' : 'Étudiant'}
+                {formData.role === 'teacher' ? 'Enseignant' : 'Apprenant'}
               </strong>
               {' - '}
               {formData.role === 'teacher' 
-                ? 'Pourra créer des collections, des classes et gérer ses étudiants'
+                ? 'Pourra créer des collections, des classes et gérer ses apprenants'
                 : 'Pourra rejoindre des classes et accéder aux collections partagées'
               }
             </Alert>

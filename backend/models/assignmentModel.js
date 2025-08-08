@@ -152,7 +152,7 @@ assignmentSchema.methods.getStats = function() {
   };
 };
 
-// Méthode pour ajouter une soumission d'étudiant
+// Méthode pour ajouter une soumission d'apprenant
 assignmentSchema.methods.addStudentSubmission = async function(studentId) {
   const existingSubmission = this.studentSubmissions.find(
     sub => sub.studentId.equals(studentId)
@@ -177,7 +177,7 @@ assignmentSchema.methods.recordAttempt = async function(studentId, attemptData) 
   );
   
   if (!submission) {
-    throw new Error('Soumission d\'étudiant non trouvée');
+    throw new Error('Soumission d\'apprenant non trouvée');
   }
   
   // Ajouter la tentative

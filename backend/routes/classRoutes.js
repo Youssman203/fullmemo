@@ -19,7 +19,7 @@ const {
 
 const { protect, requireTeacher, requireStudent } = require('../middleware/authMiddleware');
 
-// Routes pour les étudiants (AVANT les routes enseignants pour éviter les conflits)
+// Routes pour les apprenants (AVANT les routes enseignants pour éviter les conflits)
 router.get('/student', protect, requireStudent, getStudentClasses);
 router.post('/join/:inviteCode', protect, joinClassByCode);
 

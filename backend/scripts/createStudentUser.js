@@ -3,7 +3,7 @@ const User = require('../models/userModel');
 require('dotenv').config();
 
 /**
- * Script pour créer un utilisateur étudiant de test
+ * Script pour créer un utilisateur apprenant de test
  */
 const createStudentUser = async () => {
   try {
@@ -15,7 +15,7 @@ const createStudentUser = async () => {
 
     console.log('✅ Connexion à MongoDB réussie');
 
-    // Données de l'étudiant de test
+    // Données de l'apprenant de test
     const studentData = {
       name: 'Marie Dubois',
       email: 'marie.dubois@example.com',
@@ -27,21 +27,21 @@ const createStudentUser = async () => {
     const existingUser = await User.findOne({ email: studentData.email });
     
     if (existingUser) {
-      console.log('⚠️  L\'utilisateur étudiant existe déjà');
+      console.log('⚠️  L\'utilisateur apprenant existe déjà');
       
       // Mettre à jour le rôle si nécessaire
       if (existingUser.role !== 'student') {
         existingUser.role = 'student';
         await existingUser.save();
-        console.log('✅ Rôle mis à jour vers étudiant');
+        console.log('✅ Rôle mis à jour vers apprenant');
       }
       
-      console.log(`👩‍🎓 Étudiant: ${existingUser.name} (${existingUser.email})`);
+      console.log(`👩‍🎓 Apprenant: ${existingUser.name} (${existingUser.email})`);
     } else {
-      // Créer le nouvel utilisateur étudiant
+      // Créer le nouvel utilisateur apprenant
       const student = await User.create(studentData);
-      console.log('✅ Utilisateur étudiant créé avec succès !');
-      console.log(`👩‍🎓 Étudiant: ${student.name} (${student.email})`);
+      console.log('✅ Utilisateur apprenant créé avec succès !');
+      console.log(`👩‍🎓 Apprenant: ${student.name} (${student.email})`);
     }
 
     // Statistiques finales
@@ -51,10 +51,10 @@ const createStudentUser = async () => {
 
     console.log('\n📊 Statistiques des utilisateurs :');
     console.log(`   Total utilisateurs : ${totalUsers}`);
-    console.log(`   Étudiants : ${studentsCount}`);
+    console.log(`   Apprenants : ${studentsCount}`);
     console.log(`   Enseignants : ${teachersCount}`);
 
-    console.log('\n🔑 Identifiants de connexion étudiant :');
+    console.log('\n🔑 Identifiants de connexion apprenant :');
     console.log(`   Email: ${studentData.email}`);
     console.log(`   Mot de passe: ${studentData.password}`);
 
@@ -71,7 +71,7 @@ const createStudentUser = async () => {
 
 // Exécuter le script
 if (require.main === module) {
-  console.log('🚀 Création d\'un utilisateur étudiant de test...\n');
+  console.log('🚀 Création d\'un utilisateur apprenant de test...\n');
   createStudentUser();
 }
 

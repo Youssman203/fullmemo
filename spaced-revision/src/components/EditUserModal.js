@@ -118,12 +118,12 @@ const EditUserModal = ({ show, onHide, user, onSubmit }) => {
       case 'teacher':
         return {
           label: 'Enseignant',
-          description: 'Peut créer des collections, des classes et gérer ses étudiants',
+          description: 'Peut créer des collections, des classes et gérer ses apprenants',
           variant: 'primary'
         };
       case 'student':
         return {
-          label: 'Étudiant',
+          label: 'Apprenant',
           description: 'Peut rejoindre des classes et accéder aux collections partagées',
           variant: 'success'
         };
@@ -135,7 +135,7 @@ const EditUserModal = ({ show, onHide, user, onSubmit }) => {
         };
       default:
         return {
-          label: 'Étudiant',
+          label: 'Apprenant',
           description: 'Peut rejoindre des classes et accéder aux collections partagées',
           variant: 'success'
         };
@@ -211,7 +211,7 @@ const EditUserModal = ({ show, onHide, user, onSubmit }) => {
                   isInvalid={!!errors.role}
                   disabled={loading}
                 >
-                  <option value="student">Étudiant</option>
+                  <option value="student">Apprenant</option>
                   <option value="teacher">Enseignant</option>
                   <option value="admin">Administrateur</option>
                 </Form.Select>

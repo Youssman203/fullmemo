@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Table, Badge, Button, Alert, Spinner } from 'react-bootstrap';
 import { useAuth } from '../contexts/AuthContext';
-import sessionService from '../services/sessionService';
+import evaluationService from '../services/evaluationService';
 import StudentSessionsModal from '../components/StudentSessionsModal';
 
 const Evaluation = () => {
@@ -21,7 +21,7 @@ const Evaluation = () => {
     }
   }, [isTeacher]);
 
-  // Rediriger les étudiants vers le dashboard après les hooks
+  // Rediriger les apprenants vers le dashboard après les hooks
   if (isStudent()) {
     window.location.href = '/home';
     return null;
@@ -32,10 +32,32 @@ const Evaluation = () => {
       setLoading(true);
       setError(null);
       
-      const response = await sessionService.getTeacherOverview();
+      const response = await evaluationService.getStudentsWithSharedCollections();
+      console.log('Données d\'évaluation reçues:', response);
       if (response.success) {
-        setStudents(response.data.students || []);
-        setGlobalStats(response.data.globalStats || {});
+        // Transformer les données pour correspondre au format attendu
+        const transformedStudents = response.data?.map(item => ({
+          studentId: item.student._id,
+          studentName: item.student.name,
+          studentEmail: item.student.email,
+          totalSessions: item.totalSessions,
+          averageScore: item.averageScore,
+          lastSession: item.lastActivity,
+          sessionTypes: ['revision'], // Type par défaut
+          collections: item.collections
+        })) || [];
+        
+        setStudents(transformedStudents);
+        
+        // Calculer les stats globales à partir des données
+        const globalStats = {
+          uniqueStudentsCount: transformedStudents.length,
+          totalSessions: transformedStudents.reduce((sum, s) => sum + s.totalSessions, 0),
+          averageScore: transformedStudents.length > 0 
+            ? Math.round(transformedStudents.reduce((sum, s) => sum + s.averageScore, 0) / transformedStudents.length)
+            : 0
+        };
+        setGlobalStats(globalStats);
       }
     } catch (error) {
       console.error('Erreur chargement données:', error);
@@ -96,7 +118,7 @@ const Evaluation = () => {
     return (
       <Container className="py-4">
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <h1>Évaluation des Étudiants</h1>
+          <h1>Évaluation des Apprenants</h1>
           <Button 
             variant="outline-primary" 
             onClick={loadTeacherData}
@@ -113,7 +135,7 @@ const Evaluation = () => {
               <Card className="text-center border-0 shadow-sm">
                 <Card.Body>
                   <h3 className="text-primary">{globalStats.uniqueStudentsCount || 0}</h3>
-                  <p className="text-muted mb-0">Étudiants actifs</p>
+                  <p className="text-muted mb-0">Apprenants actifs</p>
                 </Card.Body>
               </Card>
             </Col>
@@ -139,7 +161,7 @@ const Evaluation = () => {
                   <div className="d-flex justify-content-center gap-1">
                     {globalStats.sessionTypeCounts && Object.entries(globalStats.sessionTypeCounts).map(([type, count]) => (
                       <Badge key={type} bg="secondary" className="small">
-                        {sessionService.formatSessionType(type)}: {count}
+                        {type === 'classic' ? 'Classique' : type === 'quiz' ? 'Quiz' : type === 'test' ? 'Test' : type}: {count}
                       </Badge>
                     ))}
                   </div>
@@ -150,24 +172,24 @@ const Evaluation = () => {
           </Row>
         )}
 
-        {/* Liste des étudiants */}
+        {/* Liste des apprenants */}
         <Card className="shadow-sm">
           <Card.Header>
-            <h5 className="mb-0">Étudiants avec Collections Partagées</h5>
+            <h5 className="mb-0">Apprenants avec Collections Partagées</h5>
           </Card.Header>
           <Card.Body className="p-0">
             {students.length === 0 ? (
               <div className="text-center py-5">
-                <h6 className="text-muted">Aucun étudiant trouvé</h6>
+                <h6 className="text-muted">Aucun apprenant trouvé</h6>
                 <p className="text-muted">
-                  Les étudiants apparaîtront ici après avoir utilisé vos collections partagées.
+                  Les apprenants apparaîtront ici après avoir utilisé vos collections partagées.
                 </p>
               </div>
             ) : (
               <Table hover responsive className="mb-0">
                 <thead className="table-light">
                   <tr>
-                    <th>Étudiant</th>
+                    <th>Apprenant</th>
                     <th>Email</th>
                     <th className="text-center">Sessions</th>
                     <th className="text-center">Score Moyen</th>
@@ -199,7 +221,7 @@ const Evaluation = () => {
                         <div className="d-flex gap-1 justify-content-center">
                           {student.sessionTypes.map((type) => (
                             <Badge key={type} bg="secondary" className="small">
-                              {sessionService.formatSessionType(type)}
+                              {type === 'revision' ? 'Révision' : type === 'quiz' ? 'Quiz' : type}
                             </Badge>
                           ))}
                         </div>
@@ -227,7 +249,7 @@ const Evaluation = () => {
           </Card.Body>
         </Card>
 
-        {/* Modal des sessions d'un étudiant */}
+        {/* Modal des sessions d'un apprenant */}
         <StudentSessionsModal
           show={showModal}
           onHide={() => setShowModal(false)}

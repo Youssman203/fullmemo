@@ -43,15 +43,15 @@ async function connecterEnseignant() {
   }
 }
 
-// Connexion étudiant  
+// Connexion apprenant  
 async function connecterEtudiant() {
   try {
-    console.log('\n👨‍🎓 Connexion étudiant...');
+    console.log('\n👨‍🎓 Connexion apprenant...');
     const response = await axios.post(`${API_BASE}/users/login`, ETUDIANT);
     
     if (response.data.success && response.data.token) {
       etudiantToken = response.data.token;
-      console.log('✅ Étudiant connecté');
+      console.log('✅ Apprenant connecté');
       console.log('   Nom:', response.data.data.name);
       console.log('   Email:', response.data.data.email);
       console.log('   Rôle:', response.data.data.role);
@@ -59,7 +59,7 @@ async function connecterEtudiant() {
       return response.data.data;
     }
   } catch (error) {
-    console.error('❌ Erreur connexion étudiant:', error.response?.data || error.message);
+    console.error('❌ Erreur connexion apprenant:', error.response?.data || error.message);
     throw error;
   }
 }
@@ -108,10 +108,10 @@ async function genererCodePartage(collectionId) {
   }
 }
 
-// Tester accès par code (étudiant)
+// Tester accès par code (apprenant)
 async function testerAccesParCode(code) {
   try {
-    console.log('\n🔍 Test accès par code (étudiant)...');
+    console.log('\n🔍 Test accès par code (apprenant)...');
     console.log('   Code:', code);
     
     const response = await axios.get(`${API_BASE}/share/code/${code}`, {
@@ -131,10 +131,10 @@ async function testerAccesParCode(code) {
   }
 }
 
-// Importer collection par code (étudiant)
+// Importer collection par code (apprenant)
 async function importerCollectionParCode(code) {
   try {
-    console.log('\n📥 Import collection par code (étudiant)...');
+    console.log('\n📥 Import collection par code (apprenant)...');
     console.log('   Code:', code);
     
     const response = await axios.post(`${API_BASE}/share/code/${code}/import`, {}, {
@@ -157,16 +157,16 @@ async function importerCollectionParCode(code) {
   }
 }
 
-// Vérifier collections étudiant AVANT import
+// Vérifier collections apprenant AVANT import
 async function verifierCollectionsEtudiantAvant() {
   try {
-    console.log('\n📋 Collections étudiant AVANT import...');
+    console.log('\n📋 Collections apprenant AVANT import...');
     const response = await axios.get(`${API_BASE}/collections`, {
       headers: { Authorization: `Bearer ${etudiantToken}` }
     });
     
     let collections = response.data.data || response.data;
-    console.log(`📊 Étudiant a ${collections.length} collections AVANT import`);
+    console.log(`📊 Apprenant a ${collections.length} collections AVANT import`);
     
     collections.forEach((collection, index) => {
       console.log(`   ${index + 1}. ${collection.name} (ID: ${collection._id}) - Owner: ${collection.user}`);
@@ -174,21 +174,21 @@ async function verifierCollectionsEtudiantAvant() {
     
     return collections;
   } catch (error) {
-    console.error('❌ Erreur vérification collections étudiant:', error.response?.data || error.message);
+    console.error('❌ Erreur vérification collections apprenant:', error.response?.data || error.message);
     throw error;
   }
 }
 
-// Vérifier collections étudiant APRÈS import
+// Vérifier collections apprenant APRÈS import
 async function verifierCollectionsEtudiantApres() {
   try {
-    console.log('\n📋 Collections étudiant APRÈS import...');
+    console.log('\n📋 Collections apprenant APRÈS import...');
     const response = await axios.get(`${API_BASE}/collections`, {
       headers: { Authorization: `Bearer ${etudiantToken}` }
     });
     
     let collections = response.data.data || response.data;
-    console.log(`📊 Étudiant a ${collections.length} collections APRÈS import`);
+    console.log(`📊 Apprenant a ${collections.length} collections APRÈS import`);
     
     collections.forEach((collection, index) => {
       console.log(`   ${index + 1}. ${collection.name} (ID: ${collection._id}) - Owner: ${collection.user}`);
@@ -196,7 +196,7 @@ async function verifierCollectionsEtudiantApres() {
     
     return collections;
   } catch (error) {
-    console.error('❌ Erreur vérification collections étudiant:', error.response?.data || error.message);
+    console.error('❌ Erreur vérification collections apprenant:', error.response?.data || error.message);
     throw error;
   }
 }
@@ -244,7 +244,7 @@ async function testComplet() {
     // Utiliser la première collection
     const collection = collectionsEnseignant[0];
     
-    // Étape 3: Collections étudiant AVANT
+    // Étape 3: Collections apprenant AVANT
     const collectionsEtudiantAvant = await verifierCollectionsEtudiantAvant();
     
     // Étape 4: Générer code
@@ -264,8 +264,8 @@ async function testComplet() {
     console.log('\n🔍 ANALYSE DES RÉSULTATS');
     console.log('='.repeat(30));
     
-    console.log(`📊 Étudiant avant: ${collectionsEtudiantAvant.length} collections`);
-    console.log(`📊 Étudiant après: ${collectionsEtudiantApres.length} collections`);
+    console.log(`📊 Apprenant avant: ${collectionsEtudiantAvant.length} collections`);
+    console.log(`📊 Apprenant après: ${collectionsEtudiantApres.length} collections`);
     console.log(`📊 Différence: +${collectionsEtudiantApres.length - collectionsEtudiantAvant.length} collections`);
     
     console.log(`📊 Enseignant après: ${collectionsEnseignantApres.length} collections`);
@@ -277,13 +277,13 @@ async function testComplet() {
     );
     
     if (nouvelleCollection) {
-      console.log('✅ Nouvelle collection trouvée chez l\'étudiant:');
+      console.log('✅ Nouvelle collection trouvée chez l\'apprenant:');
       console.log(`   Nom: ${nouvelleCollection.name}`);
       console.log(`   ID: ${nouvelleCollection._id}`);
       console.log(`   Owner: ${nouvelleCollection.user}`);
-      console.log(`   Owner étudiant: ${nouvelleCollection.user === etudiant._id ? '✅ OUI' : '❌ NON'}`);
+      console.log(`   Owner apprenant: ${nouvelleCollection.user === etudiant._id ? '✅ OUI' : '❌ NON'}`);
     } else {
-      console.log('❌ PROBLÈME: Nouvelle collection non trouvée chez l\'étudiant !');
+      console.log('❌ PROBLÈME: Nouvelle collection non trouvée chez l\'apprenant !');
     }
     
     // Vérifier si apparue chez enseignant par erreur
@@ -309,7 +309,7 @@ async function testComplet() {
       console.log('❌ ÉCHEC: Problème détecté dans le partage par code');
       
       if (!nouvelleCollection) {
-        console.log('   - Collection non créée chez l\'étudiant');
+        console.log('   - Collection non créée chez l\'apprenant');
       } else if (nouvelleCollection.user !== etudiant._id) {
         console.log('   - Mauvais owner pour la collection importée');
       }

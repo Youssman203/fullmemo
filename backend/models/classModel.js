@@ -74,7 +74,7 @@ classSchema.statics.generateInviteCode = async function() {
   return code;
 };
 
-// Méthode pour ajouter un étudiant à la classe
+// Méthode pour ajouter un apprenant à la classe
 classSchema.methods.addStudent = async function(studentId) {
   if (!this.students.includes(studentId)) {
     this.students.push(studentId);
@@ -83,14 +83,14 @@ classSchema.methods.addStudent = async function(studentId) {
   return this;
 };
 
-// Méthode pour retirer un étudiant de la classe
+// Méthode pour retirer un apprenant de la classe
 classSchema.methods.removeStudent = async function(studentId) {
   this.students = this.students.filter(id => !id.equals(studentId));
   await this.save();
   return this;
 };
 
-// Méthode pour vérifier si un utilisateur est étudiant de cette classe
+// Méthode pour vérifier si un utilisateur est apprenant de cette classe
 classSchema.methods.hasStudent = function(studentId) {
   return this.students.some(id => id.equals(studentId));
 };

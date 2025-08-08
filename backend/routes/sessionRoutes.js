@@ -15,7 +15,7 @@ const { protect, requireTeacher, requireStudent } = require('../middleware/authM
 router.get('/recent', protect, getRecentSessions);
 router.get('/:sessionId', protect, getSessionDetails);
 
-// Routes pour les étudiants
+// Routes pour les apprenants
 router.post('/', protect, requireStudent, createSession);
 
 // Routes pour les enseignants

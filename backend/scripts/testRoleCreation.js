@@ -33,9 +33,9 @@ const testRoleCreation = async () => {
     console.log(`   Rôle: ${teacher.role}`);
     console.log(`   ID: ${teacher._id}`);
 
-    // Test 2: Créer un étudiant avec rôle explicite
+    // Test 2: Créer un apprenant avec rôle explicite
     const studentData = {
-      name: 'Étudiant Test Rôle',
+      name: 'Apprenant Test Rôle',
       email: 'test.role.student@example.com',
       password: 'password123',
       role: 'student'
@@ -45,7 +45,7 @@ const testRoleCreation = async () => {
     await User.deleteOne({ email: studentData.email });
 
     const student = await User.create(studentData);
-    console.log('\n✅ Étudiant créé:');
+    console.log('\n✅ Apprenant créé:');
     console.log(`   Nom: ${student.name}`);
     console.log(`   Email: ${student.email}`);
     console.log(`   Rôle: ${student.role}`);
@@ -87,7 +87,7 @@ const testRoleCreation = async () => {
 
     console.log('\n📈 Statistiques globales:');
     console.log(`   Total utilisateurs: ${totalUsers}`);
-    console.log(`   Étudiants: ${studentsCount}`);
+    console.log(`   Apprenants: ${studentsCount}`);
     console.log(`   Enseignants: ${teachersCount}`);
 
   } catch (error) {

@@ -15,7 +15,7 @@ import Register from './pages/Auth/Register';
 import Dashboard from './pages/Dashboard';
 import Collections from './pages/Collections';
 import CardForm from './pages/CardForm';
-import Stats from './pages/Stats';
+import Evaluation from './pages/Stats'; // Stats.js contient le composant Evaluation
 import Profile from './pages/Profile';
 import ReviewPage from './pages/ReviewPage';
 import ReviewCards from './pages/ReviewCards';
@@ -173,7 +173,7 @@ function App() {
           <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
             <Navbar />
             <div className="main-content">
-              <Stats />
+              <Evaluation />
             </div>
           </div>
         </ProtectedRoute>
@@ -207,6 +207,18 @@ function App() {
             <Navbar />
             <div className="main-content">
               <StudentClassesDetailPage />
+            </div>
+          </div>
+        </ProtectedRoute>
+      } />
+      
+      {/* Teacher evaluation route */}
+      <Route path="/evaluation" element={
+        <ProtectedRoute>
+          <div className="app-layout teacher-theme">
+            <Navbar />
+            <div className="main-content">
+              <Evaluation />
             </div>
           </div>
         </ProtectedRoute>

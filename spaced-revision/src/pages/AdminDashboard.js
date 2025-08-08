@@ -117,7 +117,7 @@ const AdminDashboard = () => {
                   </div>
                   <div className="stats-info">
                     <h3>{stats.users?.students || 0}</h3>
-                    <p>Étudiants</p>
+                    <p>Apprenants</p>
                     <small className="text-info">
                       {((stats.users?.students / stats.users?.total) * 100).toFixed(1)}% du total
                     </small>

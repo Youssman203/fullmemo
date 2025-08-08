@@ -630,7 +630,7 @@ const ReviewPage = () => {
         
         // Ajouter la carte à la session si elle existe
         if (currentSession) {
-          const isCorrect = quality === 3; // 3 = Facile, 1 = Difficile
+          const isCorrect = true; // Considérer comme vu/révisé
           await updateReviewSession(currentSession._id || currentSession.id, {
             flashcardId: currentCard.id || currentCard._id,
             performance,
@@ -643,8 +643,8 @@ const ReviewPage = () => {
         // Continuer malgré l'erreur pour ne pas bloquer l'expérience utilisateur
       }
       
-      // Mettre à jour les statistiques : quality 3 = facile (correct), quality 1 = difficile (incorrect)
-      const isCorrect = quality === 3; // 3 = Facile, 1 = Difficile
+      // Mettre à jour les statistiques : considérer comme révisé
+      const isCorrect = true; // Carte révisée
       setStats(prev => ({
         ...prev,
         correct: isCorrect ? prev.correct + 1 : prev.correct,
@@ -711,6 +711,36 @@ const ReviewPage = () => {
       skipped: 0,
       total: 0
     });
+  };
+
+  // End session early (terminate current review)
+  const handleEndSession = async () => {
+    try {
+      // Sauvegarder la session même si elle n'est pas terminée
+      if (currentSession) {
+        const sessionData = {
+          ...currentSession,
+          endTime: new Date(),
+          completed: false, // Marquer comme non terminée
+          earlyEnd: true,   // Marquer comme arrêtée prématurément
+          finalStats: {
+            ...stats,
+            cardsReviewed: currentCardIndex,
+            totalCards: cardsToReview.length
+          }
+        };
+
+        console.log('💾 Sauvegarde session arrêtée prématurément:', sessionData);
+        await sessionService.updateSession(currentSession._id, sessionData);
+      }
+      
+      // Aller directement à l'écran de fin avec les stats actuelles
+      setCurrentMode(MODES.COMPLETED);
+    } catch (error) {
+      console.error('❌ Erreur lors de la sauvegarde de session arrêtée:', error);
+      // Même en cas d'erreur, permettre à l'utilisateur de terminer
+      setCurrentMode(MODES.COMPLETED);
+    }
   };
 
   // Return to dashboard
@@ -935,10 +965,18 @@ const ReviewPage = () => {
 
         {isFlipped && (
           <div className="review-actions">
-            <p className="text-center text-muted mb-3">Comment avez-vous connu cette réponse ?</p>
             <div className="d-grid gap-3 d-md-flex justify-content-md-center">
-              <Button variant="danger" onClick={() => handleNextCard(1)}>Difficile</Button>
-              <Button variant="success" onClick={() => handleNextCard(3)}>Facile</Button>
+              <Button variant="primary" onClick={() => handleNextCard(2)}>Suivant</Button>
+            </div>
+            <div className="text-center mt-3">
+              <Button 
+                variant="outline-danger" 
+                size="sm"
+                onClick={handleEndSession}
+                title="Arrêter la session de révision"
+              >
+                Terminer la session
+              </Button>
             </div>
           </div>
         )}
@@ -1018,12 +1056,21 @@ const ReviewPage = () => {
 
         {!showQuizResult ? (
           <div className="d-flex justify-content-between">
-            <Button 
-              variant="outline-secondary" 
-              onClick={handleSkipCard}
-            >
-              Passer
-            </Button>
+            <div className="d-flex gap-2">
+              <Button 
+                variant="outline-secondary" 
+                onClick={handleSkipCard}
+              >
+                Passer
+              </Button>
+              <Button 
+                variant="outline-danger" 
+                onClick={handleEndSession}
+                title="Arrêter la session de révision"
+              >
+                Terminer
+              </Button>
+            </div>
             <Button 
               variant="primary" 
               onClick={handleCheckQuizAnswer}
@@ -1033,7 +1080,14 @@ const ReviewPage = () => {
             </Button>
           </div>
         ) : (
-          <div className="d-flex justify-content-end">
+          <div className="d-flex justify-content-between">
+            <Button 
+              variant="outline-danger" 
+              onClick={handleEndSession}
+              title="Arrêter la session de révision"
+            >
+              Terminer
+            </Button>
             <Button 
               variant="primary" 
               onClick={() => handleNextCard()}
@@ -1129,12 +1183,21 @@ const ReviewPage = () => {
 
         {!testResult.show ? (
           <div className="d-flex justify-content-between">
-            <Button 
-              variant="outline-secondary" 
-              onClick={handleSkipCard}
-            >
-              Skip
-            </Button>
+            <div className="d-flex gap-2">
+              <Button 
+                variant="outline-secondary" 
+                onClick={handleSkipCard}
+              >
+                Skip
+              </Button>
+              <Button 
+                variant="outline-danger" 
+                onClick={handleEndSession}
+                title="Arrêter la session de révision"
+              >
+                Terminer
+              </Button>
+            </div>
             <Button 
               variant="primary" 
               onClick={handleCheckTestAnswer}
@@ -1144,7 +1207,14 @@ const ReviewPage = () => {
             </Button>
           </div>
         ) : (
-          <div className="d-flex justify-content-end">
+          <div className="d-flex justify-content-between">
+            <Button 
+              variant="outline-danger" 
+              onClick={handleEndSession}
+              title="Arrêter la session de révision"
+            >
+              Terminer
+            </Button>
             <Button 
               variant="primary" 
               onClick={() => handleNextCard()}
@@ -1170,11 +1240,7 @@ const ReviewPage = () => {
           <Row className="text-center">
             <Col>
               <div className="fs-1 text-success">{stats.correct}</div>
-              <div className="text-muted">{selectedMode === 'classic' ? 'Facile' : 'Correct'}</div>
-            </Col>
-            <Col>
-              <div className="fs-1 text-danger">{stats.incorrect}</div>
-              <div className="text-muted">{selectedMode === 'classic' ? 'Difficile' : 'Incorrect'}</div>
+              <div className="text-muted">Révisé</div>
             </Col>
             <Col>
               <div className="fs-1 text-warning">{stats.skipped}</div>

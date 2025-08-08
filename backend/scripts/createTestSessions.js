@@ -27,13 +27,13 @@ const createTestSessions = async () => {
     }
     console.log('✅ Enseignant trouvé:', teacher.name);
 
-    // Trouver un étudiant (etudiant.test@example.com)
+    // Trouver un apprenant (etudiant.test@example.com)
     const student = await User.findOne({ email: 'etudiant.test@example.com' });
     if (!student) {
-      console.log('❌ Étudiant etudiant.test@example.com non trouvé');
+      console.log('❌ Apprenant etudiant.test@example.com non trouvé');
       return;
     }
-    console.log('✅ Étudiant trouvé:', student.name);
+    console.log('✅ Apprenant trouvé:', student.name);
 
     // Trouver une collection de l'enseignant
     const collection = await Collection.findOne({ user: teacher._id });

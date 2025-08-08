@@ -9,13 +9,13 @@ import StudentClassesDetailView from '../components/StudentClassesDetailView';
 const StudentClassesDetailPage = () => {
   const { isStudent } = useAuth();
 
-  // Vérifier que l'utilisateur est un étudiant
+  // Vérifier que l'utilisateur est un apprenant
   if (!isStudent()) {
     return (
       <Container className="py-5">
         <div className="text-center">
           <h3>Accès Refusé</h3>
-          <p>Cette page est réservée aux étudiants.</p>
+          <p>Cette page est réservée aux apprenants.</p>
           <Link to="/home" className="btn btn-primary">
             Retour au tableau de bord
           </Link>

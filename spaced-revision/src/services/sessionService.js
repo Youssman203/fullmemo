@@ -2,7 +2,7 @@
 import api from './api';
 
 const sessionService = {
-  // Créer une nouvelle session (étudiant)
+  // Créer une nouvelle session (apprenant)
   createSession: async (sessionData) => {
     try {
       const response = await api.post('/sessions', sessionData);
@@ -25,7 +25,7 @@ const sessionService = {
     }
   },
 
-  // Obtenir les sessions d'un étudiant spécifique (enseignant)
+  // Obtenir les sessions d'un apprenant spécifique (enseignant)
   getStudentSessions: async (studentId, options = {}) => {
     try {
       const { limit = 10, offset = 0, sessionType } = options;
@@ -38,7 +38,7 @@ const sessionService = {
       const response = await api.get(url);
       return response.data;
     } catch (error) {
-      console.error('Erreur récupération sessions étudiant:', error);
+      console.error('Erreur récupération sessions apprenant:', error);
       throw error;
     }
   },

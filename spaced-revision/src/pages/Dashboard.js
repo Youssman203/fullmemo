@@ -103,7 +103,7 @@ const Dashboard = () => {
         <Row className="mb-4 align-items-center">
           <Col>
             <h1 className="fw-bold mb-0">Bon retour, {userName} !</h1>
-            <p className="text-muted mb-0">{isTeacher() ? "Prêt à guider vos étudiants dans leur apprentissage aujourd'hui ?" : "Prêt à apprendre quelque chose de nouveau aujourd'hui ?"}</p>
+            <p className="text-muted mb-0">{isTeacher() ? "Prêt à guider vos apprenants dans leur apprentissage aujourd'hui ?" : "Prêt à apprendre quelque chose de nouveau aujourd'hui ?"}</p>
           </Col>
         </Row>
 
@@ -113,10 +113,10 @@ const Dashboard = () => {
         {/* Contenu spécifique enseignant */}
         {isTeacher() && <TeacherPanel />}
 
-        {/* Contenu pour les étudiants uniquement */}
+        {/* Contenu pour les apprenants uniquement */}
         {isStudent() && (
           <>
-        {/* Panel des classes pour les étudiants */}
+        {/* Panel des classes pour les apprenants */}
         <StudentClassesPanel />
         
         {/* Stats Overview */}

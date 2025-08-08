@@ -243,7 +243,7 @@ const TeacherClassDetailView = ({ classId, onClose }) => {
                   <div className="p-3 bg-primary bg-opacity-10 rounded">
                     <FiUsers size={24} className="text-primary mb-2" />
                     <h4 className="fw-bold mb-1">{classDetails.students?.length || 0}</h4>
-                    <small className="text-muted">Étudiants inscrits</small>
+                    <small className="text-muted">Apprenants inscrits</small>
                   </div>
                 </Col>
                 <Col md={4}>
@@ -291,7 +291,7 @@ const TeacherClassDetailView = ({ classId, onClose }) => {
                   <FiShare2 size={48} className="text-muted mb-3" />
                   <h6 className="text-muted">Aucune collection partagée</h6>
                   <p className="text-muted">
-                    Partagez vos collections avec vos étudiants pour qu'ils puissent les réviser.
+                    Partagez vos collections avec vos apprenants pour qu'ils puissent les réviser.
                   </p>
                   {availableCollections.length > 0 && (
                     <Button variant="outline-primary" onClick={() => setShowShareModal(true)}>
@@ -337,12 +337,12 @@ const TeacherClassDetailView = ({ classId, onClose }) => {
           </Card>
         </Col>
 
-        {/* Liste des étudiants */}
+        {/* Liste des apprenants */}
         <Col>
           <Card>
             <Card.Header className="d-flex align-items-center">
               <FiUser className="me-2 text-success" />
-              <h5 className="mb-0">Étudiants inscrits ({classDetails.students?.length || 0})</h5>
+              <h5 className="mb-0">Apprenants inscrits ({classDetails.students?.length || 0})</h5>
             </Card.Header>
             <Card.Body>
               {classDetails.students && classDetails.students.length > 0 ? (
@@ -369,9 +369,9 @@ const TeacherClassDetailView = ({ classId, onClose }) => {
               ) : (
                 <div className="text-center py-4">
                   <FiUser size={48} className="text-muted mb-3" />
-                  <h6 className="text-muted">Aucun étudiant inscrit</h6>
+                  <h6 className="text-muted">Aucun apprenant inscrit</h6>
                   <p className="text-muted">
-                    Partagez le code <code>{classDetails.inviteCode}</code> avec vos étudiants
+                    Partagez le code <code>{classDetails.inviteCode}</code> avec vos apprenants
                     pour qu'ils rejoignent la classe.
                   </p>
                 </div>

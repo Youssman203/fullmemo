@@ -26,7 +26,7 @@ const Classes = () => {
     allowSelfEnrollment: true
   });
 
-  // États pour l'invitation d'étudiants
+  // États pour l'invitation d'apprenants
   const [inviteEmails, setInviteEmails] = useState('');
 
   useEffect(() => {
@@ -35,7 +35,7 @@ const Classes = () => {
     }
   }, [isTeacher]);
 
-  // Si l'utilisateur est un étudiant, afficher le panel des classes d'étudiant
+  // Si l'utilisateur est un apprenant, afficher le panel des classes d'apprenant
   if (isStudent()) {
     return (
       <Container fluid className="py-4">
@@ -121,7 +121,7 @@ const Classes = () => {
       const response = await classService.inviteStudents(selectedClass._id, emails);
       const { invited, alreadyInClass, notFound } = response.data;
       
-      let message = `${invited.length} étudiant(s) invité(s) avec succès`;
+      let message = `${invited.length} apprenant(s) invité(s) avec succès`;
       if (alreadyInClass.length > 0) {
         message += `, ${alreadyInClass.length} déjà inscrit(s)`;
       }
@@ -135,7 +135,7 @@ const Classes = () => {
       setSelectedClass(null);
       fetchClasses();
     } catch (error) {
-      showAlert('error', 'Erreur lors de l\'invitation des étudiants');
+      showAlert('error', 'Erreur lors de l\'invitation des apprenants');
       console.error('Erreur:', error);
     }
   };
@@ -192,7 +192,7 @@ const Classes = () => {
           <div className="d-flex justify-content-between align-items-center">
             <div>
               <h2 className="fw-bold mb-1">Mes Classes</h2>
-              <p className="text-muted mb-0">Gérez vos classes et suivez vos étudiants</p>
+              <p className="text-muted mb-0">Gérez vos classes et suivez vos apprenants</p>
             </div>
             <Button
               variant="primary"
@@ -277,7 +277,7 @@ const Classes = () => {
                         <FiUsers size={16} className="text-primary me-1" />
                         <strong>{classItem.students?.length || 0}</strong>
                       </div>
-                      <small className="text-muted">Étudiants</small>
+                      <small className="text-muted">Apprenants</small>
                     </div>
                     <div className="text-center">
                       <div className="d-flex align-items-center justify-content-center mb-1">
@@ -347,7 +347,7 @@ const Classes = () => {
               </Col>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Nombre max d'étudiants</Form.Label>
+                  <Form.Label>Nombre max d'apprenants</Form.Label>
                   <Form.Control
                     type="number"
                     min="1"
@@ -390,11 +390,11 @@ const Classes = () => {
         </Form>
       </Modal>
 
-      {/* Modal d'invitation d'étudiants */}
+      {/* Modal d'invitation d'apprenants */}
       <Modal show={showInviteModal} onHide={() => setShowInviteModal(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>
-            Inviter des étudiants - {selectedClass?.name}
+            Inviter des apprenants - {selectedClass?.name}
           </Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleInviteStudents}>
@@ -414,7 +414,7 @@ const Classes = () => {
                   </Button>
                 </div>
                 <small className="text-muted">
-                  Les étudiants peuvent utiliser ce code pour rejoindre la classe
+                  Les apprenants peuvent utiliser ce code pour rejoindre la classe
                 </small>
               </div>
             </div>
@@ -426,10 +426,10 @@ const Classes = () => {
                 rows={5}
                 value={inviteEmails}
                 onChange={(e) => setInviteEmails(e.target.value)}
-                placeholder="Entrez les adresses email des étudiants (une par ligne)&#10;exemple@email.com&#10;etudiant2@email.com"
+                placeholder="Entrez les adresses email des apprenants (une par ligne)&#10;exemple@email.com&#10;etudiant2@email.com"
               />
               <Form.Text className="text-muted">
-                Entrez une adresse email par ligne. Les étudiants doivent déjà avoir un compte.
+                Entrez une adresse email par ligne. Les apprenants doivent déjà avoir un compte.
               </Form.Text>
             </Form.Group>
           </Modal.Body>

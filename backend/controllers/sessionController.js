@@ -60,6 +60,21 @@ const createSession = asyncHandler(async (req, res) => {
 
   console.log(`📊 Session créée: ${session.sessionType} - Score: ${scorePercentage}% (${req.user.name})`);
 
+  // Émettre un événement WebSocket vers l'enseignant
+  const io = req.app.get('io');
+  if (io) {
+    io.to(`teacher_${collection.user._id}`).emit('newStudentSession', {
+      studentId: req.user._id,
+      studentName: req.user.name,
+      collectionName: collection.name,
+      sessionType,
+      score: scorePercentage,
+      sessionId: session._id,
+      timestamp: new Date()
+    });
+    console.log(`📤 Notification envoyée à l'enseignant ${collection.user._id}`);
+  }
+
   res.status(201).json({
     success: true,
     message: 'Session enregistrée avec succès',
@@ -67,7 +82,7 @@ const createSession = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Obtenir les sessions d'un étudiant pour un enseignant
+// @desc    Obtenir les sessions d'un apprenant pour un enseignant
 // @route   GET /api/sessions/student/:studentId
 // @access  Private (Teacher)
 const getStudentSessions = asyncHandler(async (req, res) => {
@@ -138,7 +153,7 @@ const getStudentSessions = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Obtenir la vue d'ensemble des étudiants pour un enseignant
+// @desc    Obtenir la vue d'ensemble des apprenants pour un enseignant
 // @route   GET /api/sessions/teacher/overview
 // @access  Private (Teacher)
 const getTeacherOverview = asyncHandler(async (req, res) => {
@@ -151,7 +166,7 @@ const getTeacherOverview = asyncHandler(async (req, res) => {
   }
 
   try {
-    // Récupérer les étudiants qui ont des sessions avec cet enseignant
+    // Récupérer les apprenants qui ont des sessions avec cet enseignant
     const overview = await Session.aggregate([
       { $match: { teacher: req.user._id } },
       {

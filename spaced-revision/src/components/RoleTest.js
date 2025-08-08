@@ -37,7 +37,7 @@ const RoleTest = () => {
       
       {isStudent() && (
         <div className="mt-2 p-2 bg-primary text-white rounded">
-          👨‍🎓 <strong>Mode Étudiant</strong>
+          👨‍🎓 <strong>Mode Apprenant</strong>
         </div>
       )}
     </div>

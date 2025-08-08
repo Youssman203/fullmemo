@@ -52,7 +52,7 @@ const Navbar = () => {
             isTeacher() ? 'teacher' : 'student'
           }`}>
             {isAdmin() ? '👑 Administrateur' : 
-             isTeacher() ? '👨‍🏫 Enseignant' : '👨‍🎓 Étudiant'}
+             isTeacher() ? '👨‍🏫 Enseignant' : '👨‍🎓 Apprenant'}
           </span>
         </div>
         <button 
@@ -79,7 +79,7 @@ const Navbar = () => {
           </>
         ) : (
           <>
-            {/* Interface normale pour étudiants/enseignants */}
+            {/* Interface normale pour apprenants/enseignants */}
             <NavLink to="/home" className="sidebar-link" onClick={handleNavLinkClick}>
               <FaHome /><span>Accueil</span>
             </NavLink>
@@ -89,13 +89,16 @@ const Navbar = () => {
             <NavLink to="/flashcards" className="sidebar-link" onClick={handleNavLinkClick}>
               <FaClone /><span>Cartes</span>
             </NavLink>
-            <NavLink to="/review" className="sidebar-link" onClick={handleNavLinkClick}>
-              <FaSyncAlt /><span>Révisions</span>
-            </NavLink>
+            {/* Lien Révisions pour les apprenants uniquement */}
+            {isStudent() && (
+              <NavLink to="/review" className="sidebar-link" onClick={handleNavLinkClick}>
+                <FaSyncAlt /><span>Révisions</span>
+              </NavLink>
+            )}
             
             {/* Lien Évaluation pour les enseignants uniquement */}
             {user && user.role === 'teacher' && (
-              <NavLink to="/stats" className="sidebar-link" onClick={handleNavLinkClick}>
+              <NavLink to="/evaluation" className="sidebar-link" onClick={handleNavLinkClick}>
                 <FaChartBar /><span>Évaluation</span>
               </NavLink>
             )}
@@ -109,7 +112,7 @@ const Navbar = () => {
               </>
             )}
             
-            {/* Liens spécifiques aux étudiants */}
+            {/* Liens spécifiques aux apprenants */}
             {isStudent() && (
               <>
                 <NavLink to="/classes" className="sidebar-link" onClick={handleNavLinkClick}>

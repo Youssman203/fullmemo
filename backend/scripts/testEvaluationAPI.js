@@ -1,79 +1,147 @@
 // Script pour tester l'API d'évaluation
-const fetch = require('node-fetch');
+const mongoose = require('mongoose');
+const Session = require('../models/sessionModel');
+const Collection = require('../models/collectionModel');
+const User = require('../models/userModel');
+require('dotenv').config({ path: '../.env' });
 
-const API_URL = 'http://localhost:5000/api';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/spaced-revision';
 
-const testEvaluationAPI = async () => {
+async function testEvaluationAPI() {
   try {
-    console.log('🧪 Test API Évaluation - Début\n');
+    await mongoose.connect(MONGODB_URI);
+    console.log('✅ Connecté à MongoDB\n');
 
-    // 1. Connexion enseignant
-    console.log('1. Connexion enseignant...');
-    const loginResponse = await fetch(`${API_URL}/users/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        email: 'prof.martin@example.com',
-        password: 'password123'
-      })
+    // Trouver un enseignant avec des collections
+    const teacher = await User.findOne({ 
+      role: 'teacher',
+      name: 'Prof. Martin Dupont'
     });
 
-    if (!loginResponse.ok) {
-      throw new Error(`Erreur connexion: ${loginResponse.status}`);
+    if (!teacher) {
+      console.log('❌ Aucun enseignant trouvé');
+      return;
     }
 
-    const loginData = await loginResponse.json();
-    const token = loginData.token;
-    console.log('✅ Connexion réussie:', loginData.user.name);
+    console.log(`👨‍🏫 Test pour l'enseignant: ${teacher.name} (${teacher._id})\n`);
 
-    // 2. Test API Teacher Overview
-    console.log('\n2. Test API Teacher Overview...');
-    const overviewResponse = await fetch(`${API_URL}/sessions/teacher/overview`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+    // Simuler la logique du contrôleur
+    const teacherId = teacher._id;
+
+    // 1. Récupérer les collections de l'enseignant
+    const teacherCollections = await Collection.find({ user: teacherId });
+    const collectionIds = teacherCollections.map(c => c._id);
+    
+    console.log(`📚 Collections de l'enseignant: ${teacherCollections.length}`);
+    teacherCollections.forEach(col => {
+      console.log(`   - ${col.name} (${col._id})`);
     });
 
-    if (!overviewResponse.ok) {
-      throw new Error(`Erreur overview: ${overviewResponse.status} - ${await overviewResponse.text()}`);
+    // 2. Récupérer les sessions sur ces collections
+    const sessions = await Session.find({
+      collection: { $in: collectionIds }
+    })
+    .populate('student', 'name email')
+    .populate('collection', 'name description')
+    .sort({ createdAt: -1 });
+
+    console.log(`\n📊 Sessions trouvées: ${sessions.length}`);
+    
+    if (sessions.length > 0) {
+      console.log('\n📋 Détails des sessions:');
+      sessions.forEach((session, index) => {
+        console.log(`\nSession ${index + 1}:`);
+        console.log(`  - Apprenant: ${session.student ? session.student.name : 'INCONNU'}`);
+        console.log(`  - Collection: ${session.collection ? session.collection.name : 'INCONNUE'}`);
+        console.log(`  - Score: ${session.results.scorePercentage}%`);
+        console.log(`  - Date: ${session.createdAt.toLocaleString()}`);
+      });
+
+      // 3. Grouper par apprenant (comme dans le contrôleur)
+      const studentsMap = new Map();
+
+      sessions.forEach(session => {
+        if (!session.student) return;
+        
+        const studentId = session.student._id.toString();
+        
+        if (!studentsMap.has(studentId)) {
+          studentsMap.set(studentId, {
+            student: {
+              _id: session.student._id,
+              name: session.student.name,
+              email: session.student.email
+            },
+            collections: new Map(),
+            totalSessions: 0,
+            lastActivity: session.createdAt,
+            averageScore: 0,
+            totalScores: 0
+          });
+        }
+
+        const studentData = studentsMap.get(studentId);
+        studentData.totalSessions++;
+        studentData.totalScores += session.results.scorePercentage;
+        
+        if (session.createdAt > studentData.lastActivity) {
+          studentData.lastActivity = session.createdAt;
+        }
+
+        const collectionId = session.collection._id.toString();
+        if (!studentData.collections.has(collectionId)) {
+          studentData.collections.set(collectionId, {
+            _id: session.collection._id,
+            name: session.collection.name,
+            sessionsCount: 0,
+            averageScore: 0,
+            lastSession: session.createdAt
+          });
+        }
+
+        const collectionData = studentData.collections.get(collectionId);
+        collectionData.sessionsCount++;
+        collectionData.lastSession = session.createdAt;
+      });
+
+      // 4. Convertir en tableau
+      const studentsWithStats = Array.from(studentsMap.values()).map(studentData => {
+        studentData.averageScore = studentData.totalSessions > 0 
+          ? Math.round(studentData.totalScores / studentData.totalSessions)
+          : 0;
+        
+        studentData.collections = Array.from(studentData.collections.values());
+        
+        return studentData;
+      });
+
+      console.log(`\n✅ Apprenants avec statistiques: ${studentsWithStats.length}`);
+      studentsWithStats.forEach(student => {
+        console.log(`\n  👤 ${student.student.name}:`);
+        console.log(`     - Sessions: ${student.totalSessions}`);
+        console.log(`     - Score moyen: ${student.averageScore}%`);
+        console.log(`     - Collections: ${student.collections.map(c => c.name).join(', ')}`);
+      });
+
+      // Retour simulé de l'API
+      const apiResponse = {
+        success: true,
+        count: studentsWithStats.length,
+        data: studentsWithStats
+      };
+
+      console.log('\n📤 Réponse API simulée:');
+      console.log(JSON.stringify(apiResponse, null, 2));
+    } else {
+      console.log('\n⚠️ Aucune session trouvée pour cet enseignant');
     }
-
-    const overviewData = await overviewResponse.json();
-    console.log('✅ API Overview OK');
-    console.log('📊 Données reçues:');
-    console.log('   - Success:', overviewData.success);
-    console.log('   - Étudiants trouvés:', overviewData.data?.students?.length || 0);
-    console.log('   - Stats globales:', overviewData.data?.globalStats ? 'Oui' : 'Non');
-
-    if (overviewData.data?.students?.length > 0) {
-      console.log('\n📋 Premier étudiant:');
-      const firstStudent = overviewData.data.students[0];
-      console.log('   - ID:', firstStudent.studentId);
-      console.log('   - Nom:', firstStudent.studentName);
-      console.log('   - Email:', firstStudent.studentEmail);
-      console.log('   - Sessions:', firstStudent.totalSessions);
-      console.log('   - Score moyen:', firstStudent.averageScore + '%');
-      console.log('   - Types sessions:', firstStudent.sessionTypes);
-      console.log('   - Dernière session:', new Date(firstStudent.lastSession).toLocaleString('fr-FR'));
-    }
-
-    if (overviewData.data?.globalStats) {
-      console.log('\n📈 Statistiques globales:');
-      console.log('   - Étudiants uniques:', overviewData.data.globalStats.uniqueStudentsCount);
-      console.log('   - Total sessions:', overviewData.data.globalStats.totalSessions);
-      console.log('   - Score moyen:', overviewData.data.globalStats.averageScore + '%');
-    }
-
-    console.log('\n🎉 Test API Évaluation - Succès complet !');
-    console.log('👉 Les données devraient maintenant s\'afficher dans l\'interface');
 
   } catch (error) {
-    console.error('❌ Erreur test API:', error.message);
+    console.error('❌ Erreur:', error);
+  } finally {
+    await mongoose.connection.close();
+    console.log('\n✅ Connexion fermée');
   }
-};
+}
 
 testEvaluationAPI();

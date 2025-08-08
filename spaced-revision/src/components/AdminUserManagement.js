@@ -167,7 +167,7 @@ const AdminUserManagement = ({ onStatsUpdate }) => {
     
     const labels = {
       teacher: 'Enseignant',
-      student: 'Étudiant',
+      student: 'Apprenant',
       admin: 'Admin'
     };
 
@@ -222,7 +222,7 @@ const AdminUserManagement = ({ onStatsUpdate }) => {
               <FaFilter className="me-2" />
               {roleFilter ? (
                 roleFilter === 'teacher' ? 'Enseignants' :
-                roleFilter === 'student' ? 'Étudiants' : 'Admins'
+                roleFilter === 'student' ? 'Apprenants' : 'Admins'
               ) : 'Tous les rôles'}
             </Dropdown.Toggle>
             <Dropdown.Menu>
@@ -233,7 +233,7 @@ const AdminUserManagement = ({ onStatsUpdate }) => {
                 Enseignants
               </Dropdown.Item>
               <Dropdown.Item onClick={() => handleRoleFilter('student')}>
-                Étudiants
+                Apprenants
               </Dropdown.Item>
               <Dropdown.Item onClick={() => handleRoleFilter('admin')}>
                 Administrateurs

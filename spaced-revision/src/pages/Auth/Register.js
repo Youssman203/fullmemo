@@ -139,7 +139,7 @@ const Register = () => {
               value="student"
               checked={role === 'student'}
               onChange={(e) => setRole(e.target.value)}
-              label="Étudiant"
+              label="Apprenant"
               className="role-option"
             />
             <Form.Check
