@@ -4,7 +4,7 @@ import { Container, Row, Col, Card, Button, Badge, Spinner, Alert, Modal, Table,
 import { FaUser, FaChartLine, FaClock, FaCheckCircle, FaTimesCircle, FaTrophy, FaEye, FaMedal, FaGraduationCap, FaUserGraduate } from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
 import evaluationService from '../services/evaluationService';
-import io from 'socket.io-client';
+import { io } from 'socket.io-client';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -28,7 +28,9 @@ const Evaluation = () => {
   useEffect(() => {
     if (user && user.role === 'teacher') {
       const token = localStorage.getItem('token');
-      const newSocket = io(process.env.REACT_APP_API_URL || 'http://localhost:5000', {
+      const apiEnv = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+      const socketUrl = apiEnv.replace(/\/api\/?$/, '');
+      const newSocket = io(socketUrl, {
         auth: { token }
       });
 
@@ -46,6 +48,16 @@ const Evaluation = () => {
           autoClose: 5000
         });
         // Rafraîchir les données
+        setRefreshKey(prev => prev + 1);
+      });
+
+      // Écouter les mises à jour d'évaluation en temps réel
+      newSocket.on('sessionEvaluated', (data) => {
+        console.log('📝 Session évaluée:', data);
+        toast.success(`Évaluation mise à jour pour ${data.studentName} (Score: ${data.score}%)`, {
+          position: "top-right",
+          autoClose: 4000
+        });
         setRefreshKey(prev => prev + 1);
       });
 
@@ -98,8 +110,10 @@ const Evaluation = () => {
   };
 
   useEffect(() => {
-    loadStudents();
-  }, [refreshKey]);
+    if (user && user.role === 'teacher') {
+      loadStudents();
+    }
+  }, [refreshKey, user]);
 
   // Voir les sessions d'un apprenant
   const handleViewStudent = async (student) => {
@@ -163,6 +177,12 @@ const Evaluation = () => {
     if (score >= 60) return 'warning';
     return 'danger';
   };
+
+  // Rediriger les apprenants vers l'accueil
+  if (user && user.role !== 'teacher') {
+    window.location.href = '/home';
+    return null;
+  }
 
   if (loading && !students.length) {
     return (

@@ -38,11 +38,7 @@ const collectionSchema = mongoose.Schema({
     type: Number,
     default: 0
   },
-  difficulty: {
-    type: String,
-    enum: ['easy', 'medium', 'hard'],
-    default: 'medium'
-  }
+ 
 }, {
   timestamps: true,
   toJSON: { virtuals: true },

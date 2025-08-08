@@ -120,7 +120,9 @@ export const DataProvider = ({ children }) => {
     console.log('🔌 Tentative connexion WebSocket...');
     
     // Création de la connexion Socket.IO
-    socketRef.current = io(process.env.REACT_APP_API_URL || 'http://localhost:5000', {
+    const apiEnv = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+    const socketUrl = apiEnv.replace(/\/api\/?$/, '');
+    socketRef.current = io(socketUrl, {
       auth: { token },
       transports: ['websocket', 'polling'],
       timeout: 20000,

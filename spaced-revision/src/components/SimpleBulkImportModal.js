@@ -212,8 +212,6 @@ const SimpleBulkImportModal = ({ show, onHide, collections = [] }) => {
         <ul className="mb-0 mt-2">
           <li><strong>CSV :</strong> Question,Réponse (une ligne par carte)</li>
           <li><strong>Excel :</strong> Colonne A = Question, Colonne B = Réponse</li>
-          <li><strong>Difficulté :</strong> Sera définie automatiquement à "Moyen"</li>
-          <li><strong>Tags :</strong> "import" sera ajouté automatiquement</li>
         </ul>
       </Alert>
       

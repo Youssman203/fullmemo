@@ -15,7 +15,8 @@ import Register from './pages/Auth/Register';
 import Dashboard from './pages/Dashboard';
 import Collections from './pages/Collections';
 import CardForm from './pages/CardForm';
-import Evaluation from './pages/Stats'; // Stats.js contient le composant Evaluation
+import EvaluationStats from './pages/Stats'; // Stats.js contient le composant Evaluation (statistiques simples)
+import EvaluationPage from './pages/Evaluation'; // Composant avancé avec WebSocket en temps réel
 import Profile from './pages/Profile';
 import ReviewPage from './pages/ReviewPage';
 import ReviewCards from './pages/ReviewCards';
@@ -173,7 +174,7 @@ function App() {
           <div className={`app-layout ${isTeacher() ? 'teacher-theme' : ''}`}>
             <Navbar />
             <div className="main-content">
-              <Evaluation />
+              <EvaluationStats />
             </div>
           </div>
         </ProtectedRoute>
@@ -218,7 +219,7 @@ function App() {
           <div className="app-layout teacher-theme">
             <Navbar />
             <div className="main-content">
-              <Evaluation />
+              <EvaluationPage />
             </div>
           </div>
         </ProtectedRoute>
