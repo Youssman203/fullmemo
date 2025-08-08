@@ -46,22 +46,22 @@ const Profile = () => {
     day: 'numeric'
   });
   
-  // Données d'activité (simulées)
+  // Données d'activité enseignant (simulées)
   const recentCollections = collections
     .sort((a, b) => (b.lastModified || 0) - (a.lastModified || 0))
     .slice(0, 3);
     
-  const recentResults = [
-    { id: 1, date: '08/07/2025', collection: 'Vocabulaire Anglais', score: '85%', cards: 20 },
-    { id: 2, date: '07/07/2025', collection: 'Mathématiques', score: '92%', cards: 15 },
-    { id: 3, date: '05/07/2025', collection: 'Histoire', score: '78%', cards: 25 }
+  const recentTeachingActivity = [
+    { id: 1, date: '08/07/2025', activity: 'Collection "Vocabulaire Anglais" partagée', class: 'Classe 6ème A', students: 25 },
+    { id: 2, date: '07/07/2025', activity: 'Évaluation "Mathématiques" créée', class: 'Classe 5ème B', students: 22 },
+    { id: 3, date: '05/07/2025', activity: 'Nouvelle classe "Histoire Moderne" créée', class: 'Histoire Moderne', students: 18 }
   ];
   
-  // Statistiques utilisateur (simulées)
-  const userStats = {
-    streak: 4,
-    totalReviews: 127,
-    averageScore: 84,
+  // Statistiques enseignant (simulées)
+  const teacherStats = {
+    totalClasses: 5,
+    totalStudents: 127,
+    collectionsShared: 24,
     lastActive: 'Aujourd\'hui'
   };
   
@@ -122,23 +122,23 @@ const Profile = () => {
               
               <Card className="stats-card mt-3">
                 <Card.Body>
-                  <h5 className="section-title"><FiBarChart2 className="me-2" />Statistiques</h5>
+                  <h5 className="section-title"><FiBarChart2 className="me-2" />Statistiques Enseignant</h5>
                   <Row className="stats-row">
-                    <Col xs={6} className="stats-item">
-                      <div className="stats-label">Série</div>
-                      <div className="stats-value">{userStats.streak} jours</div>
+                    <Col xs={6} className="stat-item">
+                      <div className="stat-number">{teacherStats.totalClasses}</div>
+                      <div className="stat-label">Classes</div>
                     </Col>
-                    <Col xs={6} className="stats-item">
-                      <div className="stats-label">Total cartes</div>
-                      <div className="stats-value">{totalCards}</div>
+                    <Col xs={6} className="stat-item">
+                      <div className="stat-number">{teacherStats.totalStudents}</div>
+                      <div className="stat-label">Apprenants</div>
                     </Col>
-                    <Col xs={6} className="stats-item">
-                      <div className="stats-label">Collections</div>
-                      <div className="stats-value">{collections.length}</div>
+                    <Col xs={6} className="stat-item">
+                      <div className="stat-number">{collections.length}</div>
+                      <div className="stat-label">Collections</div>
                     </Col>
-                    <Col xs={6} className="stats-item">
-                      <div className="stats-label">Révisions</div>
-                      <div className="stats-value">{userStats.totalReviews}</div>
+                    <Col xs={6} className="stat-item">
+                      <div className="stat-number">{teacherStats.collectionsShared}</div>
+                      <div className="stat-label">Partagées</div>
                     </Col>
                   </Row>
                 </Card.Body>
@@ -202,7 +202,7 @@ const Profile = () => {
               <h5 className="section-title">
                 <FiClock className="me-2" />
                 Activités récentes
-                <Badge bg="primary" className="ms-2">{userStats.lastActive}</Badge>
+                <Badge bg="primary" className="ms-2">{teacherStats.lastActive}</Badge>
               </h5>
               
               <h6 className="subsection-title mt-4">
@@ -237,28 +237,26 @@ const Profile = () => {
               
               <h6 className="subsection-title mt-4">
                 <FiCheckCircle className="me-2" />
-                Derniers résultats de révision
+                Activités d'enseignement récentes
               </h6>
               
-              <ListGroup className="recent-results">
-                {recentResults.map((result) => (
+              <ListGroup className="recent-teaching-activities">
+                {recentTeachingActivity.map((activity) => (
                   <ListGroup.Item 
-                    key={result.id} 
+                    key={activity.id} 
                     className="d-flex justify-content-between align-items-center"
                   >
                     <div>
-                      <h6 className="mb-0">{result.collection}</h6>
+                      <h6 className="mb-0">{activity.activity}</h6>
                       <small className="text-muted">
-                        {result.cards} cartes révisées
+                        {activity.class} • {activity.students} apprenants
                       </small>
                     </div>
                     <div className="text-end">
-                      <Badge 
-                        bg={parseInt(result.score) >= 80 ? "success" : parseInt(result.score) >= 60 ? "warning" : "danger"}
-                      >
-                        {result.score}
+                      <Badge bg="primary">
+                        Enseignant
                       </Badge>
-                      <div><small className="text-muted">{result.date}</small></div>
+                      <div><small className="text-muted">{activity.date}</small></div>
                     </div>
                   </ListGroup.Item>
                 ))}
@@ -266,21 +264,21 @@ const Profile = () => {
             </Card.Body>
           </Card>
           
-          {/* Section Progression */}
+          {/* Section Progression Enseignant */}
           <Card className="profile-card mt-4">
             <Card.Body>
               <h5 className="section-title">
                 <FiBarChart2 className="me-2" />
-                Progression
+                Performance d'Enseignement
               </h5>
               
               <Row className="mt-4">
                 <Col md={6} className="mb-4">
                   <Card className="progress-card">
                     <Card.Body className="text-center">
-                      <h5 className="progress-title">Score moyen</h5>
+                      <h5 className="progress-title">Engagement Apprenants</h5>
                       <div className="progress-circle">
-                        <div className="progress-value">{userStats.averageScore}%</div>
+                        <div className="progress-value">89%</div>
                       </div>
                     </Card.Body>
                   </Card>
@@ -289,10 +287,10 @@ const Profile = () => {
                 <Col md={6} className="mb-4">
                   <Card className="progress-card">
                     <Card.Body className="text-center">
-                      <h5 className="progress-title">Séquence actuelle</h5>
+                      <h5 className="progress-title">Cartes Créées</h5>
                       <div className="progress-circle streak-circle">
-                        <div className="progress-value">{userStats.streak}</div>
-                        <div className="progress-label">jours</div>
+                        <div className="progress-value">{totalCards}</div>
+                        <div className="progress-label">total</div>
                       </div>
                     </Card.Body>
                   </Card>
