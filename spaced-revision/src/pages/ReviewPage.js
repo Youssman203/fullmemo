@@ -818,14 +818,14 @@ const ReviewPage = () => {
 
   // Render collection selection screen
   const renderCollectionSelection = () => (
-    <Container className="py-5">
+    <Container className="review-page py-5">
       <h1 className="text-center mb-4">Sélectionner une collection</h1>
       <Row xs={1} md={2} lg={3} className="g-4 mb-4">
         {collections.length > 0 ? (
           collections.map(collection => (
-            <Col key={collection.id}>
+            <Col key={collection._id || collection.id}>
               <Card 
-                className={`collection-card ${selectedCollection?.id === collection.id ? 'selected' : ''}`}
+                className={`collection-card ${selectedCollection && ((selectedCollection._id || selectedCollection.id) === (collection._id || collection.id)) ? 'selected' : ''}`}
                 onClick={() => handleSelectCollection(collection)}
               >
                 <div 

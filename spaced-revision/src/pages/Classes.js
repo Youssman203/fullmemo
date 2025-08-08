@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Modal, Form, Alert, ListGroup, InputGroup } from 'react-bootstrap';
 import { FiPlus, FiUsers, FiBookOpen, FiSettings, FiTrash2, FiCopy, FiMail, FiEye } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import classService from '../services/classService';
 import StudentClassesPanel from '../components/StudentClassesPanel';
@@ -39,14 +40,20 @@ const Classes = () => {
   if (isStudent()) {
     return (
       <Container fluid className="py-4">
-        <div className="mb-4">
-          <h1 className="fw-bold mb-2 d-flex align-items-center">
-            <FiUsers className="me-3 text-primary" />
-            Mes Classes
-          </h1>
-          <p className="text-muted mb-0">
-            Gérez vos classes et accédez aux ressources partagées par vos enseignants
-          </p>
+        <div className="mb-4 d-flex justify-content-between align-items-center">
+          <div>
+            <h1 className="fw-bold mb-2 d-flex align-items-center">
+              <FiUsers className="me-3 text-primary" />
+              Mes Classes
+            </h1>
+            <p className="text-muted mb-0">
+              Gérez vos classes et accédez aux ressources partagées par vos enseignants
+            </p>
+          </div>
+          <Link to="/classes/details" className="btn btn-outline-primary d-flex align-items-center gap-2">
+            <FiEye />
+            <span>Mes Classes détaillées</span>
+          </Link>
         </div>
         <StudentClassesPanel />
       </Container>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { FaHome, FaSyncAlt, FaClone, FaLayerGroup, FaUserCircle, FaSignOutAlt, FaChartBar, FaBars, FaTimes, FaUsers, FaEye, FaUserCog } from 'react-icons/fa';
+import { FaHome, FaSyncAlt, FaClone, FaLayerGroup, FaUserCircle, FaSignOutAlt, FaChartBar, FaBars, FaTimes, FaUsers, FaUserCog } from 'react-icons/fa';
 
 const Navbar = () => {
   const { user, logout, isTeacher, isStudent, isAdmin } = useAuth();
@@ -117,9 +117,6 @@ const Navbar = () => {
               <>
                 <NavLink to="/classes" className="sidebar-link" onClick={handleNavLinkClick}>
                   <FaUsers /><span>Mes Classes</span>
-                </NavLink>
-                <NavLink to="/classes/details" className="sidebar-link" onClick={handleNavLinkClick}>
-                  <FaEye /><span>Classes Détaillées</span>
                 </NavLink>
               </>
             )}

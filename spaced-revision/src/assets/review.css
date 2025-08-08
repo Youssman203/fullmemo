@@ -70,21 +70,27 @@
   margin-bottom: 1rem;
 }
 
-/* Collection selection styles */
-.collection-card {
+/* Collection selection styles - Page révision uniquement */
+.review-page .collection-card {
   transition: all 0.3s ease;
   cursor: pointer;
-  border: 2px solid transparent;
+  border: 2px solid #e9ecef;
+  border-radius: 0.375rem;
   height: 100%;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.collection-card:hover {
-  transform: translateY(-5px);
+.review-page .collection-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  border-color: #dee2e6;
 }
 
-.collection-card.selected {
+.review-page .collection-card.selected {
   border-color: #0d6efd;
   box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+  background-color: #f8f9ff;
 }
 
 .collection-card-img {
