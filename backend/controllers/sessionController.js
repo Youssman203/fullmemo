@@ -34,10 +34,13 @@ const createSession = asyncHandler(async (req, res) => {
     ? Math.round((results.correctAnswers / results.totalCards) * 100)
     : 0;
 
+  // Déterminer l'enseignant (original si collection importée, sinon propriétaire)
+  const teacherId = collection.originalTeacher || collection.user._id;
+  
   // Créer la session
   const session = await Session.create({
     student: req.user._id,
-    teacher: collection.user._id, // Le propriétaire de la collection
+    teacher: teacherId, // Utiliser l'enseignant original si disponible
     collection: collectionId,
     sessionType,
     results: {

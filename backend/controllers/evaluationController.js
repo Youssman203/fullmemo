@@ -4,23 +4,38 @@ const Collection = require('../models/collectionModel');
 const User = require('../models/userModel');
 const asyncHandler = require('express-async-handler');
 
-// @desc    Récupérer les apprenants qui ont utilisé les collections partagées de l'enseignant
-// @route   GET /api/evaluation/students
-// @access  Private/Teacher
+/**
+ * @desc    Récupérer les apprenants qui ont utilisé les collections partagées de l'enseignant
+ * @route   GET /api/evaluation/students
+ * @access  Private/Teacher
+ */
 const getStudentsWithSharedCollections = asyncHandler(async (req, res) => {
   const teacherId = req.user._id;
 
   try {
-    // 1. Récupérer toutes les collections de l'enseignant
+    // 1. Récupérer toutes les collections de l'enseignant (originales ET importées)
+    // Collections originales de l'enseignant
     const teacherCollections = await Collection.find({ user: teacherId });
-    const collectionIds = teacherCollections.map(c => c._id);
+    const originalCollectionIds = teacherCollections.map(c => c._id);
 
-    console.log(`🔍 Collections de l'enseignant ${teacherId}:`, collectionIds.length);
+    // Collections importées qui référencent cet enseignant
+    const importedCollections = await Collection.find({ originalTeacher: teacherId });
+    const importedCollectionIds = importedCollections.map(c => c._id);
 
-    // 2. Récupérer toutes les sessions sur ces collections
-    // On cherche les sessions où la collection appartient à l'enseignant
+    // Combiner toutes les collections
+    const allCollectionIds = [...originalCollectionIds, ...importedCollectionIds];
+
+    console.log(`🔍 Collections originales de l'enseignant ${teacherId}:`, originalCollectionIds.length);
+    console.log(`📚 Collections importées référençant l'enseignant:`, importedCollectionIds.length);
+    console.log(`📊 Total collections à analyser:`, allCollectionIds.length);
+
+    // 2. Récupérer toutes les sessions où l'enseignant est impliqué
+    // Soit via ses collections originales, soit comme teacher dans les sessions
     const sessions = await Session.find({
-      collection: { $in: collectionIds }
+      $or: [
+        { collection: { $in: allCollectionIds } },  // Sessions sur toutes les collections
+        { teacher: teacherId }  // Sessions où l'enseignant est directement le teacher
+      ]
     })
     .populate('student', 'name email')
     .populate('collection', 'name description')
@@ -119,14 +134,23 @@ const getStudentSessions = asyncHandler(async (req, res) => {
   const { collectionId } = req.query;
 
   try {
-    // Construire la requête
-    const query = {
-      teacher: teacherId,
-      student: studentId
-    };
-
+    // Construire la requête pour inclure les sessions où l'enseignant est impliqué
+    // soit directement comme teacher, soit via ses collections
+    let query;
+    
     if (collectionId) {
-      query.collection = collectionId;
+      // Si une collection spécifique est demandée
+      query = {
+        student: studentId,
+        collection: collectionId,
+        teacher: teacherId  // L'enseignant doit être le teacher de la session
+      };
+    } else {
+      // Sinon, toutes les sessions où l'enseignant est impliqué
+      query = {
+        student: studentId,
+        teacher: teacherId  // Sessions où cet enseignant est le teacher
+      };
     }
 
     // Récupérer les sessions

@@ -196,13 +196,13 @@ const Evaluation = () => {
   return (
     <Container className="evaluation-container mt-4">
       <Row className="mb-4">
-        <Col md={8} className="mx-auto">
+        <Col md={12}>
           <Card className="shadow-lg border-0">
             <Card.Header className="bg-primary text-white py-3">
               <div className="d-flex justify-content-between align-items-center">
                 <h3 className="mb-0">
                   <FaGraduationCap className="me-2" />
-                  Classement des Apprenants - Sessions de Révision
+                  Tableau de Bord - Évaluation des Apprenants
                 </h3>
                 <Button 
                   variant="light" 
@@ -248,7 +248,7 @@ const Evaluation = () => {
                 </div>
               )}
 
-              {/* Liste de classement des apprenants */}
+              {/* Liste des apprenants avec leurs données de révision */}
               {loading ? (
                 <div className="text-center py-5">
                   <Spinner animation="border" variant="primary" />
@@ -265,64 +265,109 @@ const Evaluation = () => {
                   <small>Les apprenants apparaîtront ici après avoir utilisé vos collections partagées.</small>
                 </div>
               ) : (
-                <ListGroup variant="flush">
+                <div className="p-3">
                   {students
-                    .sort((a, b) => b.averageScore - a.averageScore) // Trier par score décroissant
+                    .sort((a, b) => b.averageScore - a.averageScore)
                     .map((student, index) => (
-                      <ListGroup.Item 
+                      <Card 
                         key={student.student._id}
-                        action
+                        className="mb-3 shadow-sm hover-shadow" 
+                        style={{ cursor: 'pointer', transition: 'all 0.3s' }}
                         onClick={() => handleViewStudent(student)}
-                        className="d-flex align-items-center py-3 hover-effect"
-                        style={{ cursor: 'pointer' }}
                       >
-                        {/* Numéro de classement */}
-                        <div className="me-3">
-                          {index === 0 && (
-                            <FaMedal size={24} className="text-warning" />
-                          )}
-                          {index === 1 && (
-                            <FaMedal size={24} className="text-secondary" />
-                          )}
-                          {index === 2 && (
-                            <FaMedal size={24} style={{ color: '#CD7F32' }} />
-                          )}
-                          {index > 2 && (
-                            <span className="badge bg-secondary rounded-circle" style={{ width: '30px', height: '30px', lineHeight: '22px' }}>
-                              {index + 1}
-                            </span>
-                          )}
-                        </div>
+                        <Card.Body>
+                          <Row className="align-items-center">
+                            {/* Classement et nom */}
+                            <Col xs={12} md={4}>
+                              <div className="d-flex align-items-center">
+                                <div className="me-3">
+                                  {index === 0 && <FaMedal size={28} className="text-warning" />}
+                                  {index === 1 && <FaMedal size={28} className="text-secondary" />}
+                                  {index === 2 && <FaMedal size={28} style={{ color: '#CD7F32' }} />}
+                                  {index > 2 && (
+                                    <span className="badge bg-secondary rounded-circle" 
+                                          style={{ width: '35px', height: '35px', lineHeight: '27px', fontSize: '1rem' }}>
+                                      {index + 1}
+                                    </span>
+                                  )}
+                                </div>
+                                <div>
+                                  <h5 className="mb-1 text-primary">
+                                    <FaUser className="me-2" size={16} />
+                                    {student.student.name}
+                                  </h5>
+                                  <small className="text-muted">
+                                    {student.student.email}
+                                  </small>
+                                </div>
+                              </div>
+                            </Col>
 
-                        {/* Nom de l'apprenant */}
-                        <div className="flex-grow-1">
-                          <div className="fw-bold text-dark">
-                            {student.student.name}
-                          </div>
-                          <small className="text-muted">
-                            {student.totalSessions} session{student.totalSessions > 1 ? 's' : ''} • 
-                            {student.collections.length} collection{student.collections.length > 1 ? 's' : ''}
-                          </small>
-                        </div>
+                            {/* Collections révisées */}
+                            <Col xs={12} md={3} className="mt-3 mt-md-0">
+                              <div className="text-center">
+                                <div className="fw-bold text-info" style={{ fontSize: '1.5rem' }}>
+                                  {student.collections.length}
+                                </div>
+                                <small className="text-muted">
+                                  Collection{student.collections.length > 1 ? 's' : ''} révisée{student.collections.length > 1 ? 's' : ''}
+                                </small>
+                                <div className="mt-1">
+                                  {student.collections.slice(0, 2).map((coll, idx) => (
+                                    <Badge key={idx} bg="light" text="dark" className="me-1" style={{ fontSize: '0.7rem' }}>
+                                      {coll.name.length > 15 ? coll.name.substring(0, 15) + '...' : coll.name}
+                                    </Badge>
+                                  ))}
+                                  {student.collections.length > 2 && (
+                                    <Badge bg="secondary" style={{ fontSize: '0.7rem' }}>+{student.collections.length - 2}</Badge>
+                                  )}
+                                </div>
+                              </div>
+                            </Col>
 
-                        {/* Score et indicateurs */}
-                        <div className="text-end">
-                          <div>
-                            <Badge 
-                              bg={getScoreColor(student.averageScore)} 
-                              className="px-3 py-2"
-                              style={{ fontSize: '0.9rem' }}
-                            >
-                              {student.averageScore}%
-                            </Badge>
-                          </div>
-                          <small className="text-muted d-block mt-1">
-                            {format(new Date(student.lastActivity), 'dd/MM HH:mm', { locale: fr })}
-                          </small>
-                        </div>
-                      </ListGroup.Item>
+                            {/* Sessions et score */}
+                            <Col xs={12} md={3} className="mt-3 mt-md-0">
+                              <div className="text-center">
+                                <div className="mb-2">
+                                  <span className="fw-bold text-success" style={{ fontSize: '1.5rem' }}>
+                                    {student.totalSessions}
+                                  </span>
+                                  <small className="text-muted ms-2">
+                                    Session{student.totalSessions > 1 ? 's' : ''} de révision
+                                  </small>
+                                </div>
+                                <ProgressBar 
+                                  now={student.averageScore} 
+                                  label={`${student.averageScore}%`}
+                                  variant={getScoreColor(student.averageScore)}
+                                  style={{ height: '25px' }}
+                                />
+                                <small className="text-muted mt-1 d-block">Score moyen</small>
+                              </div>
+                            </Col>
+
+                            {/* Dernière activité */}
+                            <Col xs={12} md={2} className="mt-3 mt-md-0">
+                              <div className="text-center">
+                                <div>
+                                  <FaClock className="text-muted mb-1" />
+                                </div>
+                                <small className="text-muted">
+                                  Dernière activité
+                                </small>
+                                <div className="fw-bold" style={{ fontSize: '0.9rem' }}>
+                                  {format(new Date(student.lastActivity), 'dd/MM', { locale: fr })}
+                                </div>
+                                <small className="text-muted">
+                                  {format(new Date(student.lastActivity), 'HH:mm', { locale: fr })}
+                                </small>
+                              </div>
+                            </Col>
+                          </Row>
+                        </Card.Body>
+                      </Card>
                     ))}
-                </ListGroup>
+                </div>
               )}
             </Card.Body>
           </Card>

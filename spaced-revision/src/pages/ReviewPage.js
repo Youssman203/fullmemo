@@ -1229,50 +1229,129 @@ const ReviewPage = () => {
   };
 
   // Render completion screen
-  const renderCompletionScreen = () => (
-    <Container className="text-center py-5">
-      <h1 className="mb-4">Session terminée !</h1>
-      <p className="fs-4 mb-4">Vous avez révisé toutes vos cartes. Excellent travail !</p>
-      
-      <Card className="mb-4 shadow-sm">
-        <Card.Body>
-          <h4 className="mb-3">Vos résultats</h4>
-          <Row className="text-center">
-            <Col>
-              <div className="fs-1 text-success">{stats.correct}</div>
-              <div className="text-muted">Révisé</div>
-            </Col>
-            <Col>
-              <div className="fs-1 text-warning">{stats.skipped}</div>
-              <div className="text-muted">Passé</div>
-            </Col>
-            <Col>
-              <div className="fs-1">{stats.total}</div>
-              <div className="text-muted">Total</div>
-            </Col>
-          </Row>
-        </Card.Body>
-      </Card>
-      
-      <div className="d-flex justify-content-center gap-3">
-        <Button 
-          variant="outline-primary" 
-          size="lg" 
-          onClick={handleRestartSession}
-          className="d-flex align-items-center"
-        >
-          <FiRotateCw className="me-2" /> Nouvelle session
-        </Button>
-        <Button 
-          variant="primary" 
-          size="lg" 
-          onClick={handleReturnToDashboard}
-        >
-          Retour au tableau de bord
-        </Button>
-      </div>
-    </Container>
-  );
+  const renderCompletionScreen = () => {
+    // Calculer le pourcentage de réussite
+    const successRate = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+    
+    return (
+      <Container className="text-center py-5">
+        <h1 className="mb-4">🎉 Session terminée !</h1>
+        <p className="fs-4 mb-4">
+          {selectedMode === 'quiz' 
+            ? 'Quiz terminé ! Voici vos résultats détaillés.'
+            : 'Vous avez révisé toutes vos cartes. Excellent travail !'
+          }
+        </p>
+        
+        {/* Score global */}
+        <Card className="mb-4 shadow-sm border-0">
+          <Card.Body>
+            <h4 className="mb-3">
+              {selectedMode === 'quiz' ? 'Résultats du Quiz' : 'Vos résultats'}
+            </h4>
+            
+            {/* Barre de progression du score */}
+            <div className="mb-4">
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <span className="fw-bold">Score global</span>
+                <span className="fs-4 fw-bold text-primary">{successRate}%</span>
+              </div>
+              <ProgressBar 
+                now={successRate} 
+                variant={successRate >= 70 ? 'success' : successRate >= 50 ? 'warning' : 'danger'}
+                style={{ height: '15px' }}
+              />
+            </div>
+
+            {/* Statistiques détaillées */}
+            <Row className="text-center">
+              <Col xs={6} md={3}>
+                <div className="p-3 rounded bg-success bg-opacity-10 border border-success border-opacity-25 mb-3 mb-md-0">
+                  <div className="fs-1 fw-bold text-success">{stats.correct}</div>
+                  <div className="text-success fw-semibold">
+                    {selectedMode === 'quiz' ? 'Réponses Correctes' : 'Cartes Réussies'}
+                  </div>
+                </div>
+              </Col>
+              <Col xs={6} md={3}>
+                <div className="p-3 rounded bg-danger bg-opacity-10 border border-danger border-opacity-25 mb-3 mb-md-0">
+                  <div className="fs-1 fw-bold text-danger">{stats.incorrect}</div>
+                  <div className="text-danger fw-semibold">
+                    {selectedMode === 'quiz' ? 'Réponses Incorrectes' : 'Cartes Échouées'}
+                  </div>
+                </div>
+              </Col>
+              <Col xs={6} md={3}>
+                <div className="p-3 rounded bg-warning bg-opacity-10 border border-warning border-opacity-25 mb-3 mb-md-0">
+                  <div className="fs-1 fw-bold text-warning">{stats.skipped}</div>
+                  <div className="text-warning fw-semibold">
+                    {selectedMode === 'quiz' ? 'Questions Passées' : 'Cartes Passées'}
+                  </div>
+                </div>
+              </Col>
+              <Col xs={6} md={3}>
+                <div className="p-3 rounded bg-primary bg-opacity-10 border border-primary border-opacity-25">
+                  <div className="fs-1 fw-bold text-primary">{stats.total}</div>
+                  <div className="text-primary fw-semibold">
+                    {selectedMode === 'quiz' ? 'Total Questions' : 'Total Cartes'}
+                  </div>
+                </div>
+              </Col>
+            </Row>
+
+            {/* Message d'encouragement basé sur le score */}
+            <div className="mt-4">
+              {successRate >= 90 && (
+                <div className="alert alert-success d-flex align-items-center">
+                  <FiCheck className="me-2" size={20} />
+                  <span>Excellent ! Vous maîtrisez parfaitement ce sujet ! 🌟</span>
+                </div>
+              )}
+              {successRate >= 70 && successRate < 90 && (
+                <div className="alert alert-info d-flex align-items-center">
+                  <FiCheck className="me-2" size={20} />
+                  <span>Très bien ! Vous êtes sur la bonne voie ! 👍</span>
+                </div>
+              )}
+              {successRate >= 50 && successRate < 70 && (
+                <div className="alert alert-warning d-flex align-items-center">
+                  <FiEdit3 className="me-2" size={20} />
+                  <span>Pas mal ! Il y a encore de la place pour l'amélioration. 📚</span>
+                </div>
+              )}
+              {successRate < 50 && (
+                <div className="alert alert-secondary d-flex align-items-center">
+                  <FiRotateCw className="me-2" size={20} />
+                  <span>Continuez à réviser ! La pratique mène à la perfection. 💪</span>
+                </div>
+              )}
+            </div>
+          </Card.Body>
+        </Card>
+        
+        <div className="d-flex justify-content-center gap-3 flex-wrap">
+          <Button 
+            variant="outline-primary" 
+            size="lg" 
+            onClick={handleRestartSession}
+            className="d-flex align-items-center"
+          >
+            <FiRotateCw className="me-2" /> 
+            {selectedMode === 'quiz' ? 'Refaire le Quiz' : 'Nouvelle Session'}
+          </Button>
+          <Button 
+            variant="primary" 
+            size="lg" 
+            onClick={handleReturnToDashboard}
+            className="d-flex align-items-center"
+          >
+            <FiBook className="me-2" />
+            Retour au Tableau de Bord
+          </Button>
+        </div>
+      </Container>
+    );
+  };
 
   // Render the appropriate screen based on current mode
   const renderContent = () => {

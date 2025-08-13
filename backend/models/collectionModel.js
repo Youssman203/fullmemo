@@ -38,7 +38,16 @@ const collectionSchema = mongoose.Schema({
     type: Number,
     default: 0
   },
- 
+  originalTeacher: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: false
+  },
+  sourceCollectionId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Collection',
+    required: false
+  }
 }, {
   timestamps: true,
   toJSON: { virtuals: true },

@@ -222,7 +222,7 @@ const importCollectionByCode = async (req, res) => {
       collection: shareCode.collection._id 
     });
 
-    // Créer la nouvelle collection
+    // Créer la nouvelle collection avec référence à l'enseignant original
     const newCollection = new Collection({
       name: shareCode.collection.name + ' (Importé)',
       description: shareCode.collection.description + 
@@ -234,7 +234,9 @@ const importCollectionByCode = async (req, res) => {
         'importé',
         `source_${shareCode.collection._id}_code_${shareCode.code}`
       ],
-      user: userId
+      user: userId,
+      originalTeacher: shareCode.createdBy._id,  // Stocker l'enseignant original
+      sourceCollectionId: shareCode.collection._id  // Stocker la collection source
     });
 
     await newCollection.save();
